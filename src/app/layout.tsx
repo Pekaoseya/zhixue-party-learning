@@ -1,73 +1,91 @@
 import type { Metadata } from 'next';
-import { Inspector } from 'react-dev-inspector';
+import { Noto_Serif_SC } from 'next/font/google';
 import './globals.css';
+import { Toaster } from '@/components/ui/sonner';
+import { MainNav } from '@/components/main-nav';
+import { ThemeWrapper } from '@/components/theme-wrapper';
+
+const notoSerifSC = Noto_Serif_SC({
+  subsets: ['latin'],
+  weight: ['400', '600', '700'],
+  variable: '--font-serif',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: {
-    default: '新应用 | 扣子编程',
-    template: '%s | 扣子编程',
+    default: '红韵智创 - 党政内容创作者专属平台',
+    template: '%s | 红韵智创',
   },
   description:
-    '扣子编程是一款一站式云端 Vibe Coding 开发平台。通过对话轻松构建智能体、工作流和网站，实现从创意到上线的无缝衔接。',
+    '集权威学习、智能创作、新媒体赋能于一体的党政内容创作者专属平台，为党政机关、事业单位及国企的宣传人员提供从理论学习到内容产出、再到多平台分发的全流程解决方案。',
   keywords: [
-    '扣子编程',
-    'Coze Code',
-    'Vibe Coding',
-    'AI 编程',
-    '智能体搭建',
-    '工作流搭建',
-    '网站搭建',
-    '网站部署',
-    '全栈开发',
-    'AI 工程师',
+    '红韵智创',
+    '党政内容创作',
+    '公文写作',
+    'AI公文助手',
+    '政务新媒体',
+    '党建材料',
+    '学习强国',
+    '人民日报',
   ],
-  authors: [{ name: 'Coze Code Team', url: 'https://code.coze.cn' }],
-  generator: 'Coze Code',
-  // icons: {
-  //   icon: '',
-  // },
-  openGraph: {
-    title: '扣子编程 | 你的 AI 工程师已就位',
-    description:
-      '我正在使用扣子编程 Vibe Coding，让创意瞬间上线。告别拖拽，拥抱心流。',
-    url: 'https://code.coze.cn',
-    siteName: '扣子编程',
-    locale: 'zh_CN',
-    type: 'website',
-    // images: [
-    //   {
-    //     url: '',
-    //     width: 1200,
-    //     height: 630,
-    //     alt: '扣子编程 - 你的 AI 工程师',
-    //   },
-    // ],
-  },
-  // twitter: {
-  //   card: 'summary_large_image',
-  //   title: 'Coze Code | Your AI Engineer is Here',
-  //   description:
-  //     'Build and deploy full-stack applications through AI conversation. No env setup, just flow.',
-  //   // images: [''],
-  // },
-  robots: {
-    index: true,
-    follow: true,
-  },
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
-  const isDev = process.env.COZE_PROJECT_ENV === 'DEV';
-
+}) {
   return (
-    <html lang="en">
-      <body className={`antialiased`}>
-        {isDev && <Inspector />}
-        {children}
+    <html lang="zh-CN" suppressHydrationWarning className={notoSerifSC.variable}>
+      <body className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 antialiased">
+        <ThemeWrapper>
+          <div className="relative flex min-h-screen flex-col">
+            <MainNav />
+            <main className="flex-1">{children}</main>
+            <footer className="border-t bg-white/80 backdrop-blur-sm">
+              <div className="container mx-auto px-4 py-8">
+                <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
+                  <div>
+                    <h3 className="mb-4 font-bold text-lg text-red-700">红韵智创</h3>
+                    <p className="text-sm text-muted-foreground">
+                      党政内容创作者专属平台<br />
+                      助力政务宣传高质量发展
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="mb-4 font-semibold text-sm">权威智库</h4>
+                    <ul className="space-y-2 text-sm text-muted-foreground">
+                      <li><a href="/library/news" className="hover:text-red-600 transition-colors">权威资讯聚合</a></li>
+                      <li><a href="/library/articles" className="hover:text-red-600 transition-colors">精品范文库</a></li>
+                      <li><a href="/library/tools" className="hover:text-red-600 transition-colors">理论溯源工具</a></li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="mb-4 font-semibold text-sm">智能创作</h4>
+                    <ul className="space-y-2 text-sm text-muted-foreground">
+                      <li><a href="/create/assistant" className="hover:text-red-600 transition-colors">AI公文助手</a></li>
+                      <li><a href="/create/review" className="hover:text-red-600 transition-colors">智能校对润色</a></li>
+                      <li><a href="/create/inspire" className="hover:text-red-600 transition-colors">灵感激发器</a></li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="mb-4 font-semibold text-sm">新媒体赋能</h4>
+                    <ul className="space-y-2 text-sm text-muted-foreground">
+                      <li><a href="/media/layout" className="hover:text-red-600 transition-colors">政务排版工具</a></li>
+                      <li><a href="/media/chart" className="hover:text-red-600 transition-colors">数据可视化</a></li>
+                      <li><a href="/media/distribute" className="hover:text-red-600 transition-colors">多平台分发</a></li>
+                    </ul>
+                  </div>
+                </div>
+                <div className="mt-8 border-t pt-8 text-center text-sm text-muted-foreground">
+                  <p>红韵智创 {new Date().getFullYear()} - 党政内容创作者专属平台</p>
+                </div>
+              </div>
+            </footer>
+          </div>
+          <Toaster />
+        </ThemeWrapper>
       </body>
     </html>
   );

@@ -46,6 +46,7 @@
     'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', ui-sans-serif,
     system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
     'Helvetica Neue', Arial, sans-serif;
+  --font-serif: var(--font-serif);
   --font-mono:
     ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
     'Courier New', monospace;
@@ -134,4 +135,63 @@
 
 body {
   @apply font-sans;
+}
+
+/* 党政红韵主题 */
+@layer components {
+  /* 红色渐变按钮 */
+  .btn-red-gradient {
+    @apply bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-700 hover:to-orange-600 text-white shadow-lg shadow-red-500/25;
+  }
+  
+  /* 红色边框卡片 */
+  .card-red-border {
+    @apply border border-red-100 hover:border-red-300;
+  }
+  
+  /* 红色强调文本 */
+  .text-red-accent {
+    @apply text-red-600 hover:text-red-700;
+  }
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-red-300 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-red-400;
+}
+
+/* 动画 */
+@keyframes pulse-red {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(220, 38, 38, 0);
+  }
+}
+
+.animate-pulse-red {
+  animation: pulse-red 2s infinite;
+}
+
+/* 党政风格渐变背景 */
+.bg-party-gradient {
+  background: linear-gradient(135deg, #dc2626 0%, #ea580c 100%);
+}
+
+.bg-party-light {
+  background: linear-gradient(135deg, #fef2f2 0%, #fff7ed 100%);
 }
