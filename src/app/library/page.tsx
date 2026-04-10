@@ -1,13 +1,26 @@
+'use client';
+
+import { useState } from 'react';
 import Link from 'next/link';
 import { 
   BookOpen, 
-  FileText, 
   Search,
   Clock,
   TrendingUp,
   Star,
   ArrowRight,
-  Filter
+  Filter,
+  Video,
+  Image as ImageIcon,
+  FileText,
+  ChevronRight,
+  Play,
+  Lock,
+  CheckCircle2,
+  Sparkles,
+  Lightbulb,
+  Home,
+  Eye
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,370 +34,337 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Progress } from '@/components/ui/progress';
 
-const newsSources = [
-  { name: '学习强国', count: 12580, color: 'bg-red-600' },
-  { name: '人民日报', count: 8960, color: 'bg-orange-500' },
-  { name: '求是网', count: 4520, color: 'bg-amber-600' },
-  { name: '共产党员网', count: 3280, color: 'bg-yellow-500' },
-];
-
-const latestNews = [
-  {
-    id: 1,
-    title: '习近平在学习贯彻习近平新时代中国特色社会主义思想主题教育工作会议上发表重要讲话',
-    source: '学习强国',
-    date: '2小时前',
-    category: '重要讲话',
-    hot: true,
-  },
-  {
-    id: 2,
-    title: '人民日报评论员：扎实推进高质量发展 奋力实现一季度经济开门红',
-    source: '人民日报',
-    date: '4小时前',
-    category: '经济观察',
-    hot: true,
-  },
-  {
-    id: 3,
-    title: '求是杂志发表习近平总书记重要文章《坚持和发展中国特色社会主义要一以贯之》',
-    source: '求是网',
-    date: '6小时前',
-    category: '理论学习',
-    hot: false,
-  },
-  {
-    id: 4,
-    title: '中组部召开基层党建工作重点任务推进会',
-    source: '共产党员网',
-    date: '8小时前',
-    category: '党建工作',
-    hot: false,
-  },
-  {
-    id: 5,
-    title: '国务院办公厅关于加强数字政府建设的指导意见',
-    source: '人民日报',
-    date: '1天前',
-    category: '政策解读',
-    hot: false,
-  },
-  {
-    id: 6,
-    title: '党的二十大报告学习辅导百问',
-    source: '学习强国',
-    date: '1天前',
-    category: '理论学习',
-    hot: false,
-  },
-];
-
-const sampleArticles = [
-  {
-    id: 1,
-    title: '2024年政府工作报告全文',
-    type: '工作报告',
-    author: '国务院',
-    date: '2024-03-05',
-    views: 125600,
-    downloads: 8960,
-  },
-  {
-    id: 2,
-    title: '党委书记在党建工作会议上的讲话',
-    type: '领导讲话',
-    author: '某央企党委',
-    date: '2024-02-28',
-    views: 89600,
-    downloads: 5680,
-  },
-  {
-    id: 3,
-    title: '关于加强和改进思想政治工作的调研报告',
-    type: '调研报告',
-    author: '某省宣传部',
-    date: '2024-02-20',
-    views: 72800,
-    downloads: 4520,
-  },
-  {
-    id: 4,
-    title: '党风廉政建设半年工作总结',
-    type: '工作总结',
-    author: '某市纪委',
-    date: '2024-02-15',
-    views: 65400,
-    downloads: 3890,
-  },
-  {
-    id: 5,
-    title: '党支部标准化规范化建设实施方案',
-    type: '党建材料',
-    author: '某国企党支部',
-    date: '2024-02-10',
-    views: 58200,
-    downloads: 3250,
-  },
-];
-
+// 课程分类
 const categories = [
-  '全部', '重要讲话', '工作报告', '调研报告', '党建材料', '领导讲话', '学习心得', '制度文件'
+  { id: 'politics', name: '时政要闻', count: 12580, color: 'bg-red-600' },
+  { id: 'party', name: '党史学习', count: 8960, color: 'bg-orange-500' },
+  { id: 'theory', name: '理论学习', count: 4520, color: 'bg-amber-600' },
+  { id: 'practice', name: '实务技能', count: 3280, color: 'bg-yellow-500' },
+  { id: 'spirit', name: '会议精神', count: 2580, color: 'bg-green-600' },
+];
+
+// 课程列表
+const courses = [
+  {
+    id: 1,
+    title: '中国共产党纪律处分条例解读',
+    category: '党史学习',
+    chapterCount: 8,
+    completedChapter: 2,
+    totalDuration: '2小时30分',
+    progress: 25,
+    level: '必修',
+    chapters: [
+      { id: 1, title: '第一讲：总则概述', duration: '15:00', isCompleted: true },
+      { id: 2, title: '第二讲：政治纪律', duration: '20:00', isCompleted: true },
+      { id: 3, title: '第三讲：组织纪律', duration: '18:00', isCompleted: false },
+    ]
+  },
+  {
+    id: 2,
+    title: '习近平新时代中国特色社会主义思想概论',
+    category: '理论学习',
+    chapterCount: 12,
+    completedChapter: 8,
+    totalDuration: '4小时',
+    progress: 67,
+    level: '必修',
+    chapters: [
+      { id: 1, title: '第一讲：思想概述', duration: '20:00', isCompleted: true },
+      { id: 2, title: '第二讲：十个明确', duration: '25:00', isCompleted: true },
+    ]
+  },
+  {
+    id: 3,
+    title: '基层党建工作实务指南',
+    category: '实务技能',
+    chapterCount: 6,
+    completedChapter: 0,
+    totalDuration: '1小时45分',
+    progress: 0,
+    level: '选修',
+    chapters: []
+  },
+  {
+    id: 4,
+    title: '2024年全国两会精神解读',
+    category: '会议精神',
+    chapterCount: 4,
+    completedChapter: 4,
+    totalDuration: '1小时20分',
+    progress: 100,
+    level: '热门',
+    chapters: []
+  },
+];
+
+// 精选内容
+const featuredContents = [
+  {
+    id: 1,
+    type: 'video',
+    title: '3分钟读懂新质生产力',
+    duration: '3:24',
+    views: 12580,
+  },
+  {
+    id: 2,
+    type: 'image',
+    title: '二十大报告金句摘录',
+    duration: '停留阅读',
+    views: 45600,
+  },
+  {
+    id: 3,
+    type: 'video',
+    title: '四个意识 flashcard',
+    duration: '5:00',
+    views: 28900,
+  },
 ];
 
 export default function LibraryPage() {
-  return (
-    <div className="min-h-screen py-8">
-      <div className="container mx-auto px-4">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2" style={{ fontFamily: 'Noto Serif SC, serif' }}>
-            权威智库
-          </h1>
-          <p className="text-muted-foreground">
-            整合权威信息源，为您的写作提供坚实的理论支撑和丰富的素材积累
-          </p>
-        </div>
+  const [searchQuery, setSearchQuery] = useState('');
 
-        {/* Search Bar */}
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-red-50 to-white">
+      {/* 顶部Banner */}
+      <div className="bg-gradient-to-r from-red-600 to-orange-500 text-white">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold mb-2" style={{ fontFamily: 'Noto Serif SC, serif' }}>
+                知识库
+              </h1>
+              <p className="text-white/80">
+                系统学习，深入理解
+              </p>
+            </div>
+            <Link href="/">
+              <Button variant="secondary" className="bg-white/20 text-white hover:bg-white/30 border-0">
+                <Home className="h-4 w-4 mr-2" />
+                返回刷课
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-8">
+        {/* 搜索栏 */}
         <Card className="mb-8 border-red-100">
           <CardContent className="p-4">
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input 
-                  placeholder="搜索权威资讯、精品范文、政策文件..." 
-                  className="pl-10"
+                  placeholder="搜索课程、知识点..." 
+                  className="pl-10 border-red-100"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <div className="flex gap-2">
-                <Select defaultValue="all">
-                  <SelectTrigger className="w-[140px]">
-                    <SelectValue placeholder="来源" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">全部来源</SelectItem>
-                    <SelectItem value="xxqg">学习强国</SelectItem>
-                    <SelectItem value="rmrb">人民日报</SelectItem>
-                    <SelectItem value="qs">求是网</SelectItem>
-                    <SelectItem value="gcd">共产党员网</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select defaultValue="latest">
-                  <SelectTrigger className="w-[120px]">
-                    <SelectValue placeholder="排序" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="latest">最新</SelectItem>
-                    <SelectItem value="hot">最热</SelectItem>
-                    <SelectItem value="related">相关度</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button className="bg-gradient-to-r from-red-600 to-orange-500">
-                  <Search className="h-4 w-4" />
-                </Button>
-              </div>
+              <Select defaultValue="all">
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="分类" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">全部分类</SelectItem>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select defaultValue="hot">
+                <SelectTrigger className="w-[120px]">
+                  <SelectValue placeholder="排序" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="hot">最热</SelectItem>
+                  <SelectItem value="latest">最新</SelectItem>
+                  <SelectItem value="progress">我的进度</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </CardContent>
         </Card>
 
-        {/* Quick Access */}
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold mb-4">权威来源</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {newsSources.map((source) => (
-              <Link key={source.name} href={`/library/news?source=${source.name}`}>
-                <Card className="hover:shadow-lg transition-all cursor-pointer border-red-100 hover:border-red-300">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-lg ${source.color} flex items-center justify-center`}>
-                        <BookOpen className="h-5 w-5 text-white" />
-                      </div>
-                      <div>
-                        <div className="font-semibold">{source.name}</div>
-                        <div className="text-sm text-muted-foreground">{source.count.toLocaleString()} 篇</div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        {/* Main Content Tabs */}
-        <Tabs defaultValue="news" className="mb-8">
+        <Tabs defaultValue="courses" className="mb-8">
           <TabsList className="mb-4">
-            <TabsTrigger value="news">权威资讯</TabsTrigger>
-            <TabsTrigger value="articles">精品范文</TabsTrigger>
-            <TabsTrigger value="tools">理论溯源</TabsTrigger>
+            <TabsTrigger value="courses">系统课程</TabsTrigger>
+            <TabsTrigger value="micro">微课速学</TabsTrigger>
+            <TabsTrigger value="quotes">金句收藏</TabsTrigger>
           </TabsList>
 
-          {/* News Tab */}
-          <TabsContent value="news">
-            <div className="mb-4">
-              <div className="flex gap-2 flex-wrap">
+          {/* 系统课程 */}
+          <TabsContent value="courses">
+            {/* 分类浏览 */}
+            <div className="mb-8">
+              <h2 className="text-lg font-semibold mb-4">分类浏览</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
                 {categories.map((cat) => (
-                  <Badge 
-                    key={cat} 
-                    variant={cat === '全部' ? 'default' : 'outline'}
-                    className={cat === '全部' ? 'bg-red-600' : ''}
-                  >
-                    {cat}
-                  </Badge>
+                  <Link key={cat.id} href={`/?channel=${cat.id}`}>
+                    <Card className="hover:shadow-lg transition-all cursor-pointer border-red-100 hover:border-red-300">
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-10 h-10 rounded-lg ${cat.color} flex items-center justify-center`}>
+                            <BookOpen className="h-5 w-5 text-white" />
+                          </div>
+                          <div>
+                            <div className="font-semibold">{cat.name}</div>
+                            <div className="text-sm text-muted-foreground">{cat.count.toLocaleString()} 课程</div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
                 ))}
               </div>
             </div>
-            
-            <div className="space-y-4">
-              {latestNews.map((news) => (
-                <Card key={news.id} className="hover:shadow-md transition-all border-red-50">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Badge variant="outline" className="text-xs">{news.source}</Badge>
-                          <Badge variant="secondary" className="text-xs">{news.category}</Badge>
-                          {news.hot && (
-                            <Badge className="text-xs bg-orange-100 text-orange-700">
-                              <TrendingUp className="h-3 w-3 mr-1" />
-                              热门
-                            </Badge>
+
+            {/* 我的课程 */}
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold">我的课程</h2>
+                <Button variant="ghost" size="sm">
+                  查看全部
+                  <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+              </div>
+              
+              <div className="grid md:grid-cols-2 gap-4">
+                {courses.map((course) => (
+                  <Card key={course.id} className="border-red-100">
+                    <CardContent className="p-4">
+                      <div className="flex gap-4">
+                        {/* 封面 */}
+                        <div className="w-24 h-16 rounded-lg bg-gradient-to-br from-red-600 to-orange-500 flex items-center justify-center flex-shrink-0">
+                          {course.level === '必修' && (
+                            <Badge className="absolute -top-2 -left-2 bg-red-600 text-xs">必修</Badge>
+                          )}
+                          <Play className="h-8 w-8 text-white/80" />
+                        </div>
+                        
+                        {/* 信息 */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Badge variant="outline" className="text-xs">{course.category}</Badge>
+                            {course.level === '热门' && (
+                              <Badge className="text-xs bg-amber-100 text-amber-700">
+                                <TrendingUp className="h-3 w-3 mr-1" />
+                                热门
+                              </Badge>
+                            )}
+                          </div>
+                          <h3 className="font-semibold text-sm line-clamp-1">{course.title}</h3>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {course.chapterCount}章 · {course.totalDuration}
+                          </p>
+                          
+                          {/* 进度 */}
+                          {course.progress > 0 && (
+                            <div className="mt-2">
+                              <div className="flex items-center justify-between text-xs mb-1">
+                                <span className="text-muted-foreground">学习进度</span>
+                                <span className="text-red-600">{course.progress}%</span>
+                              </div>
+                              <Progress value={course.progress} className="h-1" />
+                            </div>
                           )}
                         </div>
-                        <h3 className="font-semibold mb-2 hover:text-red-600 cursor-pointer">
-                          {news.title}
-                        </h3>
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
-                            {news.date}
-                          </span>
-                        </div>
                       </div>
-                      <Button variant="ghost" size="sm">
-                        <ArrowRight className="h-4 w-4" />
+                      
+                      {/* 章节列表 */}
+                      {course.progress > 0 && course.chapters.length > 0 && (
+                        <div className="mt-4 pt-4 border-t space-y-2">
+                          {course.chapters.map((chapter, idx) => (
+                            <div key={chapter.id} className="flex items-center gap-2 text-sm">
+                              {chapter.isCompleted ? (
+                                <CheckCircle2 className="h-4 w-4 text-green-500" />
+                              ) : (
+                                <div className="w-4 h-4 rounded-full border-2 border-gray-300" />
+                              )}
+                              <span className={chapter.isCompleted ? 'text-muted-foreground' : ''}>
+                                {chapter.title}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      
+                      <Button size="sm" className="w-full mt-4 bg-gradient-to-r from-red-600 to-orange-500">
+                        {course.progress > 0 ? '继续学习' : '开始学习'}
                       </Button>
-                    </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* 微课速学 */}
+          <TabsContent value="micro">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {featuredContents.map((content) => (
+                <Card key={content.id} className="border-red-100 overflow-hidden">
+                  <div className="h-32 bg-gradient-to-br from-red-600 to-orange-500 flex items-center justify-center relative">
+                    {content.type === 'video' && (
+                      <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur flex items-center justify-center">
+                        <Play className="h-6 w-6 text-white ml-1" />
+                      </div>
+                    )}
+                    {content.type === 'image' && (
+                      <ImageIcon className="h-12 w-12 text-white/80" />
+                    )}
+                    <Badge className="absolute top-2 right-2 bg-black/50 text-white text-xs">
+                      {content.duration}
+                    </Badge>
+                  </div>
+                  <CardContent className="p-3">
+                    <h3 className="font-semibold text-sm line-clamp-2">{content.title}</h3>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      <Eye className="h-3 w-3 inline mr-1" />
+                      {content.views >= 1000 ? `${(content.views/1000).toFixed(1)}k` : content.views}
+                    </p>
                   </CardContent>
                 </Card>
               ))}
             </div>
-
-            <div className="mt-6 text-center">
-              <Button variant="outline" className="border-red-200 text-red-700">
-                加载更多
-              </Button>
-            </div>
           </TabsContent>
 
-          {/* Articles Tab */}
-          <TabsContent value="articles">
-            <div className="space-y-4">
-              {sampleArticles.map((article) => (
-                <Card key={article.id} className="hover:shadow-md transition-all border-red-50">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Badge className="bg-red-100 text-red-700">{article.type}</Badge>
-                        </div>
-                        <h3 className="font-semibold mb-2 hover:text-red-600 cursor-pointer">
-                          {article.title}
-                        </h3>
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          <span>{article.author}</span>
-                          <span>{article.date}</span>
-                          <span className="flex items-center gap-1">
-                            <Star className="h-3 w-3" />
-                            {article.views.toLocaleString()}
-                          </span>
-                          <span>{article.downloads.toLocaleString()} 下载</span>
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm" className="border-red-200">
-                          预览
-                        </Button>
-                        <Button size="sm" className="bg-gradient-to-r from-red-600 to-orange-500">
-                          下载
-                        </Button>
-                      </div>
-                    </div>
+          {/* 金句收藏 */}
+          <TabsContent value="quotes">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <Card key={i} className="border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50">
+                  <CardContent className="p-6">
+                    <Lightbulb className="h-6 w-6 text-amber-500 mb-3" />
+                    <blockquote className="text-sm italic text-gray-700 mb-3">
+                      "奋斗是青春最亮丽的底色，行动是青年最有效的磨砺。有责任有担当，青春才会闪光。"
+                    </blockquote>
+                    <p className="text-xs text-muted-foreground">—— 习近平</p>
+                    <Button variant="ghost" size="sm" className="mt-3 w-full text-amber-700">
+                      <Star className="h-4 w-4 mr-1" />
+                      收藏金句
+                    </Button>
                   </CardContent>
                 </Card>
               ))}
             </div>
-
-            <div className="mt-6 text-center">
-              <Button variant="outline" className="border-red-200 text-red-700">
-                查看更多范文
-              </Button>
-            </div>
-          </TabsContent>
-
-          {/* Tools Tab */}
-          <TabsContent value="tools">
-            <Card className="border-red-100">
-              <CardHeader>
-                <CardTitle style={{ fontFamily: 'Noto Serif SC, serif' }}>理论溯源工具</CardTitle>
-                <CardDescription>
-                  查询名句、典故、政治术语的出处和用法示例
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input 
-                      placeholder="输入要溯源的内容，如：不忘初心、两个确立、国之大者..." 
-                      className="pl-10"
-                    />
-                  </div>
-                  
-                  <div className="grid sm:grid-cols-3 gap-4 mt-6">
-                    <Card className="border-dashed">
-                      <CardContent className="p-4 text-center">
-                        <FileText className="h-8 w-8 mx-auto mb-2 text-red-600" />
-                        <div className="font-medium">名言警句</div>
-                        <div className="text-sm text-muted-foreground">查找经典引用的出处</div>
-                      </CardContent>
-                    </Card>
-                    <Card className="border-dashed">
-                      <CardContent className="p-4 text-center">
-                        <BookOpen className="h-8 w-8 mx-auto mb-2 text-orange-600" />
-                        <div className="font-medium">典故溯源</div>
-                        <div className="text-sm text-muted-foreground">了解历史典故的背景</div>
-                      </CardContent>
-                    </Card>
-                    <Card className="border-dashed">
-                      <CardContent className="p-4 text-center">
-                        <Filter className="h-8 w-8 mx-auto mb-2 text-amber-600" />
-                        <div className="font-medium">术语解读</div>
-                        <div className="text-sm text-muted-foreground">规范政治术语用法</div>
-                      </CardContent>
-                    </Card>
-                  </div>
-
-                  <div className="mt-6 p-4 bg-red-50 rounded-lg">
-                    <h4 className="font-semibold mb-2">热门溯源词条</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {['不忘初心', '牢记使命', '两个维护', '四个自信', '五位一体', '国之大者', '两个一百年'].map((term) => (
-                        <Badge 
-                          key={term} 
-                          variant="outline" 
-                          className="cursor-pointer hover:bg-red-100"
-                        >
-                          {term}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           </TabsContent>
         </Tabs>
+
+        {/* 返回刷课 */}
+        <div className="text-center mt-8">
+          <Link href="/">
+            <Button size="lg" className="bg-gradient-to-r from-red-600 to-orange-500">
+              <Sparkles className="h-4 w-4 mr-2" />
+              返回首页刷课
+            </Button>
+          </Link>
+        </div>
       </div>
     </div>
   );
