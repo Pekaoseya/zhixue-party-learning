@@ -832,28 +832,39 @@ function DashboardSidebar() {
 // 阅读弹窗
 function ReadingModal({ item, isOpen, onClose }: { item: ContentItem | null; isOpen: boolean; onClose: () => void }) {
   const [note, setNote] = useState('');
+  const [showNote, setShowNote] = useState(false);
   
   if (!item || !isOpen) return null;
   
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-      <Card className="w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-        <CardHeader className="flex flex-row items-center justify-between border-b sticky top-0 bg-white z-10">
+    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-2 md:p-4 lg:p-8">
+      <div className="bg-white rounded-xl shadow-2xl w-full h-full max-h-full md:max-h-[90vh] flex flex-col overflow-hidden relative">
+        {/* 顶部工具栏 */}
+        <div className="flex items-center justify-between px-4 py-3 border-b bg-white shrink-0">
           <div className="flex items-center gap-2">
-            <Badge variant="outline">{item.category}</Badge>
-            <Badge variant="secondary">{item.duration}</Badge>
+            <Badge variant="outline" className="text-xs md:text-sm">{item.category}</Badge>
+            <Badge variant="secondary" className="text-xs md:text-sm hidden sm:inline-flex">{item.duration}</Badge>
           </div>
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="h-4 w-4" />
-          </Button>
-        </CardHeader>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" className="gap-1" onClick={() => setShowNote(!showNote)}>
+              <PenTool className="h-4 w-4" />
+              <span className="hidden sm:inline">笔记</span>
+            </Button>
+            <Button variant="ghost" size="icon" onClick={onClose}>
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
         
-        <ScrollArea className="flex-1">
-          <div className="p-6">
-            <h1 className="text-3xl font-bold mb-2">{item.title}</h1>
-            {item.subtitle && <p className="text-xl text-muted-foreground mb-4">{item.subtitle}</p>}
+        {/* 主内容区 - 可滚动 */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-4 md:p-6 lg:p-8 max-w-4xl mx-auto">
+            {/* 标题 */}
+            <h1 className="text-xl md:text-2xl lg:text-3xl font-bold mb-2">{item.title}</h1>
+            {item.subtitle && <p className="text-base md:text-lg text-muted-foreground mb-4">{item.subtitle}</p>}
             
-            <div className="flex items-center gap-4 mb-6 pb-4 border-b">
+            {/* 作者信息 */}
+            <div className="flex items-center justify-between mb-6 pb-4 border-b">
               <div className="flex items-center gap-2">
                 <Avatar className="h-8 w-8">
                   <AvatarFallback className="bg-red-100 text-red-600">{item.author.slice(0, 2)}</AvatarFallback>
@@ -863,23 +874,23 @@ function ReadingModal({ item, isOpen, onClose }: { item: ContentItem | null; isO
                   <p className="text-xs text-muted-foreground">{item.source} · {item.createdAt}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-4 ml-auto text-sm text-muted-foreground">
-                <span className="flex items-center gap-1"><Eye className="h-4 w-4" />{item.viewCount}</span>
-                <span className="flex items-center gap-1"><Heart className="h-4 w-4" />{item.likeCount}</span>
+              <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                <span className="flex items-center gap-1"><Eye className="h-4 w-4" />{item.viewCount >= 1000 ? `${(item.viewCount/1000).toFixed(0)}w` : item.viewCount}</span>
+                <span className="flex items-center gap-1"><Heart className="h-4 w-4" />{item.likeCount >= 1000 ? `${(item.likeCount/1000).toFixed(0)}w` : item.likeCount}</span>
               </div>
             </div>
             
-            {/* 知识点 */}
+            {/* 知识点 - 固定在顶部或浮动 */}
             <Card className="mb-6 bg-amber-50 border-amber-200">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-3">
+              <CardContent className="p-3 md:p-4">
+                <div className="flex items-center gap-2 mb-2">
                   <Lightbulb className="h-4 w-4 text-amber-600" />
                   <span className="font-semibold text-sm text-amber-800">核心知识点</span>
                 </div>
-                <ul className="space-y-2">
+                <ul className="space-y-1 md:space-y-2">
                   {item.knowledgePoints.filter(k => k.highlight).map((point, idx) => (
-                    <li key={idx} className="flex items-start gap-2 text-sm">
-                      <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <li key={idx} className="flex items-start gap-2 text-xs md:text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
                       <span className="text-gray-700">{point.text}</span>
                     </li>
                   ))}
@@ -888,45 +899,72 @@ function ReadingModal({ item, isOpen, onClose }: { item: ContentItem | null; isO
             </Card>
             
             {/* 正文 */}
-            <div className="prose prose-lg max-w-none">
-              <div className="whitespace-pre-wrap leading-relaxed">
+            <div className="prose prose-base md:prose-lg max-w-none">
+              <div className="whitespace-pre-wrap leading-relaxed text-sm md:text-base">
                 {item.content || item.description}
               </div>
             </div>
             
             {/* 标签 */}
-            <div className="flex flex-wrap gap-2 mt-8 pt-6 border-t">
+            <div className="flex flex-wrap gap-2 mt-6 pt-4 border-t">
               {item.tags.map((tag) => (
-                <Badge key={tag} variant="secondary" className="bg-red-50 text-red-700">
+                <Badge key={tag} variant="secondary" className="bg-red-50 text-red-700 text-xs md:text-sm">
                   #{tag}
                 </Badge>
               ))}
             </div>
             
-            {/* 笔记 */}
-            <Card className="mt-6 bg-gray-50">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <PenTool className="h-4 w-4" />
-                  学习笔记
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <Textarea 
-                  placeholder="记录你的学习心得..."
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                  className="min-h-[100px]"
-                />
-                <Button className="mt-2 bg-red-600 hover:bg-red-700">
-                  <Save className="h-4 w-4 mr-2" />
-                  保存笔记
-                </Button>
-              </CardContent>
-            </Card>
+            {/* 笔记区域 - 可展开 */}
+            {showNote && (
+              <Card className="mt-6 bg-gray-50">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <PenTool className="h-4 w-4" />
+                    学习笔记
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <Textarea 
+                    placeholder="记录你的学习心得..."
+                    value={note}
+                    onChange={(e) => setNote(e.target.value)}
+                    className="min-h-[80px] md:min-h-[100px] text-sm"
+                  />
+                  <Button className="mt-2 bg-red-600 hover:bg-red-700 text-sm" size="sm">
+                    <Save className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
+                    保存笔记
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+            
+            {/* 底部留白 - 确保内容不被遮挡 */}
+            <div className="h-20 md:h-32" />
           </div>
-        </ScrollArea>
-      </Card>
+        </div>
+        
+        {/* 底部固定操作栏 */}
+        <div className="flex items-center justify-between px-4 py-3 border-t bg-white shrink-0">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span className="hidden md:flex items-center gap-1"><Users className="h-4 w-4" />{item.learnerCount >= 1000 ? `${(item.learnerCount/1000).toFixed(0)}w` : item.learnerCount}人学习</span>
+            <span className="flex items-center gap-1"><MessageCircle className="h-4 w-4" />{item.commentCount >= 1000 ? `${(item.commentCount/1000).toFixed(0)}w` : item.commentCount}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" className="gap-1">
+              <Heart className="h-4 w-4" />
+              <span className="hidden sm:inline">{item.isLiked ? '已赞' : '点赞'}</span>
+            </Button>
+            <Button variant="outline" size="sm" className="gap-1">
+              <Bookmark className="h-4 w-4" />
+              <span className="hidden sm:inline">{item.isBookmarked ? '已收藏' : '收藏'}</span>
+            </Button>
+            <Button variant="outline" size="sm" className="gap-1">
+              <Share2 className="h-4 w-4" />
+              <span className="hidden sm:inline">分享</span>
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
