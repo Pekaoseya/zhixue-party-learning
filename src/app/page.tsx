@@ -1013,59 +1013,6 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* 顶部导航 */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
-        <div className="flex items-center justify-between px-6 py-3">
-          <div className="flex items-center gap-8">
-            <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-red-600 to-orange-500 flex items-center justify-center">
-                <Sparkles className="h-5 w-5 text-white" />
-              </div>
-              <span className="font-bold text-xl">红韵智学</span>
-            </div>
-            
-            <nav className="flex items-center gap-1">
-              {[
-                { id: 'home', name: '首页', active: true },
-                { id: 'library', name: '知识库', active: false },
-                { id: 'bookshelf', name: '书架', active: false },
-                { id: 'notes', name: '笔记', active: false },
-                { id: 'profile', name: '我的', active: false },
-              ].map((item) => (
-                <button
-                  key={item.id}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    item.active 
-                      ? 'bg-red-50 text-red-700' 
-                      : 'text-gray-600 hover:bg-gray-50'
-                  }`}
-                >
-                  {item.name}
-                </button>
-              ))}
-            </nav>
-          </div>
-          
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <input 
-                type="text"
-                placeholder="搜索内容..."
-                className="pl-10 pr-4 py-2 w-64 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-              />
-            </div>
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-5 w-5" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
-            </Button>
-            <Avatar className="h-8 w-8 cursor-pointer">
-              <AvatarFallback className="bg-red-600 text-white">党员</AvatarFallback>
-            </Avatar>
-          </div>
-        </div>
-      </header>
-
       {/* 主内容区 */}
       <div className="flex h-[calc(100vh-64px)]">
         {/* 左侧栏：课程树 */}
