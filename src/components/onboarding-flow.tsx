@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { MindMap } from '@/components/mind-map';
 import { DiagnosticSurvey } from '@/components/diagnostic-survey';
 import { AIIntentChat } from '@/components/ai-intent-chat';
@@ -16,30 +18,88 @@ import {
   GraduationCap, 
   ArrowLeft,
   Sparkles,
-  Home
+  Home,
+  LogOut,
+  User,
+  Loader2,
+  CheckCircle2
 } from 'lucide-react';
+
+interface CurrentUser {
+  id: string;
+  username: string;
+  display_name: string | null;
+  avatar_url: string | null;
+}
 
 interface OnboardingFlowProps {
   onComplete: () => void;
 }
 
 export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
+  const router = useRouter();
   const [currentView, setCurrentView] = useState<'home' | 'diagnostic' | 'mindmap' | 'ai'>('home');
   const [generatedPath, setGeneratedPath] = useState<LearningPath | null>(null);
   const [highlightedNodes, setHighlightedNodes] = useState<string[]>([]);
   const [hasCompletedDiagnostic, setHasCompletedDiagnostic] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  
+  // 从 localStorage 获取当前用户
+  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('admin_user');
+      return stored ? JSON.parse(stored) : null;
+    }
+    return null;
+  });
+
   const [progress] = useState<LearningProgress[]>([
     { nodeId: 'party-constitution', status: 'completed', score: 95 },
     { nodeId: 'party-history', status: 'completed', score: 88 }
   ]);
 
+  // 保存诊断结果到数据库
+  const saveDiagnostic = async (path: LearningPath, roles: string[], topics: string[], difficulty: string) => {
+    if (!currentUser) return;
+
+    setIsSaving(true);
+    try {
+      const response = await fetch('/api/user/diagnostic', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: currentUser.id,
+          roles,
+          topics,
+          difficulty,
+          learning_path_id: path.id,
+          completed: true,
+        }),
+      });
+
+      if (!response.ok) {
+        console.error('保存诊断失败');
+      }
+    } catch (err) {
+      console.error('保存诊断错误:', err);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   // 处理诊断完成后的路径生成
-  const handlePathGenerated = (path: LearningPath) => {
+  const handlePathGenerated = (path: LearningPath, roles?: string[], topics?: string[], difficulty?: string) => {
     setGeneratedPath(path);
     // 设置高亮节点
     const nodes = getAllNodeIds(path.rootNode);
     setHighlightedNodes(nodes);
     setHasCompletedDiagnostic(true);
+    
+    // 保存诊断结果
+    if (roles && topics && difficulty) {
+      saveDiagnostic(path, roles, topics, difficulty);
+    }
+    
     setCurrentView('mindmap');
   };
 
@@ -76,6 +136,22 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const totalNodes = getAllNodeIds(partyKnowledgeGraph).length;
   const progressPercent = Math.round((completedCount / totalNodes) * 100);
 
+  // 处理登出
+  const handleLogout = () => {
+    localStorage.removeItem('admin_user');
+    localStorage.removeItem('onboarding_completed');
+    router.push('/admin');
+  };
+
+  // 处理完成并进入主站
+  const handleFinish = () => {
+    if (currentUser) {
+      // 保存用户完成状态
+      localStorage.setItem('user_diagnostic_completed', hasCompletedDiagnostic ? 'true' : 'false');
+    }
+    onComplete();
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-red-50">
       {/* 顶部导航 */}
@@ -96,32 +172,25 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               </div>
             </motion.div>
             
-            <nav className="flex items-center gap-2">
-              <Button
-                variant={currentView === 'home' ? 'default' : 'ghost'}
-                onClick={() => setCurrentView('home')}
-                className={currentView === 'home' ? 'bg-red-600 hover:bg-red-700' : ''}
-              >
-                <Map className="w-4 h-4 mr-2" />
-                首页
+            <div className="flex items-center gap-4">
+              {currentUser && (
+                <div className="flex items-center gap-3 px-3 py-1.5 bg-slate-100 rounded-full">
+                  <Avatar className="h-7 w-7">
+                    <AvatarImage src={currentUser.avatar_url || undefined} />
+                    <AvatarFallback className="bg-red-100 text-red-600 text-sm">
+                      {currentUser.display_name?.[0] || currentUser.username[0].toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-sm font-medium text-slate-700">
+                    {currentUser.display_name || currentUser.username}
+                  </span>
+                </div>
+              )}
+
+              <Button variant="ghost" size="sm" onClick={handleLogout} className="text-slate-500">
+                <LogOut className="w-4 h-4" />
               </Button>
-              <Button
-                variant={currentView === 'diagnostic' ? 'default' : 'ghost'}
-                onClick={() => setCurrentView('diagnostic')}
-                className={currentView === 'diagnostic' ? 'bg-red-600 hover:bg-red-700' : ''}
-              >
-                <GraduationCap className="w-4 h-4 mr-2" />
-                学习诊断
-              </Button>
-              <Button
-                variant={currentView === 'ai' ? 'default' : 'ghost'}
-                onClick={() => setCurrentView('ai')}
-                className={currentView === 'ai' ? 'bg-red-600 hover:bg-red-700' : ''}
-              >
-                <MessageSquare className="w-4 h-4 mr-2" />
-                AI助手
-              </Button>
-            </nav>
+            </div>
           </div>
         </div>
       </header>
@@ -147,7 +216,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
                   >
-                    开启您的智慧学习之旅
+                    欢迎，{currentUser?.display_name || currentUser?.username || '用户'}！
                   </motion.h2>
                   <motion.p 
                     className="text-white/80 text-lg mb-6"
@@ -264,16 +333,37 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                 </CardContent>
               </Card>
 
-              {/* 跳过引导按钮 */}
-              <div className="text-center">
-                <Button
-                  variant="ghost"
-                  onClick={onComplete}
-                  className="text-slate-500 hover:text-slate-700"
-                >
-                  <Home className="w-4 h-4 mr-2" />
-                  跳过引导，进入主站
-                </Button>
+              {/* 完成按钮 */}
+              <div className="text-center space-y-4">
+                {hasCompletedDiagnostic && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-full"
+                  >
+                    <CheckCircle2 className="w-5 h-5" />
+                    <span>您已完成学习诊断</span>
+                  </motion.div>
+                )}
+                <div className="flex justify-center gap-4">
+                  <Button
+                    variant="outline"
+                    onClick={handleFinish}
+                    className="px-8"
+                  >
+                    <Home className="w-4 h-4 mr-2" />
+                    进入主站
+                  </Button>
+                  {!hasCompletedDiagnostic && (
+                    <Button
+                      onClick={() => setCurrentView('diagnostic')}
+                      className="bg-red-600 hover:bg-red-700 px-8"
+                    >
+                      <GraduationCap className="w-4 h-4 mr-2" />
+                      完成诊断
+                    </Button>
+                  )}
+                </div>
               </div>
             </motion.div>
           )}
@@ -353,6 +443,25 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                 </div>
                 <AIIntentChat onIntentDetected={handleIntentDetected} />
               </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* 保存中提示 */}
+        <AnimatePresence>
+          {isSaving && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+            >
+              <Card className="border-0 shadow-2xl p-8">
+                <div className="flex items-center gap-4">
+                  <Loader2 className="w-6 h-6 animate-spin text-red-600" />
+                  <span className="text-lg font-medium">正在保存诊断结果...</span>
+                </div>
+              </Card>
             </motion.div>
           )}
         </AnimatePresence>

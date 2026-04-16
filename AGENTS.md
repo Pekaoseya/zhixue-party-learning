@@ -26,8 +26,42 @@
 ├── /bookshelf           # 书架 - 我的课程收藏
 ├── /notes               # 笔记 - 学习笔记管理
 ├── /profile             # 个人中心 - 用户设置
+├── /admin               # 后台登录页
+├── /admin/dashboard     # 后台管理仪表板
 └── /api/llm             # LLM API 路由（内容转化用）
 ```
+
+## 后台管理系统
+
+### 登录页面 (`/admin`)
+- 用户名/密码登录
+- 登录成功后保存用户信息到 localStorage
+- 自动跳转引导页或主页
+
+### 管理仪表板 (`/admin/dashboard`)
+- 用户统计卡片（总用户/活跃用户/今日登录/完成诊断）
+- 用户管理列表（查看所有注册用户）
+- 诊断记录列表（查看用户学习诊断完成情况）
+
+### 数据库表
+- `users` - 用户表（用户名/密码/邮箱/昵称等）
+- `user_diagnostics` - 用户诊断记录表（角色/主题/难度/完成状态）
+- `user_progress` - 用户学习进度表
+- `user_bookmarks` - 用户收藏表
+
+### API 路由
+- `POST /api/admin/login` - 用户登录
+- `GET /api/admin/users` - 获取用户列表
+- `GET /api/admin/diagnostics` - 获取诊断记录
+- `POST /api/admin/seed` - 初始化模拟数据
+- `POST /api/user/diagnostic` - 保存用户诊断结果
+
+### 测试账号
+- admin / admin123（系统管理员）
+- user1 / user123
+- user2 / user123
+- user3 / user123
+- user4 / user123
 
 ## 首次访问引导流程
 
