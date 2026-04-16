@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
@@ -25,8 +25,21 @@ import {
   CheckCircle2,
   BookOpen,
   Target,
-  Lightbulb
+  Lightbulb,
+  PartyPopper
 } from 'lucide-react';
+
+// 随机欢迎语
+const welcomeMessages = [
+  "开启您的党建学习之旅！",
+  "知识的力量从这里开始！",
+  "让我们一起学习进步吧！",
+  "准备好探索知识的海洋了吗？",
+  "每一天都是学习的好日子！",
+  "学习使人进步，坚持使人成功！",
+  "欢迎加入学习大家庭！",
+  "精彩内容等你来发现！"
+];
 
 interface CurrentUser {
   id: string;
@@ -39,6 +52,35 @@ interface OnboardingFlowProps {
   onComplete: () => void;
 }
 
+// 打字机特效组件
+function TypewriterText({ text, onComplete }: { text: string; onComplete?: () => void }) {
+  const [displayText, setDisplayText] = useState('');
+  const [showCursor, setShowCursor] = useState(true);
+  
+  useEffect(() => {
+    let index = 0;
+    const interval = setInterval(() => {
+      if (index < text.length) {
+        setDisplayText(text.slice(0, index + 1));
+        index++;
+      } else {
+        clearInterval(interval);
+        setShowCursor(false);
+        onComplete?.();
+      }
+    }, 50);
+    
+    return () => clearInterval(interval);
+  }, [text, onComplete]);
+  
+  return (
+    <span>
+      {displayText}
+      {showCursor && <span className="animate-pulse">|</span>}
+    </span>
+  );
+}
+
 export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const router = useRouter();
   const [currentView, setCurrentView] = useState<'home' | 'diagnostic' | 'mindmap' | 'ai'>('home');
@@ -46,6 +88,9 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const [highlightedNodes, setHighlightedNodes] = useState<string[]>([]);
   const [hasCompletedDiagnostic, setHasCompletedDiagnostic] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [welcomeMessage, setWelcomeMessage] = useState('');
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [typewriterText, setTypewriterText] = useState('');
   
   // 从 localStorage 获取当前用户
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(() => {
@@ -60,6 +105,26 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     { nodeId: 'party-constitution', status: 'completed', score: 95 },
     { nodeId: 'party-history', status: 'completed', score: 88 }
   ]);
+
+  // 随机选择欢迎语 + 打字机效果
+  useEffect(() => {
+    const randomMsg = welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)];
+    setWelcomeMessage(randomMsg);
+    // 短暂延迟后开始打字
+    const timer = setTimeout(() => {
+      setShowWelcome(true);
+      // 打字机效果
+      let index = 0;
+      const typeInterval = setInterval(() => {
+        index++;
+        setTypewriterText(randomMsg.substring(0, index));
+        if (index >= randomMsg.length) {
+          clearInterval(typeInterval);
+        }
+      }, 50);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   // 保存诊断结果到数据库
   const saveDiagnostic = async (path: LearningPath, roles: string[], topics: string[], difficulty: string) => {
@@ -166,11 +231,8 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               whileHover={{ scale: 1.02 }}
               onClick={() => setCurrentView('home')}
             >
-              <img src="/icon.png" alt="logo" className="w-12 h-12 object-contain" />
-              <div>
-                <h1 className="text-xl font-bold text-gray-800">全省统一战线网络学院</h1>
-                <p className="text-xs text-gray-500">智慧党建学习平台</p>
-              </div>
+              <img src="/icon.png" alt="logo" className="w-10 h-10 object-contain" />
+              <h1 className="text-lg font-bold text-gray-800">全省统一战线网络学院</h1>
             </motion.div>
             
             <div className="flex items-center gap-4">
@@ -231,18 +293,32 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                   >
                     欢迎来到全省统一战线网络学院
                   </motion.h2>
+                  
+                  {/* 随机欢迎语 + 打字机特效 */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="mb-6"
+                  >
+                    <p className="text-xl text-orange-600 font-medium">
+                      {showWelcome ? typewriterText : ''}
+                      <span className="animate-pulse">|</span>
+                    </p>
+                  </motion.div>
+                  
                   <motion.p 
                     className="text-gray-600 text-lg mb-8"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
+                    transition={{ delay: 0.5 }}
                   >
                     开启您的党建学习之旅，通过AI智能分析为您量身定制学习路径
                   </motion.p>
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4 }}
+                    transition={{ delay: 0.6 }}
                     className="flex flex-wrap justify-center gap-4"
                   >
                     <Button 
