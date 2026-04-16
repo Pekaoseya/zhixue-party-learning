@@ -28,6 +28,10 @@ export const metadata: Metadata = {
     '刷课',
     '学习强国',
   ],
+  icons: {
+    icon: '/icon.png',
+    shortcut: '/favicon.ico',
+  },
 };
 
 export default function RootLayout({

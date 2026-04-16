@@ -484,7 +484,7 @@ const courseTree = [
 function FeaturedCard({ item, onClick }: { item: ContentItem; onClick: () => void }) {
   return (
     <Card className="overflow-hidden group cursor-pointer hover:shadow-lg transition-all duration-300 hover:-translate-y-1" onClick={onClick}>
-      <div className="h-48 bg-gradient-to-br from-red-700 via-red-600 to-orange-500 relative">
+      <div className="h-48 bg-gradient-to-br from-orange-600 via-orange-500 to-amber-500 relative">
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center text-white p-6">
             <Badge className="mb-3 bg-white/20 text-white border-0">
@@ -496,7 +496,7 @@ function FeaturedCard({ item, onClick }: { item: ContentItem; onClick: () => voi
           </div>
         </div>
         {item.status === 'hot' && (
-          <Badge className="absolute top-3 right-3 bg-orange-500 text-white border-0">
+          <Badge className="absolute top-3 right-3 bg-amber-500 text-white border-0">
             <Flame className="h-3 w-3 mr-1" />
             热门
           </Badge>
@@ -505,7 +505,7 @@ function FeaturedCard({ item, onClick }: { item: ContentItem; onClick: () => voi
       <CardContent className="p-4">
         <div className="flex items-center gap-2 mb-3">
           <Avatar className="h-6 w-6">
-            <AvatarFallback className="bg-red-100 text-red-600 text-xs">{item.author.slice(0, 2)}</AvatarFallback>
+            <AvatarFallback className="bg-orange-100 text-orange-600 text-xs">{item.author.slice(0, 2)}</AvatarFallback>
           </Avatar>
           <span className="text-sm text-muted-foreground">{item.source}</span>
           <span className="text-sm text-muted-foreground">·</span>
@@ -513,7 +513,7 @@ function FeaturedCard({ item, onClick }: { item: ContentItem; onClick: () => voi
         </div>
         <div className="flex flex-wrap gap-1 mb-3">
           {item.tags.slice(0, 3).map((tag) => (
-            <Badge key={tag} variant="secondary" className="text-xs bg-red-50 text-red-700">
+            <Badge key={tag} variant="secondary" className="text-xs bg-orange-50 text-orange-700">
               #{tag}
             </Badge>
           ))}
@@ -529,7 +529,7 @@ function FeaturedCard({ item, onClick }: { item: ContentItem; onClick: () => voi
               {item.likeCount >= 1000 ? `${(item.likeCount/1000).toFixed(0)}w` : item.likeCount}
             </span>
           </div>
-          <Button size="sm" className="bg-red-600 hover:bg-red-700 opacity-0 group-hover:opacity-100 transition-opacity">
+          <Button size="sm" className="bg-orange-500 hover:bg-orange-600 opacity-0 group-hover:opacity-100 transition-opacity">
             <BookOpen className="h-3 w-3 mr-1" />
             阅读
           </Button>
@@ -542,16 +542,16 @@ function FeaturedCard({ item, onClick }: { item: ContentItem; onClick: () => voi
 // 内容卡片组件
 function ContentCard({ item, onClick }: { item: ContentItem; onClick: () => void }) {
   return (
-    <Card className="overflow-hidden group cursor-pointer hover:shadow-md transition-all duration-200 hover:border-red-200" onClick={onClick}>
+    <Card className="overflow-hidden group cursor-pointer hover:shadow-md transition-all duration-200 hover:border-orange-200" onClick={onClick}>
       <CardContent className="p-4">
         {/* 顶部：标签 + 状态 */}
         <div className="flex items-center justify-between mb-2">
-          <Badge variant="outline" className="text-xs bg-red-50 text-red-700 border-red-200">
+          <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-200">
             {item.category}
           </Badge>
           <div className="flex items-center gap-2">
             {item.status === 'hot' && (
-              <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-700">
+              <Badge variant="secondary" className="text-xs bg-amber-100 text-amber-700">
                 <Flame className="h-3 w-3 mr-1" />
                 热门
               </Badge>
@@ -571,7 +571,7 @@ function ContentCard({ item, onClick }: { item: ContentItem; onClick: () => void
         </div>
 
         {/* 标题 */}
-        <h3 className="font-semibold text-base mb-1 line-clamp-2 group-hover:text-red-700 transition-colors">
+        <h3 className="font-semibold text-base mb-1 line-clamp-2 group-hover:text-orange-600 transition-colors">
           {item.title}
         </h3>
         {item.subtitle && (
@@ -607,9 +607,9 @@ function ContentCard({ item, onClick }: { item: ContentItem; onClick: () => void
           <div className="mt-3">
             <div className="flex items-center justify-between text-xs mb-1">
               <span className="text-muted-foreground">学习进度</span>
-              <span className="text-red-600 font-medium">{item.progress}%</span>
+              <span className="text-orange-600 font-medium">{item.progress}%</span>
             </div>
-            <Progress value={item.progress} className="h-1.5 [&>div]:bg-gradient-to-r [&>div]:from-red-500 [&>div]:to-orange-500" />
+            <Progress value={item.progress} className="h-1.5 [&>div]:bg-gradient-to-r [&>div]:from-orange-500 [&>div]:to-amber-500" />
           </div>
         )}
 
@@ -635,7 +635,7 @@ function CourseTreeSidebar() {
     <div className="h-full flex flex-col">
       <div className="p-4 border-b border-gray-200">
         <h2 className="font-bold text-lg flex items-center gap-2">
-          <BookOpen className="h-5 w-5 text-red-600" />
+          <BookOpen className="h-5 w-5 text-orange-500" />
           学习体系
         </h2>
       </div>
@@ -649,14 +649,14 @@ function CourseTreeSidebar() {
                 <button
                   onClick={() => setExpandedId(isExpanded ? null : course.id)}
                   className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${
-                    isExpanded ? 'bg-red-50 text-red-700' : 'hover:bg-gray-50'
+                    isExpanded ? 'bg-orange-50 text-orange-700' : 'hover:bg-gray-50'
                   }`}
                 >
-                  <Icon className={`h-5 w-5 ${isExpanded ? 'text-red-600' : 'text-gray-400'}`} />
+                  <Icon className={`h-5 w-5 ${isExpanded ? 'text-orange-500' : 'text-gray-400'}`} />
                   <div className="flex-1 text-left">
                     <p className="font-medium text-sm">{course.title}</p>
                     <div className="flex items-center gap-2 mt-1">
-                      <Progress value={course.progress} className="flex-1 h-1" />
+                      <Progress value={course.progress} className="flex-1 h-1 [&>div]:bg-orange-500" />
                       <span className="text-xs text-muted-foreground">{course.progress}%</span>
                     </div>
                   </div>
@@ -664,7 +664,7 @@ function CourseTreeSidebar() {
                 </button>
                 
                 {isExpanded && (
-                  <div className="ml-6 mt-1 space-y-1 border-l-2 border-red-100 pl-3">
+                  <div className="ml-6 mt-1 space-y-1 border-l-2 border-orange-100 pl-3">
                     {course.chapters.map((chapter) => (
                       <div
                         key={chapter.id}
@@ -703,7 +703,7 @@ function DashboardSidebar() {
       <Card className="m-3 mb-0">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-bold flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-red-600" />
+            <TrendingUp className="h-4 w-4 text-orange-500" />
             今日热点
           </CardTitle>
         </CardHeader>
@@ -712,10 +712,10 @@ function DashboardSidebar() {
             {hotContents.map((item) => (
               <div 
                 key={item.id} 
-                className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                className="flex items-center gap-3 p-2 rounded-lg hover:bg-orange-50 cursor-pointer transition-colors"
               >
                 <div className={`w-6 h-6 rounded flex items-center justify-center text-xs font-bold ${
-                  item.rank <= 3 ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-600'
+                  item.rank <= 3 ? 'bg-orange-100 text-orange-600' : 'bg-gray-100 text-gray-600'
                 }`}>
                   {item.rank}
                 </div>
@@ -733,18 +733,18 @@ function DashboardSidebar() {
       <Card className="m-3">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-bold flex items-center gap-2">
-            <BarChart3 className="h-4 w-4 text-red-600" />
+            <BarChart3 className="h-4 w-4 text-orange-500" />
             我的学习
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-red-50 rounded-lg p-3 text-center">
-              <p className="text-2xl font-bold text-red-600">12</p>
+            <div className="bg-orange-50 rounded-lg p-3 text-center">
+              <p className="text-2xl font-bold text-orange-600">12</p>
               <p className="text-xs text-muted-foreground">学习天数</p>
             </div>
-            <div className="bg-orange-50 rounded-lg p-3 text-center">
-              <p className="text-2xl font-bold text-orange-600">3.5h</p>
+            <div className="bg-amber-50 rounded-lg p-3 text-center">
+              <p className="text-2xl font-bold text-amber-600">3.5h</p>
               <p className="text-xs text-muted-foreground">本周学习</p>
             </div>
             <div className="bg-green-50 rounded-lg p-3 text-center">
@@ -763,25 +763,25 @@ function DashboardSidebar() {
       <Card className="m-3">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-bold flex items-center gap-2">
-            <Target className="h-4 w-4 text-red-600" />
+            <Target className="h-4 w-4 text-orange-500" />
             待学任务
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
           <div className="space-y-2">
-            <div className="flex items-center justify-between p-2 bg-red-50 rounded-lg">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-red-500" />
-                <span className="text-sm">二十大精神</span>
-              </div>
-              <Badge variant="secondary" className="text-xs bg-red-100 text-red-700">必修</Badge>
-            </div>
             <div className="flex items-center justify-between p-2 bg-orange-50 rounded-lg">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-orange-500" />
+                <span className="text-sm">二十大精神</span>
+              </div>
+              <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-700">必修</Badge>
+            </div>
+            <div className="flex items-center justify-between p-2 bg-amber-50 rounded-lg">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-amber-500" />
                 <span className="text-sm">党章学习</span>
               </div>
-              <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-700">进行中</Badge>
+              <Badge variant="secondary" className="text-xs bg-amber-100 text-amber-700">进行中</Badge>
             </div>
             <div className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
               <div className="flex items-center gap-2">
@@ -795,10 +795,10 @@ function DashboardSidebar() {
       </Card>
 
       {/* AI助手 */}
-      <Card className="m-3 mt-auto border-red-200">
+      <Card className="m-3 mt-auto border-orange-200">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-bold flex items-center gap-2">
-            <Bot className="h-4 w-4 text-red-600" />
+            <Bot className="h-4 w-4 text-orange-500" />
             AI学习助手
           </CardTitle>
         </CardHeader>
@@ -814,14 +814,14 @@ function DashboardSidebar() {
                 onChange={(e) => setAiQuestion(e.target.value)}
                 className="flex-1 text-sm"
               />
-              <Button size="icon" className="bg-red-600 hover:bg-red-700">
+              <Button size="icon" className="bg-orange-500 hover:bg-orange-600">
                 <Send className="h-4 w-4" />
               </Button>
             </div>
             <div className="flex flex-wrap gap-1">
-              <Badge variant="outline" className="text-xs cursor-pointer hover:bg-red-50">两个确立</Badge>
-              <Badge variant="outline" className="text-xs cursor-pointer hover:bg-red-50">党章</Badge>
-              <Badge variant="outline" className="text-xs cursor-pointer hover:bg-red-50">三会一课</Badge>
+              <Badge variant="outline" className="text-xs cursor-pointer hover:bg-orange-50 border-orange-200">两个确立</Badge>
+              <Badge variant="outline" className="text-xs cursor-pointer hover:bg-orange-50 border-orange-200">党章</Badge>
+              <Badge variant="outline" className="text-xs cursor-pointer hover:bg-orange-50 border-orange-200">三会一课</Badge>
             </div>
           </div>
         </CardContent>
@@ -1047,14 +1047,56 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* 主内容区 */}
+    <div className="min-h-screen bg-gradient-to-b from-orange-50 via-pink-50 to-white">
+      {/* 顶部横幅区域 */}
+      <div className="relative min-h-[280px] flex flex-col items-center justify-center px-6 pb-16">
+        {/* 背景图 */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-90"
+          style={{ backgroundImage: 'url(/home-banner.png)' }}
+        />
+        {/* 半透明遮罩 */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white/60 via-white/40 to-white/90" />
+        
+        {/* 内容层 */}
+        <div className="relative z-10 w-full max-w-2xl mx-auto flex flex-col items-center">
+          {/* AI助手形象 */}
+          <div className="bg-gradient-to-r from-orange-400 to-orange-500 rounded-2xl px-6 py-4 flex items-center gap-4 mb-6 shadow-lg">
+            <img 
+              src="/ai-assistant.png" 
+              alt="AI助手" 
+              className="h-16 w-auto object-contain"
+            />
+            <div className="text-white">
+              <p className="font-bold text-lg">HI, 早上好</p>
+              <p className="text-sm opacity-90">我是你的专属AI服务小助手</p>
+            </div>
+          </div>
+          
+          {/* 搜索框 */}
+          <div className="relative w-full flex items-center">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2">
+              <Search className="h-5 w-5 text-orange-400" />
+            </div>
+            <input 
+              type="text"
+              placeholder="需要我帮您查点什么..."
+              className="w-full pl-12 pr-20 py-4 rounded-full border-2 border-orange-300 bg-white text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100 shadow-lg"
+            />
+            <button className="absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-gradient-to-r from-orange-400 to-orange-500 flex items-center justify-center text-white shadow-md hover:shadow-lg transition-shadow">
+              <Play className="h-5 w-5 ml-0.5" fill="currentColor" />
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      {/* 内容区域 */}
       <div className="flex h-[calc(100vh-64px)]">
         {/* 左侧栏：课程树 */}
         <aside className="w-64 bg-white border-r border-gray-200 overflow-hidden">
           <CourseTreeSidebar />
         </aside>
-
+	
         {/* 中间栏：内容流 */}
         <main className="flex-1 overflow-y-auto p-6">
           {/* 分类筛选 */}
@@ -1067,8 +1109,8 @@ export default function HomePage() {
                   onClick={() => setActiveCategory(cat.id)}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                     activeCategory === cat.id 
-                      ? 'bg-red-600 text-white' 
-                      : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
+                      ? 'bg-gradient-to-r from-orange-500 to-orange-400 text-white shadow-md' 
+                      : 'bg-white text-gray-600 hover:bg-orange-50 border border-gray-200 hover:border-orange-200'
                   }`}
                 >
                   <Icon className="h-4 w-4" />
@@ -1097,7 +1139,7 @@ export default function HomePage() {
                     className="h-8 w-8 bg-white/90 hover:bg-white"
                     onClick={(e) => { e.stopPropagation(); handleLike(item.id); }}
                   >
-                    <Heart className={`h-4 w-4 ${item.isLiked ? 'fill-red-500 text-red-500' : ''}`} />
+                    <Heart className={`h-4 w-4 ${item.isLiked ? 'fill-orange-500 text-orange-500' : ''}`} />
                   </Button>
                   <Button 
                     size="icon" 
@@ -1114,7 +1156,7 @@ export default function HomePage() {
 
           {/* 加载更多 */}
           <div className="flex justify-center mt-8">
-            <Button variant="outline" className="border-red-200 text-red-600 hover:bg-red-50">
+            <Button variant="outline" className="border-orange-200 text-orange-600 hover:bg-orange-50">
               <RefreshCw className="h-4 w-4 mr-2" />
               加载更多
             </Button>
