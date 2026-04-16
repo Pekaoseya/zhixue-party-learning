@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { OnboardingFlow } from '@/components/onboarding-flow';
 import { 
   Play,
   Pause,
@@ -970,6 +971,39 @@ function ReadingModal({ item, isOpen, onClose }: { item: ContentItem | null; isO
 }
 
 export default function HomePage() {
+  // 首次访问检测
+  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean | null>(null);
+  
+  // 检查是否已完成引导
+  useEffect(() => {
+    const completed = localStorage.getItem('onboarding_completed');
+    setHasCompletedOnboarding(completed === 'true');
+  }, []);
+  
+  // 完成引导的回调
+  const handleOnboardingComplete = () => {
+    localStorage.setItem('onboarding_completed', 'true');
+    setHasCompletedOnboarding(true);
+  };
+  
+  // 显示加载状态，避免闪烁
+  if (hasCompletedOnboarding === null) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin" />
+          <p className="text-slate-500">加载中...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // 首次访问：显示引导页
+  if (!hasCompletedOnboarding) {
+    return <OnboardingFlow onComplete={handleOnboardingComplete} />;
+  }
+  
+  // 已完成引导：显示主站首页
   const [contents, setContents] = useState<ContentItem[]>(allContents);
   const [featuredContent, setFeaturedContent] = useState<ContentItem | null>(allContents[0]);
   const [selectedContent, setSelectedContent] = useState<ContentItem | null>(null);
