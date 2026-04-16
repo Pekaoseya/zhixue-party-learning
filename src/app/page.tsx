@@ -1049,14 +1049,14 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-orange-50 via-pink-50 to-white">
       {/* 顶部横幅区域 */}
-      <div className="relative min-h-[300px] flex flex-col items-center justify-center px-6 pt-8">
+      <div className="relative min-h-[280px] flex flex-col items-center justify-center px-6 pb-16">
         {/* 背景图 */}
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-90"
           style={{ backgroundImage: 'url(/home-banner.png)' }}
         />
         {/* 半透明遮罩 */}
-        <div className="absolute inset-0 bg-gradient-to-b from-white/50 via-white/30 to-white/80" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/60 via-white/40 to-white/90" />
         
         {/* 内容层 */}
         <div className="relative z-10 w-full max-w-2xl mx-auto flex flex-col items-center">
@@ -1091,8 +1091,7 @@ export default function HomePage() {
       </div>
       
       {/* 内容区域 */}
-      <div className="px-4 pb-4">
-        <div className="flex h-[calc(100vh-64px)]">
+      <div className="flex h-[calc(100vh-64px)]">
         {/* 左侧栏：课程树 */}
         <aside className="w-64 bg-white border-r border-gray-200 overflow-hidden">
           <CourseTreeSidebar />
@@ -1168,7 +1167,6 @@ export default function HomePage() {
         <aside className="w-80 bg-white border-l border-gray-200 overflow-hidden">
           <DashboardSidebar />
         </aside>
-      </div>
       </div>
 
       {/* 阅读弹窗 */}
