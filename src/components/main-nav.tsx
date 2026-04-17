@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavContext } from './nav-context';
 
 const navItems = [
   { id: 'home', name: '首页', href: '/', icon: Home },
@@ -33,8 +34,10 @@ export function MainNav() {
   const pathname = usePathname();
   const isHomePage = pathname === '/';
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean | null>(null);
-  const [isExpanded, setIsExpanded] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // 使用全局 Context 共享展开/收起状态
+  const { isExpanded, setIsExpanded } = useNavContext();
 
   // 检测引导完成状态
   useEffect(() => {

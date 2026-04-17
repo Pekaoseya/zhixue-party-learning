@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Noto_Serif_SC } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/sonner';
+import { NavProvider } from '@/components/nav-context';
 
 const notoSerifSC = Noto_Serif_SC({
   subsets: ['latin'],
@@ -41,7 +42,9 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" suppressHydrationWarning className={notoSerifSC.variable}>
       <body className="antialiased">
-        <main>{children}</main>
+        <NavProvider>
+          <main>{children}</main>
+        </NavProvider>
         <Toaster />
       </body>
     </html>
