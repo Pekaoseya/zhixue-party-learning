@@ -110,39 +110,50 @@ export default function ProfilePage() {
   return (
     <div className="flex-1 overflow-y-auto">
       {/* 顶部个人信息卡片 */}
-      <div className="bg-gradient-to-br from-red-900/90 via-red-800/85 to-orange-600/80 backdrop-blur-sm">
-          <div className="max-w-7xl mx-auto px-6 py-8">
-            <div className="flex items-center gap-6">
-              <Avatar className="h-24 w-24 border-4 border-white/30">
-                <AvatarFallback className="bg-white/20 text-white text-3xl">党员</AvatarFallback>
-              </Avatar>
-              <div className="text-white">
-                <h1 className="text-2xl font-bold mb-1">{userData.name}</h1>
-                <p className="text-white/80 mb-2">{userData.department}</p>
-                <div className="flex items-center gap-4 text-sm text-white/70">
-                  <span>入党时间：{userData.joinDate}</span>
-                  <Separator orientation="vertical" className="h-4 bg-white/30" />
-                  <Badge className="bg-white/20 text-white border-0">{userData.level}</Badge>
-                </div>
-              </div>
-              <div className="ml-auto text-right text-white">
-                <p className="text-3xl font-bold">第{userData.rank}名</p>
-                <p className="text-white/70 text-sm">全站排名 (共{userData.totalUsers}人)</p>
+      <div 
+        className="relative"
+        style={{
+          backgroundImage: "url('/profile-bg.png')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        {/* 渐变遮罩 */}
+        <div className="absolute inset-0 bg-gradient-to-br from-red-900/80 via-red-800/75 to-orange-600/70 backdrop-blur-sm" />
+        
+        {/* 内容 */}
+        <div className="relative z-10 max-w-7xl mx-auto px-6 py-8">
+          <div className="flex items-center gap-6">
+            <Avatar className="h-24 w-24 border-4 border-white/30">
+              <AvatarFallback className="bg-white/20 text-white text-3xl">党员</AvatarFallback>
+            </Avatar>
+            <div className="text-white">
+              <h1 className="text-2xl font-bold mb-1">{userData.name}</h1>
+              <p className="text-white/80 mb-2">{userData.department}</p>
+              <div className="flex items-center gap-4 text-sm text-white/70">
+                <span>入党时间：{userData.joinDate}</span>
+                <Separator orientation="vertical" className="h-4 bg-white/30" />
+                <Badge className="bg-white/20 text-white border-0">{userData.level}</Badge>
               </div>
             </div>
-
-            {/* 等级进度 */}
-            <div className="mt-6 bg-white/10 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-white/90 text-sm">距离「学习专家」还需</span>
-                <span className="text-white font-medium">750 学习积分</span>
-              </div>
-              <Progress value={userData.levelProgress} className="h-2 bg-white/20 [&>div]:bg-white" />
+            <div className="ml-auto text-right text-white">
+              <p className="text-3xl font-bold">第{userData.rank}名</p>
+              <p className="text-white/70 text-sm">全站排名 (共{userData.totalUsers}人)</p>
             </div>
           </div>
-        </div>
 
-        {/* 统计卡片 */}
+          {/* 等级进度 */}
+          <div className="mt-6 bg-white/10 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-white/90 text-sm">距离「学习专家」还需</span>
+              <span className="text-white font-medium">750 学习积分</span>
+            </div>
+            <Progress value={userData.levelProgress} className="h-2 bg-white/20 [&>div]:bg-white" />
+          </div>
+        </div>
+      </div>
+
+      {/* 统计卡片 */}
         <div className="max-w-7xl mx-auto px-6 py-6">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <Card>
