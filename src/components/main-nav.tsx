@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
   BookOpen, 
-  Sparkles,
   Home,
   Search,
   Bell,
@@ -13,7 +12,8 @@ import {
   Bookmark,
   PenTool,
   Layers3,
-  Users
+  Users,
+  Star
 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -36,26 +36,23 @@ export function MainNav() {
 
   return (
     <header className={cn(
-      "w-full z-50",
+      "w-full z-50 sticky top-0",
       isHomePage 
-        ? "bg-gradient-to-b from-black/80 via-black/40 to-transparent" 
-        : "bg-white border-b border-gray-200 sticky top-0"
+        ? "bg-gradient-to-b from-orange-100/90 via-orange-50/80 to-transparent backdrop-blur-md" 
+        : "bg-gray-800 border-b border-gray-700"
     )}>
       <div className="flex items-center justify-between px-6 py-3">
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-2">
-            <div className={cn(
-              "w-10 h-10 rounded-lg flex items-center justify-center",
-              isHomePage 
-                ? "bg-gradient-to-br from-red-600 to-orange-500" 
-                : "bg-gradient-to-br from-red-600 to-orange-500"
-            )}>
-              <Sparkles className="h-5 w-5 text-white" />
-            </div>
+            <img 
+              src="/icon.png" 
+              alt="全省统一战线网络学院" 
+              className="h-10 w-auto object-contain"
+            />
             <span className={cn(
-              "font-bold text-xl",
-              isHomePage ? "text-white" : "text-gray-900"
-            )}>红韵智学</span>
+              "font-bold text-lg hidden md:block",
+              isHomePage ? "text-gray-800" : "text-white"
+            )}>全省统一战线网络学院</span>
           </Link>
           
           <nav className="flex items-center gap-1">
@@ -70,8 +67,8 @@ export function MainNav() {
                     className={cn(
                       "gap-2",
                       isHomePage 
-                        ? cn("text-white/80 hover:text-white hover:bg-white/10", isActive && "bg-white/20 text-white")
-                        : cn(isActive ? "bg-red-50 text-red-700" : "text-gray-600")
+                        ? cn("text-gray-700 hover:text-orange-600 hover:bg-orange-50", isActive && "bg-orange-100 text-orange-600")
+                        : cn("text-gray-300 hover:text-white hover:bg-gray-700", isActive && "bg-gray-700 text-white")
                     )}
                   >
                     <Icon className="h-4 w-4" />
@@ -87,7 +84,7 @@ export function MainNav() {
           <div className="relative">
             <Search className={cn(
               "absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4",
-              isHomePage ? "text-white/60" : "text-gray-400"
+              isHomePage ? "text-gray-400" : "text-gray-400"
             )} />
             <input 
               type="text"
@@ -95,20 +92,20 @@ export function MainNav() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className={cn(
-                "pl-10 pr-4 py-2 w-48 lg:w-64 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent",
+                "pl-10 pr-4 py-2 w-48 lg:w-64 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent",
                 isHomePage 
-                  ? "bg-white/10 border border-white/20 text-white placeholder:text-white/60"
-                  : "border border-gray-200 text-gray-900"
+                  ? "bg-white border border-orange-200 text-gray-900 placeholder:text-gray-400"
+                  : "bg-gray-700 border border-gray-600 text-white placeholder:text-gray-400"
               )}
             />
           </div>
-          <Button variant="ghost" size="icon" className={cn("relative", isHomePage ? "text-white" : "")}>
+          <Button variant="ghost" size="icon" className={cn("relative", isHomePage ? "text-gray-700 hover:text-orange-600" : "text-gray-300 hover:text-white")}>
             <Bell className="h-5 w-5" />
             <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
           </Button>
           <Link href="/profile">
-            <Avatar className="h-8 w-8 cursor-pointer">
-              <AvatarFallback className="bg-red-600 text-white">党员</AvatarFallback>
+            <Avatar className="h-8 w-8 cursor-pointer border-2 border-orange-400">
+              <AvatarFallback className="bg-orange-500 text-white font-medium">党员</AvatarFallback>
             </Avatar>
           </Link>
         </div>

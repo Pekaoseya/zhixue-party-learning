@@ -15,14 +15,80 @@
 - **UI 组件**: shadcn/ui (基于 Radix UI)
 - **Styling**: Tailwind CSS 4
 - **字体**: Noto Serif SC
+- **动画**: framer-motion
+- **可视化**: d3.js (思维导图)
 
 ## 页面结构
 
 ```
-├── /                    # 首页 - 全屏刷内容流
+├── /                    # 首页 - 全屏刷内容流 + 引导页(首次访问)
 ├── /library             # 知识库 - 系统课程浏览
+├── /bookshelf           # 书架 - 我的课程收藏
+├── /notes               # 笔记 - 学习笔记管理
+├── /profile             # 个人中心 - 用户设置
+├── /admin               # 后台登录页
+├── /admin/dashboard     # 后台管理仪表板
 └── /api/llm             # LLM API 路由（内容转化用）
 ```
+
+## 后台管理系统
+
+### 登录页面 (`/admin`)
+- 用户名/密码登录
+- 登录成功后保存用户信息到 localStorage
+- 自动跳转引导页或主页
+
+### 管理仪表板 (`/admin/dashboard`)
+- 用户统计卡片（总用户/活跃用户/今日登录/完成诊断）
+- 用户管理列表（查看所有注册用户）
+- 诊断记录列表（查看用户学习诊断完成情况）
+
+### 数据库表
+- `users` - 用户表（用户名/密码/邮箱/昵称等）
+- `user_diagnostics` - 用户诊断记录表（角色/主题/难度/完成状态）
+- `user_progress` - 用户学习进度表
+- `user_bookmarks` - 用户收藏表
+
+### API 路由
+- `POST /api/admin/login` - 用户登录
+- `GET /api/admin/users` - 获取用户列表
+- `GET /api/admin/diagnostics` - 获取诊断记录
+- `POST /api/admin/seed` - 初始化模拟数据
+- `POST /api/user/diagnostic` - 保存用户诊断结果
+
+### 测试账号
+- admin / admin123（系统管理员）
+- user1 / user123
+- user2 / user123
+- user3 / user123
+- user4 / user123
+
+## 首次访问引导流程
+
+### 引导页组件 (`OnboardingFlow`)
+- **首次访问检测**：使用 localStorage 检测 `onboarding_completed` 标志
+- **功能模块**：
+  - 首页概览：快捷入口和学习进度展示
+  - 学习诊断：AI智能诊断问卷（3步）
+  - 知识图谱：可视化党建知识体系（交互式思维导图）
+  - AI助手：自然语言学习咨询
+
+### 诊断问卷 (`DiagnosticSurvey`)
+- 步骤1：选择身份（党支部书记/党务工作者/普通党员/入党积极分子等）
+- 步骤2：选择学习主题（二十大精神/党史/党章党规/基层党务等）
+- 步骤3：确认并选择难度（入门/进阶/深入）
+- 输出：基于用户画像的个性化学习路径
+
+### 知识图谱 (`MindMap`)
+- D3.js 实现的交互式思维导图
+- 节点状态：未解锁/可学习/进行中/已完成
+- 功能：缩放、拖拽、节点点击查看详情
+- 关联课程和文档快速访问
+
+### AI助手 (`AIIntentChat`)
+- 自然语言意图识别
+- 关键词提取和知识图谱匹配
+- 快捷问题建议
 
 ## 核心功能
 
