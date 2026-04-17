@@ -110,7 +110,7 @@ export default function ProfilePage() {
   return (
     <div className="flex-1 overflow-y-auto">
       {/* 顶部个人信息卡片 */}
-      <div className="bg-gradient-to-br from-red-700 via-red-600 to-orange-500">
+      <div className="bg-gradient-to-br from-red-900/90 via-red-800/85 to-orange-600/80 backdrop-blur-sm">
           <div className="max-w-7xl mx-auto px-6 py-8">
             <div className="flex items-center gap-6">
               <Avatar className="h-24 w-24 border-4 border-white/30">
