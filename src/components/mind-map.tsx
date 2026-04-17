@@ -152,7 +152,7 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
         const status = getNodeStatus((d.data as KnowledgeNode).id);
         const level = (d.data as KnowledgeNode).level;
         // 所有节点都有实心背景色
-        if (level === 0) return 'url(#gradient0)';
+        if (level === 0) return '#991b1b'; // 根节点用最深红色
         if (level === 1) return '#b91c1c'; // 一级节点用深红色
         if (status === 'completed') return '#16a34a';
         if (status === 'available') return '#2563eb';
