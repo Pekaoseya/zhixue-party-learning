@@ -78,8 +78,8 @@ export function MainNav() {
         className={cn(
           "absolute inset-0 transition-opacity duration-500",
           showExpandedContent && isExpanded 
-            ? "bg-gradient-to-b from-red-800/70 via-red-700/50 to-orange-500/30 opacity-100" 
-            : "bg-gradient-to-r from-red-700 via-red-600 to-orange-500 opacity-100"
+            ? "bg-gradient-to-b from-red-600/80 via-red-500/60 to-orange-400/40" 
+            : "bg-gradient-to-r from-red-600 via-red-500 to-orange-400"
         )}
       />
       
