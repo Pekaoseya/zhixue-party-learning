@@ -63,10 +63,8 @@ export function NavBar({ activeTab = 'home', children }: NavBarProps) {
       </div>
       
       {/* 主内容区域 */}
-      <div className="flex flex-1 overflow-hidden pb-16">
+      <div className="flex flex-1 overflow-hidden">
         {children}
-      </div>
-      
       </div>
     </div>
   );
