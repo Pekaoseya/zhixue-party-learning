@@ -118,9 +118,9 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
         const targetId = (d.target.data as KnowledgeNode).id;
         const sourceStatus = getNodeStatus(sourceId);
         const targetStatus = getNodeStatus(targetId);
-        if (sourceStatus === 'completed' && targetStatus !== 'locked') return '#4ade80';
-        if (sourceStatus === 'completed' || targetStatus === 'available') return '#60a5fa';
-        return '#475569';
+        if (sourceStatus === 'completed' && targetStatus !== 'locked') return '#22c55e';
+        if (sourceStatus === 'completed' || targetStatus === 'available') return '#3b82f6';
+        return '#e2e8f0';
       })
       .attr('stroke-width', 2.5)
       .attr('opacity', 0.7);
@@ -244,7 +244,7 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
   }, [data, dimensions, getNodeStatus, highlightedNodes, onNodeClick, progress]);
 
   return (
-    <div ref={containerRef} className="relative w-full h-full bg-gradient-to-br from-slate-700 to-slate-900 rounded-xl overflow-hidden">
+    <div ref={containerRef} className="relative w-full h-full bg-gradient-to-br from-slate-50 to-blue-50 rounded-xl overflow-hidden">
       {/* SVG容器 */}
       <svg
         ref={svgRef}
