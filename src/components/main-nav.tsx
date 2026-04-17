@@ -50,11 +50,11 @@ export function MainNav() {
     return null;
   }
 
-  // 首页 + 已完成引导
-  const showWelcome = isHomePage && hasCompletedOnboarding === true;
+  // 所有页面都支持展开/收起状态
+  const showExpandedContent = hasCompletedOnboarding === true;
 
   // 通用红色系样式
-  const baseHeaderStyle = showWelcome
+  const baseHeaderStyle = showExpandedContent
     ? "bg-gradient-to-r from-red-700 via-red-600 to-orange-500"
     : "bg-gradient-to-r from-red-700 via-red-600 to-orange-500";
 
@@ -63,10 +63,10 @@ export function MainNav() {
       className={cn(
         "w-full z-50 sticky top-0 transition-all duration-500 ease-in-out overflow-hidden",
         baseHeaderStyle,
-        isExpanded && showWelcome ? "h-48" : "h-16"
+        isExpanded && showExpandedContent ? "h-48" : "h-16"
       )}
       style={{
-        backgroundImage: showWelcome && isExpanded 
+        backgroundImage: showExpandedContent && isExpanded 
           ? `url('/nav-bg.png')` 
           : 'none',
         backgroundSize: 'cover',
@@ -77,7 +77,7 @@ export function MainNav() {
       <div 
         className={cn(
           "absolute inset-0 transition-opacity duration-500",
-          showWelcome && isExpanded 
+          showExpandedContent && isExpanded 
             ? "bg-gradient-to-b from-red-800/70 via-red-700/50 to-orange-500/30 opacity-100" 
             : "bg-gradient-to-r from-red-700 via-red-600 to-orange-500 opacity-100"
         )}
@@ -126,7 +126,7 @@ export function MainNav() {
           <div className="flex items-center gap-4">
             {/* 收起状态：导航栏右侧显示搜索框 */}
             <AnimatePresence>
-              {!isExpanded && showWelcome && (
+              {!isExpanded && showExpandedContent && (
                 <motion.div
                   initial={{ opacity: 0, width: 0 }}
                   animate={{ opacity: 1, width: 'auto' }}
@@ -150,7 +150,7 @@ export function MainNav() {
               variant="ghost" 
               size="icon" 
               className="text-white/90 hover:text-white hover:bg-white/10"
-              onClick={() => showWelcome && setIsExpanded(!isExpanded)}
+              onClick={() => showExpandedContent && setIsExpanded(!isExpanded)}
             >
               <Bell className="h-5 w-5" />
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-400 rounded-full" />
@@ -163,7 +163,7 @@ export function MainNav() {
             </Link>
             
             {/* 展开/收起按钮 */}
-            {showWelcome && (
+            {showExpandedContent && (
               <Button
                 variant="ghost"
                 size="icon"
@@ -192,7 +192,7 @@ export function MainNav() {
         
         {/* 欢迎区 - 展开状态时显示 */}
         <AnimatePresence>
-          {showWelcome && isExpanded && (
+          {showExpandedContent && isExpanded && (
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
