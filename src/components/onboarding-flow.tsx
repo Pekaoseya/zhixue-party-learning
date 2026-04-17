@@ -244,7 +244,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                 
                 <div className="relative z-10 max-w-2xl mx-auto text-center py-12 px-6">
                   <motion.h2 
-                    className="text-3xl md:text-4xl font-bold text-red-800 mb-4"
+                    className="text-3xl md:text-4xl font-bold text-slate-900 mb-4"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
@@ -260,14 +260,14 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                     className="mb-6 flex items-center justify-center gap-3"
                   >
                     <img src="/welcome-character.png" alt="AI助手" className="h-16 w-auto" />
-                    <p className="text-xl text-red-600 font-medium">
+                    <p className="text-xl text-slate-700 font-medium">
                       {showWelcome ? typewriterText : ''}
                       <span className="animate-pulse">|</span>
                     </p>
                   </motion.div>
                   
                   <motion.p 
-                    className="text-red-700 text-lg mb-8"
+                    className="text-slate-800 text-lg mb-8"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5 }}
@@ -292,7 +292,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                       size="lg"
                       onClick={() => setCurrentView('mindmap')}
                       variant="outline"
-                      className="border-2 border-red-300 text-red-600 hover:bg-red-50"
+                      className="border-2 border-red-300 text-slate-700 hover:bg-red-50"
                     >
                       <Map className="w-5 h-5 mr-2" />
                       先看看知识图谱
@@ -307,10 +307,10 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                   <div className="h-2 bg-gradient-to-r from-red-500 to-red-500" />
                   <CardContent className="p-6">
                     <div className="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                      <Target className="w-6 h-6 text-red-600" />
+                      <Target className="w-6 h-6 text-slate-700" />
                     </div>
-                    <h3 className="text-lg font-bold text-red-800 mb-2">个性化诊断</h3>
-                    <p className="text-red-600 text-sm mb-4">通过智能诊断了解您的学习基础，为您精准匹配学习内容</p>
+                    <h3 className="text-lg font-bold text-slate-900 mb-2">个性化诊断</h3>
+                    <p className="text-slate-700 text-sm mb-4">通过智能诊断了解您的学习基础，为您精准匹配学习内容</p>
                     <Button 
                       onClick={() => setCurrentView('diagnostic')}
                       className="w-full bg-red-500 hover:bg-red-600"
@@ -324,10 +324,10 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                   <div className="h-2 bg-gradient-to-r from-red-500 to-yellow-500" />
                   <CardContent className="p-6">
                     <div className="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                      <Map className="w-6 h-6 text-red-600" />
+                      <Map className="w-6 h-6 text-slate-700" />
                     </div>
-                    <h3 className="text-lg font-bold text-red-800 mb-2">知识图谱</h3>
-                    <p className="text-red-600 text-sm mb-4">可视化展示党建知识体系，清晰了解学习内容结构</p>
+                    <h3 className="text-lg font-bold text-slate-900 mb-2">知识图谱</h3>
+                    <p className="text-slate-700 text-sm mb-4">可视化展示党建知识体系，清晰了解学习内容结构</p>
                     <Button 
                       onClick={() => setCurrentView('mindmap')}
                       className="w-full bg-red-500 hover:bg-red-600"
@@ -343,8 +343,8 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                     <div className="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                       <Lightbulb className="w-6 h-6 text-red-500" />
                     </div>
-                    <h3 className="text-lg font-bold text-red-800 mb-2">AI学习助手</h3>
-                    <p className="text-red-600 text-sm mb-4">随时提问，即时解答，让学习更加轻松高效</p>
+                    <h3 className="text-lg font-bold text-slate-900 mb-2">AI学习助手</h3>
+                    <p className="text-slate-700 text-sm mb-4">随时提问，即时解答，让学习更加轻松高效</p>
                     <Button 
                       onClick={() => setCurrentView('ai')}
                       className="w-full bg-gradient-to-r from-red-400 to-red-400 hover:from-red-500 hover:to-red-500"
@@ -363,8 +363,8 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                       <BookOpen className="w-8 h-8 text-white" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-lg font-bold text-red-800 mb-1">建议您这样开始</h3>
-                      <p className="text-red-700 text-sm">先完成学习诊断，了解自己的学习基础，然后根据AI为您定制的学习路径开始系统学习</p>
+                      <h3 className="text-lg font-bold text-slate-900 mb-1">建议您这样开始</h3>
+                      <p className="text-slate-800 text-sm">先完成学习诊断，了解自己的学习基础，然后根据AI为您定制的学习路径开始系统学习</p>
                     </div>
                   </div>
                 </CardContent>
@@ -386,7 +386,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                   <Button
                     variant="outline"
                     onClick={handleFinish}
-                    className="px-8 border-2 border-red-300 text-red-600 hover:bg-red-50"
+                    className="px-8 border-2 border-red-300 text-slate-700 hover:bg-red-50"
                   >
                     <Home className="w-4 h-4 mr-2" />
                     进入主站
@@ -495,7 +495,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             >
               <Card className="border-0 shadow-2xl p-8">
                 <div className="flex items-center gap-4">
-                  <Loader2 className="w-6 h-6 animate-spin text-red-600" />
+                  <Loader2 className="w-6 h-6 animate-spin text-slate-700" />
                   <span className="text-lg font-medium">正在保存诊断结果...</span>
                 </div>
               </Card>
