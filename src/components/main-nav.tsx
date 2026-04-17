@@ -38,7 +38,7 @@ export function MainNav({ showWelcome = false }) {
         "w-full z-50 sticky top-0",
         isHomePage && showWelcome
           ? "bg-gradient-to-b from-orange-100/90 via-orange-50/80 to-transparent backdrop-blur-md" 
-          : "bg-gray-800 border-b border-gray-700"
+          : "bg-gradient-to-r from-red-700 via-red-600 to-orange-500"
       )}>
         <div className="flex items-center justify-between px-6 py-3">
           <div className="flex items-center gap-8">
@@ -67,7 +67,7 @@ export function MainNav({ showWelcome = false }) {
                         "gap-2",
                         isHomePage && showWelcome 
                           ? cn("text-gray-700 hover:text-orange-600 hover:bg-orange-50", isActive && "bg-orange-100 text-orange-600")
-                          : cn("text-gray-300 hover:text-white hover:bg-gray-700", isActive && "bg-gray-700 text-white")
+                          : cn("text-white/90 hover:text-white hover:bg-white/10", isActive && "bg-white/20 text-white font-medium")
                       )}
                     >
                       <Icon className="h-4 w-4" />
@@ -83,7 +83,7 @@ export function MainNav({ showWelcome = false }) {
             <div className="relative">
               <Search className={cn(
                 "absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4",
-                isHomePage && showWelcome ? "text-gray-400" : "text-gray-400"
+                isHomePage && showWelcome ? "text-gray-400" : "text-white/70"
               )} />
               <input 
                 type="text"
@@ -94,17 +94,17 @@ export function MainNav({ showWelcome = false }) {
                   "pl-10 pr-4 py-2 w-48 lg:w-64 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent",
                   isHomePage && showWelcome 
                     ? "bg-white border border-orange-200 text-gray-900 placeholder:text-gray-400"
-                    : "bg-gray-700 border border-gray-600 text-white placeholder:text-gray-400"
+                    : "bg-white/20 border border-white/30 text-white placeholder:text-white/60"
                 )}
               />
             </div>
-            <Button variant="ghost" size="icon" className={cn("relative", isHomePage && showWelcome ? "text-gray-700 hover:text-orange-600" : "text-gray-300 hover:text-white")}>
+            <Button variant="ghost" size="icon" className={cn("relative", isHomePage && showWelcome ? "text-gray-700 hover:text-orange-600" : "text-white/90 hover:text-white hover:bg-white/10")}>
               <Bell className="h-5 w-5" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
+              <span className="absolute top-1 right-1 w-2 h-2 bg-red-400 rounded-full" />
             </Button>
             <Link href="/profile">
-              <Avatar className="h-8 w-8 cursor-pointer border-2 border-orange-400">
-                <AvatarFallback className="bg-orange-500 text-white font-medium">党员</AvatarFallback>
+              <Avatar className="h-8 w-8 cursor-pointer border-2 border-white/50">
+                <AvatarFallback className="bg-white text-red-600 font-medium">党员</AvatarFallback>
               </Avatar>
             </Link>
           </div>
