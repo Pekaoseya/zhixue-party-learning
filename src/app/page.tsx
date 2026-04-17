@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { OnboardingFlow } from '@/components/onboarding-flow';
+import { MainNav } from '@/components/main-nav';
 import { 
   Play,
   Pause,
@@ -1048,7 +1049,7 @@ export default function HomePage() {
 
   return (
     <>
-      {/* 三栏布局 */}
+      <MainNav />
       <div className="flex flex-1 overflow-hidden">
         {/* 左侧栏：课程树 */}
         <aside className="w-64 bg-white border-r border-gray-200 overflow-hidden">

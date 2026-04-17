@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { MainNav } from '@/components/main-nav';
 import { 
   BookOpen, 
   Search,
@@ -49,8 +50,10 @@ export default function LibraryPage() {
   const [searchQuery, setSearchQuery] = useState('');
 
   return (
-    <div className="container mx-auto px-4 py-8 flex-1 overflow-y-auto">
-      <Card className="mb-8 border-orange-100">
+    <>
+      <MainNav />
+      <div className="container mx-auto px-4 py-8 flex-1 overflow-y-auto">
+        <Card className="mb-8 border-orange-100">
         <CardContent className="p-4">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
@@ -204,7 +207,8 @@ export default function LibraryPage() {
             ))}
           </div>
         </TabsContent>
-      </Tabs>
-    </div>
+        </Tabs>
+      </div>
+    </>
   );
 }
