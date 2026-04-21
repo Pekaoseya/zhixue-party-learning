@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { NavBar } from '@/components/nav-bar';
 import { 
   BookOpen,
   Search,
@@ -109,11 +108,53 @@ export default function ProfilePage() {
   const [soundEffects, setSoundEffects] = useState(true);
 
   return (
-    <NavBar activeTab="profile">
+    <div className="flex-1 overflow-y-auto">
       {/* 顶部个人信息卡片 */}
-      <div className="flex-1 overflow-y-auto">
-        {/* 统计卡片 */}
-        <div className="max-w-7xl mx-auto px-6 py-6 -mt-4">
+      <div 
+        className="relative"
+        style={{
+          backgroundImage: "url('/profile-bg.png')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        {/* 半透明遮罩 - 增加文字对比度，与导航栏颜色协调 */}
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-400/30 via-red-500/50 to-red-600/70" />
+        
+        {/* 内容 */}
+        <div className="relative z-10 max-w-7xl mx-auto px-6 py-8">
+          <div className="flex items-center gap-6">
+            <Avatar className="h-24 w-24 border-4 border-red-600/30">
+              <AvatarFallback className="bg-red-600 text-white text-3xl">党员</AvatarFallback>
+            </Avatar>
+            <div className="text-red-900">
+              <h1 className="text-2xl font-bold mb-1">{userData.name}</h1>
+              <p className="text-red-700/80 mb-2">{userData.department}</p>
+              <div className="flex items-center gap-4 text-sm text-red-700/70">
+                <span>入党时间：{userData.joinDate}</span>
+                <Separator orientation="vertical" className="h-4 bg-red-600/30" />
+                <Badge className="bg-red-600 text-white border-0">{userData.level}</Badge>
+              </div>
+            </div>
+            <div className="ml-auto text-right text-red-900">
+              <p className="text-3xl font-bold">第{userData.rank}名</p>
+              <p className="text-red-700/70 text-sm">全站排名 (共{userData.totalUsers}人)</p>
+            </div>
+          </div>
+
+          {/* 等级进度 */}
+          <div className="mt-6 bg-red-900/10 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-red-800/90 text-sm">距离「学习专家」还需</span>
+              <span className="text-red-700 font-medium">750 学习积分</span>
+            </div>
+            <Progress value={userData.levelProgress} className="h-2 bg-red-200 [&>div]:bg-red-600" />
+          </div>
+        </div>
+      </div>
+
+      {/* 统计卡片 */}
+        <div className="max-w-7xl mx-auto px-6 py-6">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <Card>
             <CardContent className="p-4 text-center">
@@ -313,6 +354,6 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
-    </NavBar>
+    </div>
   );
 }

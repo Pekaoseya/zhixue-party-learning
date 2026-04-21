@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Noto_Serif_SC } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/sonner';
+import { NavProvider } from '@/components/nav-context';
 import { MainNav } from '@/components/main-nav';
 
 const notoSerifSC = Noto_Serif_SC({
@@ -42,8 +43,10 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" suppressHydrationWarning className={notoSerifSC.variable}>
       <body className="antialiased">
-        <MainNav />
-        <main>{children}</main>
+        <NavProvider>
+          <MainNav />
+          <main className="flex-1 flex flex-col">{children}</main>
+        </NavProvider>
         <Toaster />
       </body>
     </html>

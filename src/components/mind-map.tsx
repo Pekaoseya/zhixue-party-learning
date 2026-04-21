@@ -151,26 +151,29 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
       .attr('fill', d => {
         const status = getNodeStatus((d.data as KnowledgeNode).id);
         const level = (d.data as KnowledgeNode).level;
-        if (level === 0) return 'url(#gradient0)';
-        if (level === 1) return 'url(#gradient1)';
-        if (status === 'completed') return '#22c55e';
-        if (status === 'available') return '#3b82f6';
-        if (status === 'in_progress') return '#f59e0b';
-        return '#94a3b8';
+        // 所有节点都有实心背景色
+        if (level === 0) return '#991b1b'; // 根节点用最深红色
+        if (level === 1) return '#b91c1c'; // 一级节点用深红色
+        if (status === 'completed') return '#16a34a';
+        if (status === 'available') return '#2563eb';
+        if (status === 'in_progress') return '#d97706';
+        return '#1e293b'; // locked 状态使用深蓝灰色，完全不透明
       })
       .attr('stroke', d => {
         const status = getNodeStatus((d.data as KnowledgeNode).id);
-        if (status === 'available' || status === 'in_progress') return '#fbbf24';
-        return 'none';
+        const level = (d.data as KnowledgeNode).level;
+        // 所有节点都有边框
+        if (level === 0) return 'rgba(255,255,255,0.4)';
+        if (level === 1) return 'rgba(255,255,255,0.5)';
+        if (status === 'available') return '#60a5fa';
+        if (status === 'in_progress') return '#fbbf24';
+        if (status === 'completed') return '#4ade80';
+        return 'rgba(255,255,255,0.6)'; // locked 节点边框更明显
       })
-      .attr('stroke-width', 3)
-      .attr('opacity', d => {
-        const status = getNodeStatus((d.data as KnowledgeNode).id);
-        return status === 'locked' ? 0.5 : 1;
-      })
-      .attr('filter', 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1))');
+      .attr('stroke-width', d => (d.data as KnowledgeNode).level < 2 ? 3 : 2)
+      .attr('filter', 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.25))');
 
-    // 节点文字
+    // 节点文字（带阴影确保可读性）
     nodes.append('text')
       .attr('x', d => getNodeWidth((d.data as KnowledgeNode).level) / 2)
       .attr('y', d => getNodeHeight((d.data as KnowledgeNode).level) / 2)
@@ -181,7 +184,8 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
         return level === 0 ? '15px' : level === 1 ? '13px' : '12px';
       })
       .attr('font-weight', d => (d.data as KnowledgeNode).level <= 1 ? 'bold' : '500')
-      .attr('fill', 'white')
+      .attr('fill', '#ffffff')
+      .attr('style', 'text-shadow: 0 1px 2px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.2)')
       .each(function(d) {
         const nodeWidth = getNodeWidth((d.data as KnowledgeNode).level);
         const text = (d.data as KnowledgeNode).name;
