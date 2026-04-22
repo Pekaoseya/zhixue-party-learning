@@ -1566,10 +1566,13 @@ export default function HomePage() {
           <Button
             variant="secondary"
             size="icon"
-            className="rounded-r-lg rounded-l-none shadow-md bg-white border border-l-0 border-gray-200 hover:bg-orange-50 h-12"
+            className="rounded-r-lg rounded-l-none shadow-md bg-white border border-l-0 border-gray-200 hover:bg-orange-50 h-12 group relative"
             onClick={() => setIsKnowledgeGraphOpen(true)}
           >
             <Layers3 className="h-4 w-4 text-orange-500" />
+            <span className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+              知识图谱
+            </span>
           </Button>
         </div>
       )}
