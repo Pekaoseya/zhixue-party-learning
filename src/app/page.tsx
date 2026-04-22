@@ -64,7 +64,8 @@ import {
   Clock3,
   Flame,
   StarHalf,
-  Layers3
+  Layers3,
+  Map
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -76,6 +77,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { MindMap } from '@/components/mind-map';
 import { partyKnowledgeGraph, generateLearningPath, getNodeById } from '@/lib/knowledge-graph';
 import type { KnowledgeNode } from '@/lib/types';
 
@@ -740,6 +743,7 @@ function TreeNode({ node, depth, expandedNodes, onToggle }: {
 function KnowledgeGraphSidebar({ expanded, onClose }: { expanded: boolean; onClose: () => void }) {
   const [diagnosticData, setDiagnosticData] = useState<{ roles: string[]; topics: string[]; difficulty: string } | null>(null);
   const [showDiagnostic, setShowDiagnostic] = useState(true);
+  const [showMindMapModal, setShowMindMapModal] = useState(false);
 
   useEffect(() => {
     try {
@@ -847,6 +851,17 @@ function KnowledgeGraphSidebar({ expanded, onClose }: { expanded: boolean; onClo
                     根据您选择的身份和感兴趣的主题，系统为您匹配了以下{userLearningPath.rootNode.children?.length || 0}个知识模块，共{userLearningPath.totalDuration}分钟的学习内容。
                   </p>
                 </div>
+                {/* 思维导图弹框按钮 */}
+                {hasDiagnostic && (
+                  <button
+                    onClick={() => setShowMindMapModal(true)}
+                    className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 hover:from-blue-100 hover:to-indigo-100 transition-colors text-left"
+                  >
+                    <Map className="h-5 w-5 text-blue-500 shrink-0" />
+                    <span className="flex-1 text-[16px] font-medium text-blue-700">诊断结果图谱</span>
+                    <ChevronRight className="h-5 w-5 text-blue-400" />
+                  </button>
+                )}
               </>
             ) : (
               <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
@@ -868,6 +883,24 @@ function KnowledgeGraphSidebar({ expanded, onClose }: { expanded: boolean; onClo
           <TreeNode node={userLearningPath.rootNode} depth={0} expandedNodes={expandedNodes} onToggle={handleToggle} />
         </div>
       </ScrollArea>
+
+      {/* 诊断结果图谱弹框 */}
+      <Dialog open={showMindMapModal} onOpenChange={setShowMindMapModal}>
+        <DialogContent className="max-w-[90vw] max-h-[90vh] w-full p-0" style={{ minWidth: '800px', minHeight: '600px' }}>
+          <DialogHeader className="px-6 pt-6 pb-3 border-b">
+            <DialogTitle className="text-xl font-bold flex items-center gap-2" style={{ fontFamily: 'Noto Serif SC, serif' }}>
+              <Map className="h-6 w-6 text-blue-500" />
+              个人诊断结果图谱
+            </DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 min-h-[500px] bg-gradient-to-br from-gray-50 to-gray-100">
+            <MindMap 
+              data={userLearningPath.rootNode}
+              interactive={false}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1,4 +1,90 @@
-import { KnowledgeNode, LearningPath, DiagnosticOption } from './types';
+import { KnowledgeNode, LearningPath, DiagnosticOption, CourseInfo } from './types';
+
+// 模拟课程数据 - 与知识图谱节点对应的真实课程
+const courseDatabase: Record<string, CourseInfo[]> = {
+  'party-constitution': [
+    { id: '1283', title: '中国共产党章程（总纲）', duration: 45 },
+    { id: '1284', title: '中国共产党章程（第一章 党员）', duration: 38 },
+    { id: '1285', title: '中国共产党章程（第二章至第十一章）', duration: 52 },
+    { id: '1286', title: '党章修正案解读（上）', duration: 40 },
+    { id: '1287', title: '党章修正案解读（下）', duration: 42 },
+  ],
+  'party-history': [
+    { id: '1288', title: '中国共产党简史（上）—— 新民主主义革命时期', duration: 55 },
+    { id: '1289', title: '中国共产党简史（中）—— 社会主义革命和建设时期', duration: 50 },
+    { id: '1290', title: '中国共产党简史（下）—— 改革开放和社会主义现代化建设新时期', duration: 48 },
+    { id: '1291', title: '百年党史重大事件回顾', duration: 42 },
+  ],
+  'party-theory': [
+    { id: '1292', title: '马克思主义中国化的理论成果（上）', duration: 45 },
+    { id: '1293', title: '马克思主义中国化的理论成果（下）', duration: 48 },
+    { id: '1294', title: '习近平新时代中国特色社会主义思想概论', duration: 55 },
+    { id: '1295', title: '新时代中国特色社会主义思想的核心要义', duration: 40 },
+  ],
+  '20th-report': [
+    { id: '1300', title: '二十大报告辅导读本（上）—— 过去五年工作和新时代十年伟大变革', duration: 60 },
+    { id: '1301', title: '二十大报告辅导读本（中）—— 新时代新征程党的使命任务', duration: 55 },
+    { id: '1302', title: '二十大报告辅导读本（下）—— 中国式现代化与高质量发展', duration: 58 },
+    { id: '1303', title: '以史为鉴、开创未来—— 学习贯彻党的二十大精神（上）', duration: 45 },
+    { id: '1304', title: '以史为鉴、开创未来—— 学习贯彻党的二十大精神（下）', duration: 48 },
+    { id: '1305', title: '党和国家历史上具有深远意义的伟大转折', duration: 42 },
+  ],
+  'chinese-modernization': [
+    { id: '1306', title: '中国式现代化的中国特色（上）', duration: 42 },
+    { id: '1307', title: '中国式现代化的中国特色（下）', duration: 45 },
+    { id: '1308', title: '中国式现代化的本质要求', duration: 38 },
+    { id: '1309', title: '夺取全面建设社会主义现代化国家新胜利', duration: 50 },
+  ],
+  'comprehensive-strict-governance': [
+    { id: '1310', title: '全面从严治党永远在路上（上）', duration: 40 },
+    { id: '1311', title: '全面从严治党永远在路上（下）', duration: 43 },
+    { id: '1312', title: '以党的自我革命引领社会革命', duration: 38 },
+    { id: '1313', title: '新时代党的建设新的伟大工程', duration: 45 },
+  ],
+  'membership-development': [
+    { id: '1320', title: '发展党员工作流程详解（上）—— 申请入党到确定积极分子', duration: 40 },
+    { id: '1321', title: '发展党员工作流程详解（中）—— 确定发展对象到预备党员', duration: 45 },
+    { id: '1322', title: '发展党员工作流程详解（下）—— 预备党员教育考察到转正', duration: 42 },
+    { id: '1323', title: '入党申请书撰写规范', duration: 30 },
+  ],
+  'party-life': [
+    { id: '1330', title: '三会一课制度规范（上）—— 支委会与党员大会', duration: 38 },
+    { id: '1331', title: '三会一课制度规范（下）—— 党小组会与党课', duration: 35 },
+    { id: '1332', title: '主题党日活动设计与实施', duration: 40 },
+    { id: '1333', title: '组织生活会和民主评议党员', duration: 42 },
+  ],
+  'mass-work': [
+    { id: '1340', title: '意识形态工作如何凝民心聚共识（上）', duration: 43 },
+    { id: '1341', title: '意识形态工作如何凝民心聚共识（下）', duration: 45 },
+    { id: '1342', title: '新时代群众工作方法与实践', duration: 38 },
+    { id: '1343', title: '基层矛盾化解与信访工作', duration: 40 },
+  ],
+  'rural-policy': [
+    { id: '1350', title: '乡村振兴战略解读（上）—— 总体要求与目标任务', duration: 45 },
+    { id: '1351', title: '乡村振兴战略解读（下）—— 五大振兴路径', duration: 48 },
+    { id: '1352', title: '产业振兴与农业现代化', duration: 40 },
+    { id: '1353', title: '乡村治理与文化建设', duration: 42 },
+  ],
+  'rural-governance': [
+    { id: '1360', title: '党建引领乡村治理（上）—— 组织体系建设', duration: 42 },
+    { id: '1361', title: '党建引领乡村治理（下）—— 自治法治德治融合', duration: 45 },
+    { id: '1362', title: '新时代"枫桥经验"与基层社会治理', duration: 40 },
+    { id: '1363', title: '村规民约与乡村文明建设', duration: 35 },
+  ],
+  'integrity-education': [
+    { id: '1370', title: '中国共产党纪律处分条例解读（上）—— 总则与政治纪律', duration: 50 },
+    { id: '1371', title: '中国共产党纪律处分条例解读（中）—— 组织纪律与廉洁纪律', duration: 48 },
+    { id: '1372', title: '中国共产党纪律处分条例解读（下）—— 群众纪律工作纪律生活纪律', duration: 45 },
+    { id: '1373', title: '新时代廉洁自律准则学习', duration: 35 },
+    { id: '1374', title: '典型案例警示教育', duration: 42 },
+  ],
+  'supervision-system': [
+    { id: '1380', title: '党和国家监督体系构建（上）—— 党内监督与国家监察', duration: 45 },
+    { id: '1381', title: '党和国家监督体系构建（下）—— 民主监督与社会监督', duration: 42 },
+    { id: '1382', title: '巡视巡察工作实务', duration: 48 },
+    { id: '1383', title: '审计监督与财经纪律', duration: 40 },
+  ],
+};
 
 // 核心知识图谱 - 党建知识体系
 export const partyKnowledgeGraph: KnowledgeNode = {
@@ -32,6 +118,13 @@ export const partyKnowledgeGraph: KnowledgeNode = {
             duration: 45,
             summary: '系统讲解党章的总纲和条文，重点解读党员条件、义务与权利。'
           },
+          courses: [
+            { id: '1283', title: '中国共产党章程（总纲）', duration: 45 },
+            { id: '1284', title: '中国共产党章程（第一章 党员）', duration: 38 },
+            { id: '1285', title: '中国共产党章程（第二章至第十一章）', duration: 52 },
+            { id: '1286', title: '党章修正案解读（上）', duration: 40 },
+            { id: '1287', title: '党章修正案解读（下）', duration: 42 },
+          ],
           relatedDocuments: [
             { id: 'd1', title: '中国共产党章程', type: '法规' },
             { id: 'd2', title: '党章修正案说明', type: '解读' }
@@ -56,6 +149,12 @@ export const partyKnowledgeGraph: KnowledgeNode = {
             duration: 60,
             summary: '回顾中国共产党从成立到新时代的伟大历程。'
           },
+          courses: [
+            { id: '1288', title: '中国共产党简史（上）—— 新民主主义革命时期', duration: 55 },
+            { id: '1289', title: '中国共产党简史（中）—— 社会主义革命和建设时期', duration: 50 },
+            { id: '1290', title: '中国共产党简史（下）—— 改革开放和社会主义现代化建设新时期', duration: 48 },
+            { id: '1291', title: '百年党史重大事件回顾', duration: 42 },
+          ],
           relatedDocuments: [
             { id: 'd3', title: '中国共产党简史', type: '教材' }
           ]
@@ -79,7 +178,14 @@ export const partyKnowledgeGraph: KnowledgeNode = {
             type: 'video',
             duration: 50,
             summary: '梳理马克思主义中国化的理论演进历程。'
-          }
+          },
+          courses: [
+            { id: '1292', title: '马克思主义中国化时代化的理论逻辑', duration: 48 },
+            { id: '1293', title: '毛泽东思想概论（上）', duration: 52 },
+            { id: '1294', title: '毛泽东思想概论（下）', duration: 46 },
+            { id: '1295', title: '邓小平理论专题', duration: 44 },
+            { id: '1296', title: '习近平新时代中国特色社会主义思想概论', duration: 55 },
+          ],
         }
       ]
     },
@@ -110,6 +216,12 @@ export const partyKnowledgeGraph: KnowledgeNode = {
             duration: 90,
             summary: '深入解读党的二十大报告的核心内容和重大部署。'
           },
+          courses: [
+            { id: '1297', title: '党的二十大报告导读（上）', duration: 55 },
+            { id: '1298', title: '党的二十大报告导读（中）', duration: 50 },
+            { id: '1299', title: '党的二十大报告导读（下）', duration: 48 },
+            { id: '1300', title: '新时代新征程中国共产党的使命任务', duration: 42 },
+          ],
           relatedDocuments: [
             { id: 'd4', title: '党的二十大报告', type: '文件' },
             { id: 'd5', title: '二十大党章修正案', type: '文件' }
@@ -133,7 +245,12 @@ export const partyKnowledgeGraph: KnowledgeNode = {
             type: 'video',
             duration: 40,
             summary: '系统阐述中国式现代化的理论内涵和实践要求。'
-          }
+          },
+          courses: [
+            { id: '1301', title: '中国式现代化的中国特色和本质要求', duration: 45 },
+            { id: '1302', title: '中国式现代化的重大原则', duration: 38 },
+            { id: '1303', title: '两步走战略安排解读', duration: 42 },
+          ],
         },
         {
           id: 'comprehensive-strict-governance',
@@ -153,7 +270,13 @@ export const partyKnowledgeGraph: KnowledgeNode = {
             type: 'video',
             duration: 35,
             summary: '解读新时代党的建设总要求。'
-          }
+          },
+          courses: [
+            { id: '1304', title: '全面从严治党十年回顾', duration: 48 },
+            { id: '1305', title: '党的自我革命与历史主动', duration: 44 },
+            { id: '1306', title: '新时代政治建设新要求', duration: 40 },
+            { id: '1307', title: '四个全面战略布局深度解读', duration: 52 },
+          ],
         }
       ]
     },
@@ -184,6 +307,12 @@ export const partyKnowledgeGraph: KnowledgeNode = {
             duration: 55,
             summary: '详解发展党员的五个阶段、二十五个关键环节。'
           },
+          courses: [
+            { id: '1308', title: '发展党员工作流程详解（上）', duration: 48 },
+            { id: '1309', title: '发展党员工作流程详解（下）', duration: 46 },
+            { id: '1310', title: '入党积极分子培养教育', duration: 40 },
+            { id: '1311', title: '预备党员转正程序规范', duration: 38 },
+          ],
           relatedDocuments: [
             { id: 'd6', title: '发展党员工作细则', type: '规定' }
           ]
@@ -207,7 +336,12 @@ export const partyKnowledgeGraph: KnowledgeNode = {
             type: 'video',
             duration: 40,
             summary: '如何提高党的组织生活质量，增强党员参与感。'
-          }
+          },
+          courses: [
+            { id: '1312', title: '三会一课规范化建设', duration: 45 },
+            { id: '1313', title: '主题党日活动创新与实践', duration: 38 },
+            { id: '1314', title: '组织生活会与民主评议党员', duration: 42 },
+          ],
         },
         {
           id: 'mass-work',
@@ -227,7 +361,13 @@ export const partyKnowledgeGraph: KnowledgeNode = {
             type: 'video',
             duration: 35,
             summary: '掌握新形势下群众工作的方式方法。'
-          }
+          },
+          courses: [
+            { id: '1315', title: '新时代群众工作方法论', duration: 42 },
+            { id: '1316', title: '基层矛盾纠纷调解技巧', duration: 38 },
+            { id: '1317', title: '践行党的群众路线', duration: 44 },
+            { id: '1318', title: '服务群众最后一公里', duration: 36 },
+          ],
         }
       ]
     },
@@ -257,7 +397,12 @@ export const partyKnowledgeGraph: KnowledgeNode = {
             type: 'video',
             duration: 45,
             summary: '全面解读乡村振兴战略的总体框架和五大目标。'
-          }
+          },
+          courses: [
+            { id: '1319', title: '乡村振兴战略总体要求解读', duration: 45 },
+            { id: '1320', title: '产业兴旺——乡村振兴的核心动力', duration: 42 },
+            { id: '1321', title: '生态宜居与乡风文明建设', duration: 38 },
+          ],
         },
         {
           id: 'rural-governance',
@@ -277,7 +422,12 @@ export const partyKnowledgeGraph: KnowledgeNode = {
             type: 'video',
             duration: 40,
             summary: '探索党建引领下的乡村治理新模式。'
-          }
+          },
+          courses: [
+            { id: '1322', title: '党建引领乡村治理新模式', duration: 44 },
+            { id: '1323', title: '村民自治制度完善与实践', duration: 40 },
+            { id: '1324', title: '法治乡村与德治乡村建设', duration: 42 },
+          ],
         }
       ]
     },
@@ -306,7 +456,13 @@ export const partyKnowledgeGraph: KnowledgeNode = {
             type: 'video',
             duration: 50,
             summary: '以案为鉴，筑牢拒腐防变的思想防线。'
-          }
+          },
+          courses: [
+            { id: '1325', title: '中央八项规定精神解读', duration: 46 },
+            { id: '1326', title: '反对四风典型案例剖析', duration: 48 },
+            { id: '1327', title: '廉洁自律准则学习', duration: 40 },
+            { id: '1328', title: '警示教育片精选', duration: 52 },
+          ],
         },
         {
           id: 'supervision-system',
@@ -327,7 +483,13 @@ export const partyKnowledgeGraph: KnowledgeNode = {
             type: 'video',
             duration: 45,
             summary: '构建全方位、多层次的监督网络。'
-          }
+          },
+          courses: [
+            { id: '1329', title: '党内监督体系与实施', duration: 48 },
+            { id: '1330', title: '国家监察体制改革解读', duration: 44 },
+            { id: '1331', title: '民主监督与审计监督实践', duration: 42 },
+            { id: '1332', title: '社会监督与群众监督', duration: 38 },
+          ],
         }
       ]
     }
@@ -376,43 +538,130 @@ export function getNodeById(id: string, node: KnowledgeNode): KnowledgeNode | nu
 
 
 
+/**
+ * 提取课程标题前缀（去掉括号及其内容）
+ */
+function extractCoursePrefix(title: string): string {
+  const idx = title.indexOf('（');
+  return idx >= 0 ? title.substring(0, idx).trim() : title.trim();
+}
+
+/**
+ * 为知识节点注入课程数据
+ * - 每个底层节点插入 3-5 门课程
+ * - 如果课程名包含上/中/下，则将该系列全部纳入（可以短暂超出上限）
+ */
+function injectCoursesToNode(node: KnowledgeNode): KnowledgeNode {
+  const dbCourses = courseDatabase[node.id];
+  if (!dbCourses || dbCourses.length === 0) {
+    return node;
+  }
+
+  // 按前缀分组
+  const prefixMap = new Map<string, CourseInfo[]>();
+  dbCourses.forEach(course => {
+    const prefix = extractCoursePrefix(course.title);
+    if (!prefixMap.has(prefix)) {
+      prefixMap.set(prefix, []);
+    }
+    prefixMap.get(prefix)!.push(course);
+  });
+
+  // 判断哪些组包含 上/中/下 系列
+  const hasSeriesParts = (courses: CourseInfo[]) => {
+    return courses.some(c => c.title.includes('（上）') || c.title.includes('（中）') || c.title.includes('（下）'));
+  };
+
+  // 选择课程：优先选择完整系列，再填充普通课程到 3-5 门
+  const selected: CourseInfo[] = [];
+  const usedPrefixes = new Set<string>();
+
+  // 第一遍：收集所有含 上/中/下 的系列（全部纳入）
+  for (const [prefix, courses] of prefixMap) {
+    if (hasSeriesParts(courses)) {
+      selected.push(...courses);
+      usedPrefixes.add(prefix);
+    }
+  }
+
+  // 第二遍：从剩余课程中挑选，凑够 3-5 门
+  const remaining = dbCourses.filter(c => !usedPrefixes.has(extractCoursePrefix(c.title)));
+  let idx = 0;
+  while (selected.length < 5 && idx < remaining.length) {
+    selected.push(remaining[idx]);
+    idx++;
+  }
+
+  // 如果选了超过 5 门但有连续系列，保留；如果没连续系列且超过 5 门，截断到 5 门
+  const hasContinuousSeries = [...prefixMap.values()].some(courses => 
+    hasSeriesParts(courses) && courses.length >= 2
+  );
+  const finalCourses = (hasContinuousSeries || selected.length <= 5) ? selected : selected.slice(0, 5);
+
+  return {
+    ...node,
+    courses: finalCourses.length > 0 ? finalCourses : node.courses,
+  };
+}
+
+/**
+ * 深度遍历，为所有叶子节点注入课程
+ */
+function injectCoursesRecursive(node: KnowledgeNode): KnowledgeNode {
+  if (node.children && node.children.length > 0) {
+    return {
+      ...node,
+      children: node.children.map(child => injectCoursesRecursive(child)),
+    };
+  }
+  // 叶子节点：注入课程
+  return injectCoursesToNode(node);
+}
+
 // 筛选节点
 function filterNodes(
   node: KnowledgeNode,
   selectedIds: Set<string>,
   level: string
 ): KnowledgeNode | null {
-  // 如果当前节点被选中，或者有子节点被选中，则保留
+  // 递归过滤子节点
   const filteredChildren = node.children
     ?.map(child => filterNodes(child, selectedIds, level))
     .filter((child): child is KnowledgeNode => child !== null);
 
-  // 筛选逻辑 - 优先保留用户选择的主题节点
   const isSelected = selectedIds.has(node.id);
-  const complexity = node.difficulty;
-  
-  // 如果是用户选择的节点，或者是根节点，或者有子节点被选中，则保留
-  if (isSelected || node.level === 0 || filteredChildren?.length > 0) {
-    // 对于用户选择的节点，即使复杂度较高也保留
-  } else if (complexity) {
-    // 对于未被选择的节点，根据难度筛选
-    if (level === 'beginner' && complexity > 1) {
-      return null;
-    }
-    if (level === 'intermediate' && complexity > 2) {
-      return null;
-    }
+
+  // Level 0 根节点：始终保留
+  if (node.level === 0) {
+    return { ...node, children: filteredChildren };
   }
 
-  // 如果是叶子节点且未被选中，则不保留（除非是根节点）
-  if (!filteredChildren?.length && node.level > 0 && !isSelected) {
+  // Level 1 一级分类节点：只要有子节点就保留（不做难度筛选）
+  if (node.level === 1) {
+    if ((filteredChildren && filteredChildren.length > 0) || isSelected) {
+      return { ...node, children: filteredChildren };
+    }
     return null;
   }
 
-  return {
-    ...node,
-    children: filteredChildren
-  };
+  // Level 2+ 节点：根据难度和选中状态筛选
+  const complexity = node.difficulty;
+  if (isSelected) {
+    // 用户选中的节点始终保留
+    return { ...node, children: undefined };
+  }
+  if (complexity) {
+    // 根据难度筛选
+    if (level === 'beginner' && complexity > 1) return null;
+    if (level === 'intermediate' && complexity > 2) return null;
+  }
+
+  // 叶子节点未被选中且有难度限制时移除
+  if (!filteredChildren?.length && !isSelected) {
+    return null;
+  }
+
+  return { ...node, children: filteredChildren };
 }
 
 // 生成学习路径
@@ -501,7 +750,7 @@ export function generateLearningPath(profile: {
     id: `path-${Date.now()}`,
     title: `${selectedRole} · ${selectedTopic}`,
     description: `基于您的选择，为您规划了「${difficultyLabels[profile.level as keyof typeof difficultyLabels]}」学习方案`,
-    rootNode: filteredRoot || partyKnowledgeGraph,
+    rootNode: injectCoursesRecursive(filteredRoot || partyKnowledgeGraph),
     totalDuration: totalDuration || 120,
     difficulty: profile.level as 'beginner' | 'intermediate' | 'advanced'
   };

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import * as d3 from 'd3';
 import { KnowledgeNode, LearningProgress } from '@/lib/types';
 import { motion } from 'framer-motion';
-import { ChevronRight, Play, BookOpen, FileText, Circle, Target } from 'lucide-react';
+import { Play, BookOpen, Circle, Target } from 'lucide-react';
 
 interface MindMapProps {
   data: KnowledgeNode;
@@ -64,7 +64,7 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
     const g = svg.append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
-    // 创建缩放行为 - 仅在交互模式下启用
+    // 仅在交互模式下启用缩放行为
     if (interactive) {
       const zoom = d3.zoom<SVGSVGElement, unknown>()
         .scaleExtent([0.3, 2])
@@ -162,6 +162,7 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
       .enter()
       .append('g')
       .attr('class', 'node')
+      .style('pointer-events', 'all')
       .attr('transform', d => {
         const nodeHeight = getNodeHeight((d.data as KnowledgeNode).level);
         return `translate(${d.y},${d.x - nodeHeight / 2})`;
@@ -279,6 +280,7 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
         width={dimensions.width}
         height={dimensions.height}
         className="w-full h-full"
+        style={{ pointerEvents: 'none' }}
       >
         {/* 渐变定义 */}
         <defs>
@@ -333,43 +335,45 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
               </div>
             )}
             
-            {/* 内容详情 */}
-            {selectedNode.content && (
-              <div className="bg-slate-50 rounded-xl p-3">
-                <h4 className="text-sm font-semibold text-slate-900">
-                  {selectedNode.content.title}
-                </h4>
-                <p className="text-xs text-slate-500 mb-2">
-                  {selectedNode.content.type === 'video' && `时长: ${selectedNode.content.duration}分钟`}
-                </p>
-                {selectedNode.content.summary && (
-                  <p className="text-sm text-slate-600 leading-relaxed">{selectedNode.content.summary}</p>
-                )}
-                <button className="mt-3 w-full bg-red-600 hover:bg-red-700 text-white text-sm py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors">
-                  <Play className="w-4 h-4" />
-                  开始学习
-                </button>
+            {/* 推荐课程 */}
+            <div>
+              <h4 className="text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
+                <Play className="w-4 h-4" />
+                推荐课程
+              </h4>
+              <div className="space-y-1.5">
+                {selectedNode.courses && selectedNode.courses.length > 0 ? (
+                  selectedNode.courses.map((course) => (
+                    <a
+                      key={course.id}
+                      href={`/course/${course.id}`}
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-slate-50 hover:bg-orange-50 cursor-pointer transition-colors group"
+                    >
+                      <div className="h-6 w-6 rounded-full bg-gradient-to-br from-orange-400 to-amber-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                        <Play className="h-2.5 w-2.5 text-white ml-0.5" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-slate-700 truncate group-hover:text-orange-700">{course.title}</p>
+                      </div>
+                      <span className="text-xs text-slate-400 shrink-0">{course.duration}分钟</span>
+                    </a>
+                  ))
+                ) : selectedNode.content ? (
+                  <a
+                    href={`/course/${selectedNode.id}`}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-slate-50 hover:bg-orange-50 cursor-pointer transition-colors group"
+                  >
+                    <div className="h-6 w-6 rounded-full bg-gradient-to-br from-orange-400 to-amber-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                      <Play className="h-2.5 w-2.5 text-white ml-0.5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-slate-700 truncate group-hover:text-orange-700">{selectedNode.content.title}</p>
+                    </div>
+                    <span className="text-xs text-slate-400 shrink-0">{selectedNode.content.duration}分钟</span>
+                  </a>
+                ) : null}
               </div>
-            )}
-            
-            {/* 关联文档 */}
-            {selectedNode.relatedDocuments && selectedNode.relatedDocuments.length > 0 && (
-              <div>
-                <h4 className="text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
-                  <FileText className="w-4 h-4" />
-                  关联阅读
-                </h4>
-                <ul className="space-y-1">
-                  {selectedNode.relatedDocuments.map((doc) => (
-                    <li key={doc.id} className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 cursor-pointer">
-                      <ChevronRight className="w-3 h-3 flex-shrink-0" />
-                      <span className="truncate">{doc.title}</span>
-                      <span className="text-xs text-slate-400 ml-auto">({doc.type})</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            </div>
           </div>
           
           <button
