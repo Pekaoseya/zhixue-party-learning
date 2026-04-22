@@ -23,6 +23,7 @@ import {
   ChevronLeft,
   X,
   CheckCircle2,
+  CheckCircle,
   Check,
   Sparkles,
   Lightbulb,
@@ -80,7 +81,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { MindMap } from '@/components/mind-map';
 import { partyKnowledgeGraph, generateLearningPath, getNodeById } from '@/lib/knowledge-graph';
-import type { KnowledgeNode } from '@/lib/types';
+import type { KnowledgeNode, LearningProgress } from '@/lib/types';
 
 // 内容类型
 type ContentType = 'quote' | 'card' | 'infographic' | 'audio' | 'article';
@@ -635,24 +636,33 @@ function ContentCard({ item, onClick }: { item: ContentItem; onClick: () => void
 }
 
 // 知识图谱树节点组件
-function TreeNode({ node, depth, expandedNodes, onToggle, onSelectModule }: { 
+function TreeNode({ node, depth, expandedNodes, onToggle, onSelectModule, progress = [] }: { 
   node: KnowledgeNode; 
   depth: number;
   expandedNodes: Set<string>;
   onToggle: (id: string) => void;
-  onSelectModule: (node: KnowledgeNode) => void;
+  onSelectModule?: (node: KnowledgeNode) => void;
+  progress: LearningProgress[];
 }) {
   const hasChildren = node.children && node.children.length > 0;
   const hasCourses = node.courses && node.courses.length > 0;
   const hasContent = node.content !== undefined;
   const isExpanded = expandedNodes.has(node.id);
 
+  // 获取节点状态
+  const getNodeStatus = (nodeId: string) => {
+    const prog = progress.find(p => p.nodeId === nodeId);
+    return prog?.status || 'available';
+  };
+
+  const nodeStatus = getNodeStatus(node.id);
+
   // 根节点：只渲染子节点
   if (node.level === 0) {
     return (
       <div className="py-1">
         {node.children?.map(child => (
-          <TreeNode key={child.id} node={child} depth={depth + 1} expandedNodes={expandedNodes} onToggle={onToggle} />
+          <TreeNode key={child.id} node={child} depth={depth + 1} expandedNodes={expandedNodes} onToggle={onToggle} progress={progress} />
         ))}
       </div>
     );
@@ -665,18 +675,21 @@ function TreeNode({ node, depth, expandedNodes, onToggle, onSelectModule }: {
         <button
           onClick={() => {
             onToggle(node.id);
-            onSelectModule(node);
+            onSelectModule?.(node);
           }}
           className="w-full flex items-center gap-2.5 px-4 py-3 text-[18px] font-semibold text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
         >
           <ChevronRight className={`h-5 w-5 transition-transform shrink-0 text-gray-400 ${isExpanded ? 'rotate-90' : ''}`} />
+          {nodeStatus === 'completed' && (
+            <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" />
+          )}
           <span>{node.name}</span>
           <span className="text-[14px] text-gray-400 ml-auto">{hasChildren ? node.children!.length + '个分类' : ''}</span>
         </button>
         {isExpanded && hasChildren && (
           <div className="mt-1">
             {node.children?.map(child => (
-              <TreeNode key={child.id} node={child} depth={depth + 1} expandedNodes={expandedNodes} onToggle={onToggle} onSelectModule={onSelectModule} />
+              <TreeNode key={child.id} node={child} depth={depth + 1} expandedNodes={expandedNodes} onToggle={onToggle} onSelectModule={onSelectModule} progress={progress} />
             ))}
           </div>
         )}
@@ -694,6 +707,9 @@ function TreeNode({ node, depth, expandedNodes, onToggle, onSelectModule }: {
             className="w-full flex items-center gap-2 px-4 py-2.5 text-[16px] font-medium text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
           >
             <ChevronRight className={`h-4 w-4 transition-transform shrink-0 text-gray-400 ${isExpanded ? 'rotate-90' : ''}`} />
+            {nodeStatus === 'completed' && (
+              <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
+            )}
             <span>{node.name}</span>
             <span className="text-[13px] text-gray-400 ml-auto">{node.courses!.length}门课</span>
           </button>
@@ -706,8 +722,12 @@ function TreeNode({ node, depth, expandedNodes, onToggle, onSelectModule }: {
                   className="flex items-center gap-3 px-4 py-3 mx-3 rounded-xl cursor-pointer transition-all bg-gray-50 hover:bg-orange-50 group"
                   title={course.title}
                 >
-                  <div className="h-8 w-8 rounded-full bg-gradient-to-br from-orange-400 to-amber-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                    <Play className="h-3.5 w-3.5 text-white ml-0.5" />
+                  <div className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform ${getNodeStatus(course.id) === 'completed' ? 'bg-green-500' : 'bg-gradient-to-br from-orange-400 to-amber-400'}`}>
+                    {getNodeStatus(course.id) === 'completed' ? (
+                      <CheckCircle2 className="h-3.5 w-3.5 text-white" />
+                    ) : (
+                      <Play className="h-3.5 w-3.5 text-white ml-0.5" />
+                    )}
                   </div>
                   <span className="flex-1 break-words text-[16px] text-gray-600 min-w-0 leading-snug">{course.title}</span>
                   <span className="text-[14px] text-gray-400 shrink-0">{course.duration}分钟</span>
@@ -727,8 +747,12 @@ function TreeNode({ node, depth, expandedNodes, onToggle, onSelectModule }: {
           className="flex items-center gap-3 px-4 py-3 mx-3 my-1 rounded-xl cursor-pointer transition-all bg-gray-50 hover:bg-orange-50 group"
           title={node.content!.title}
         >
-          <div className="h-9 w-9 rounded-full bg-gradient-to-br from-orange-400 to-amber-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-            <Play className="h-4 w-4 text-white ml-0.5" />
+          <div className={`h-9 w-9 rounded-full flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform ${nodeStatus === 'completed' ? 'bg-green-500' : 'bg-gradient-to-br from-orange-400 to-amber-400'}`}>
+            {nodeStatus === 'completed' ? (
+              <CheckCircle2 className="h-4 w-4 text-white" />
+            ) : (
+              <Play className="h-4 w-4 text-white ml-0.5" />
+            )}
           </div>
           <span className="flex-1 break-words text-[16px] text-gray-700 font-medium min-w-0 leading-snug">{node.content!.title}</span>
           <span className="text-[14px] text-gray-400 shrink-0">{node.content!.duration}分钟</span>
@@ -748,6 +772,7 @@ function KnowledgeGraphSidebar({ expanded, onClose, onSelectModule }: { expanded
   const [diagnosticData, setDiagnosticData] = useState<{ roles: string[]; topics: string[]; difficulty: string } | null>(null);
   const [showDiagnostic, setShowDiagnostic] = useState(true);
   const [showMindMapModal, setShowMindMapModal] = useState(false);
+  const [progress, setProgress] = useState<LearningProgress[]>([]);
 
   useEffect(() => {
     try {
@@ -763,6 +788,27 @@ function KnowledgeGraphSidebar({ expanded, onClose, onSelectModule }: { expanded
     } catch {
       // ignore
     }
+  }, []);
+
+  // 读取学习进度
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('learning_progress');
+      if (saved) {
+        setProgress(JSON.parse(saved));
+      }
+    } catch {
+      // ignore
+    }
+
+    // 监听storage变化，同步其他页面的进度更新
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'learning_progress' && e.newValue) {
+        setProgress(JSON.parse(e.newValue));
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   const userLearningPath = generateLearningPath({
@@ -884,7 +930,7 @@ function KnowledgeGraphSidebar({ expanded, onClose, onSelectModule }: { expanded
       {/* 树形内容区域 */}
       <ScrollArea className="flex-1">
         <div className="py-2">
-          <TreeNode node={userLearningPath.rootNode} depth={0} expandedNodes={expandedNodes} onToggle={handleToggle} onSelectModule={onSelectModule} />
+          <TreeNode node={userLearningPath.rootNode} depth={0} expandedNodes={expandedNodes} onToggle={handleToggle} onSelectModule={onSelectModule} progress={progress} />
         </div>
       </ScrollArea>
 

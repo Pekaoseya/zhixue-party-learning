@@ -4,6 +4,7 @@ import './globals.css';
 import { Toaster } from '@/components/ui/sonner';
 import { NavProvider } from '@/components/nav-context';
 import { MainNav } from '@/components/main-nav';
+import VideoMappingInitializer from '@/components/video-mapping-initializer';
 
 const notoSerifSC = Noto_Serif_SC({
   subsets: ['latin'],
@@ -44,6 +45,7 @@ export default function RootLayout({
     <html lang="zh-CN" suppressHydrationWarning className={notoSerifSC.variable}>
       <body className="antialiased">
         <NavProvider>
+          <VideoMappingInitializer />
           <MainNav />
           <main className="flex-1 flex flex-col">{children}</main>
         </NavProvider>

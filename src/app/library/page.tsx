@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { MainNav } from '@/components/main-nav';
 import { 
   BookOpen, 
@@ -228,6 +229,8 @@ export default function LibraryPage() {
     },
   ];
 
+  const router = useRouter();
+
   const thinkingSteps = [
     '正在读取您的知识图谱诊断结果...',
     '正在分析课程需求与目标受众...',
@@ -382,6 +385,15 @@ export default function LibraryPage() {
   const handleSave = () => {
     setGeneratedCourse({ ...generatedCourse, chapters: editedChapters });
     setEditMode(false);
+  };
+
+  // 进入课程学习
+  const handleStartLearn = (chapterId: number) => {
+    // 保存当前课程到localStorage供学习页使用
+    if (generatedCourse) {
+      localStorage.setItem('current_ai_course', JSON.stringify(generatedCourse));
+    }
+    router.push(`/library/course-learn/${chapterId}`);
   };
 
   return (
@@ -987,7 +999,7 @@ export default function LibraryPage() {
                           )}
                         </div>
                         {!editMode && (
-                          <Button size="sm" className="bg-amber-400 text-black font-bold border-2 border-black hover:bg-amber-500" style={{ borderRadius: '0', boxShadow: '2px 2px 0 0 #000' }}>
+                          <Button size="sm" className="bg-amber-400 text-black font-bold border-2 border-black hover:bg-amber-500" style={{ borderRadius: '0', boxShadow: '2px 2px 0 0 #000' }} onClick={() => handleStartLearn(chapter.id)}>
                             <Play className="h-4 w-4 mr-1" />
                             学习
                           </Button>
@@ -1018,9 +1030,14 @@ export default function LibraryPage() {
                     <Button size="lg" variant="outline" className="border-2 border-white text-white font-bold hover:bg-white hover:text-black" style={{ borderRadius: '0' }}>
                       收藏课程
                     </Button>
-                    <Button size="lg" className="bg-green-500 text-white font-bold border-2 border-black hover:bg-green-600" style={{ borderRadius: '0', boxShadow: '3px 3px 0 0 #000' }}>
+                    <Button size="lg" className="bg-green-500 text-white font-bold border-2 border-black hover:bg-green-600" style={{ borderRadius: '0', boxShadow: '3px 3px 0 0 #000' }} onClick={() => {
+                      if (generatedCourse) {
+                        localStorage.setItem('current_ai_course', JSON.stringify(generatedCourse));
+                        router.push('/library/course-learn/1');
+                      }
+                    }}>
                       <CheckCircle2 className="h-4 w-4 mr-2" />
-                      确认创建
+                      确认创建并学习
                     </Button>
                   </div>
                 </div>

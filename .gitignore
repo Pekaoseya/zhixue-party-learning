@@ -16,6 +16,7 @@ out/
 coverage/
 *.lcov
 .nyc_output
+*.mp4
 
 # Environment variables
 .env

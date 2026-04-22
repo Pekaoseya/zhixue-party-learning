@@ -1,88 +1,122 @@
 import { KnowledgeNode, LearningPath, DiagnosticOption, CourseInfo } from './types';
+import { getVideoPath } from './video-mapping';
+
+// 辅助函数：创建带视频路径的课程对象
+function createCourse(id: string, title: string, duration: number): CourseInfo {
+  return {
+    id,
+    title,
+    duration,
+    videoPath: getVideoPath(id),
+  };
+}
 
 // 模拟课程数据 - 与知识图谱节点对应的真实课程
+// 课程来源：社院课程资源库（政治理论、统战理论）
 const courseDatabase: Record<string, CourseInfo[]> = {
+  // ========== 党建基础理论 ==========
   'party-constitution': [
-    { id: '1283', title: '中国共产党章程（总纲）', duration: 45 },
-    { id: '1284', title: '中国共产党章程（第一章 党员）', duration: 38 },
-    { id: '1285', title: '中国共产党章程（第二章至第十一章）', duration: 52 },
-    { id: '1286', title: '党章修正案解读（上）', duration: 40 },
-    { id: '1287', title: '党章修正案解读（下）', duration: 42 },
+    createCourse('1283', '中国共产党章程总纲精讲', 45),
+    createCourse('1284', '中国共产党章程条文解读（党员权利义务）', 38),
+    createCourse('1285', '中国共产党章程组织制度与纪律', 52),
+    createCourse('1286', '党章修正案解读（上）', 40),
+    createCourse('1287', '习近平总书记在浙江的探索与实践', 42),
   ],
   'party-history': [
-    { id: '1288', title: '中国共产党简史（上）—— 新民主主义革命时期', duration: 55 },
-    { id: '1289', title: '中国共产党简史（中）—— 社会主义革命和建设时期', duration: 50 },
-    { id: '1290', title: '中国共产党简史（下）—— 改革开放和社会主义现代化建设新时期', duration: 48 },
-    { id: '1291', title: '百年党史重大事件回顾', duration: 42 },
+    createCourse('1288', '中国共产党简史（上）—— 新民主主义革命时期', 55),
+    createCourse('1289', '中国共产党简史（中）—— 社会主义革命和建设时期', 50),
+    createCourse('1290', '中国共产党简史（下）—— 改革开放和社会主义现代化建设新时期', 48),
+    createCourse('1291', '百年党史重大事件回顾', 42),
+    createCourse('1292', '中国道路与中国梦', 46),
+    createCourse('1293', '不忘初心继续前进', 44),
   ],
   'party-theory': [
-    { id: '1292', title: '马克思主义中国化的理论成果（上）', duration: 45 },
-    { id: '1293', title: '马克思主义中国化的理论成果（下）', duration: 48 },
-    { id: '1294', title: '习近平新时代中国特色社会主义思想概论', duration: 55 },
-    { id: '1295', title: '新时代中国特色社会主义思想的核心要义', duration: 40 },
+    createCourse('1294', '马克思主义中国化时代化的理论逻辑', 48),
+    createCourse('1295', '毛泽东思想概论', 52),
+    createCourse('1296', '邓小平理论专题', 44),
+    createCourse('1297', '习近平新时代中国特色社会主义思想概论', 55),
+    createCourse('1298', '两步走战略准确把握开启全面建设社会主义现代化国家新征程', 48),
+    createCourse('1299', '新发展理念创新发展专题', 42),
+    createCourse('1300', '新发展理念绿色发展建设美丽中国', 45),
   ],
+  // ========== 二十大精神学习 ==========
   '20th-report': [
-    { id: '1300', title: '二十大报告辅导读本（上）—— 过去五年工作和新时代十年伟大变革', duration: 60 },
-    { id: '1301', title: '二十大报告辅导读本（中）—— 新时代新征程党的使命任务', duration: 55 },
-    { id: '1302', title: '二十大报告辅导读本（下）—— 中国式现代化与高质量发展', duration: 58 },
-    { id: '1303', title: '以史为鉴、开创未来—— 学习贯彻党的二十大精神（上）', duration: 45 },
-    { id: '1304', title: '以史为鉴、开创未来—— 学习贯彻党的二十大精神（下）', duration: 48 },
-    { id: '1305', title: '党和国家历史上具有深远意义的伟大转折', duration: 42 },
+    createCourse('1050', '党的二十大精神导读（上）', 55),
+    createCourse('1092', '党的二十大精神导读（中）', 50),
+    createCourse('1091', '党的二十大精神导读（下）', 48),
+    createCourse('1090', '新时代新征程中国共产党的使命任务', 42),
+    createCourse('1089', '党和国家历史上具有深远意义的伟大转折', 40),
   ],
+  // ========== 中国式现代化 ==========
   'chinese-modernization': [
-    { id: '1306', title: '中国式现代化的中国特色（上）', duration: 42 },
-    { id: '1307', title: '中国式现代化的中国特色（下）', duration: 45 },
-    { id: '1308', title: '中国式现代化的本质要求', duration: 38 },
-    { id: '1309', title: '夺取全面建设社会主义现代化国家新胜利', duration: 50 },
+    createCourse('1301', '党的十九届五中全会关于2035年远景目标的战略构想（上）', 45),
+    createCourse('1302', '深入学习贯彻党的十九届五中全会精神，开启全面建设社会主义现代化国家新征程（下）', 38),
+    createCourse('1303', '深入学习贯彻党的十九届五中全会精神，开启全面建设社会主义现代化国家新征程（上）', 42),
+    createCourse('1304', '夺取全面建设社会主义现代化强国新胜利——深入学习党的十九届五中全会精神（下）', 50),
+    createCourse('1305', '夺取全面建设社会主义现代化强国新胜利——深入学习党的十九届五中全会精神（上）', 48),
+    createCourse('1306', '中国式现代化的中国特色和本质要求', 45),
+    createCourse('1307', '大统战系列之六：统一战线的一致性与多样性', 42),
+    createCourse('1308', '大统战系列之七：坚持大统战工作格局的着力重点', 40),
+    createCourse('1309', '大统战系列之八：用协商凝聚共识凝聚智慧凝聚力量', 48),
   ],
+  // ========== 全面从严治党 ==========
   'comprehensive-strict-governance': [
-    { id: '1310', title: '全面从严治党永远在路上（上）', duration: 40 },
-    { id: '1311', title: '全面从严治党永远在路上（下）', duration: 43 },
-    { id: '1312', title: '以党的自我革命引领社会革命', duration: 38 },
-    { id: '1313', title: '新时代党的建设新的伟大工程', duration: 45 },
+    createCourse('1310', '大统战系列之九：凝聚共识需要把握好哪些关系', 48),
+    createCourse('1311', '大统战系列之十：中国新型政党制度', 44),
+    createCourse('1312', '大统战系列之十一：中国新型政党制度的理论渊源', 40),
+    createCourse('1313', '大统战系列之十二：中国新型政党制度的主要特征', 52),
+    createCourse('1314', '大统战系列之十三：中国新型政党制度的文化根基', 48),
+    createCourse('1315', '大统战系列之十四：中国新型政党制度的世界意义', 46),
+    createCourse('1316', '大统战系列之十五：党外知识分子的身份类型与特征', 42),
+    createCourse('1317', '大统战系列之十六：如何做好党外知识分子工作', 40),
   ],
+  // ========== 基层党务工作 ==========
   'membership-development': [
-    { id: '1320', title: '发展党员工作流程详解（上）—— 申请入党到确定积极分子', duration: 40 },
-    { id: '1321', title: '发展党员工作流程详解（中）—— 确定发展对象到预备党员', duration: 45 },
-    { id: '1322', title: '发展党员工作流程详解（下）—— 预备党员教育考察到转正', duration: 42 },
-    { id: '1323', title: '入党申请书撰写规范', duration: 30 },
+    createCourse('1318', '大统战系列之十七：为何要重视高校党外知识分子工作', 45),
+    createCourse('1319', '大统战系列之十八：党外知识分子联谊会', 42),
+    createCourse('1320', '大统战系列之十九：新媒体环境下统战工作面临的机遇和挑战', 40),
+    createCourse('1321', '大统战系列之二十：如何做好新媒体环境下的统战工作', 38),
   ],
   'party-life': [
-    { id: '1330', title: '三会一课制度规范（上）—— 支委会与党员大会', duration: 38 },
-    { id: '1331', title: '三会一课制度规范（下）—— 党小组会与党课', duration: 35 },
-    { id: '1332', title: '主题党日活动设计与实施', duration: 40 },
-    { id: '1333', title: '组织生活会和民主评议党员', duration: 42 },
+    createCourse('1145', '从疫情蔓延看人类命运共同体的构建（上）', 45),
+    createCourse('1144', '从疫情蔓延看人类命运共同体的构建（中）', 42),
+    createCourse('1143', '从疫情蔓延看人类命运共同体的构建（下）', 40),
   ],
   'mass-work': [
-    { id: '1340', title: '意识形态工作如何凝民心聚共识（上）', duration: 43 },
-    { id: '1341', title: '意识形态工作如何凝民心聚共识（下）', duration: 45 },
-    { id: '1342', title: '新时代群众工作方法与实践', duration: 38 },
-    { id: '1343', title: '基层矛盾化解与信访工作', duration: 40 },
+    createCourse('1322', '意识形态工作如何凝民心聚共识——习近平总书记关于意识形态工作重要讲话精神解读（上）', 45),
+    createCourse('1323', '坚持和发展中国特色社会主义宗教理论', 48),
+    createCourse('1324', '新时代群众工作方法与实践', 40),
+    createCourse('1139', '推动协商民主多层发展', 42),
+    createCourse('1132', '推动协商民主广泛发展', 44),
+    createCourse('1131', '协商民主的制度化发展与党的领导', 40),
   ],
+  // ========== 乡村振兴战略 ==========
   'rural-policy': [
-    { id: '1350', title: '乡村振兴战略解读（上）—— 总体要求与目标任务', duration: 45 },
-    { id: '1351', title: '乡村振兴战略解读（下）—— 五大振兴路径', duration: 48 },
-    { id: '1352', title: '产业振兴与农业现代化', duration: 40 },
-    { id: '1353', title: '乡村治理与文化建设', duration: 42 },
+    createCourse('1328', '乡村振兴战略总体要求解读', 45),
+    createCourse('1329', '产业兴旺乡村振兴的核心动力', 42),
+    createCourse('1330', '生态宜居与乡风文明建设', 38),
+    createCourse('1331', '打好精准脱贫攻坚战', 40),
+    createCourse('1332', '精准扶贫与我国扶贫治理体系的完善', 44),
+    createCourse('1333', '精准扶贫的理论在中国的实践', 42),
   ],
   'rural-governance': [
-    { id: '1360', title: '党建引领乡村治理（上）—— 组织体系建设', duration: 42 },
-    { id: '1361', title: '党建引领乡村治理（下）—— 自治法治德治融合', duration: 45 },
-    { id: '1362', title: '新时代"枫桥经验"与基层社会治理', duration: 40 },
-    { id: '1363', title: '村规民约与乡村文明建设', duration: 35 },
+    createCourse('1334', '党建引领乡村治理新模式', 44),
+    createCourse('1335', '村民自治制度完善与实践', 40),
+    createCourse('1336', '法治乡村与德治乡村建设', 42),
   ],
+  // ========== 党风廉政建设 ==========
   'integrity-education': [
-    { id: '1370', title: '中国共产党纪律处分条例解读（上）—— 总则与政治纪律', duration: 50 },
-    { id: '1371', title: '中国共产党纪律处分条例解读（中）—— 组织纪律与廉洁纪律', duration: 48 },
-    { id: '1372', title: '中国共产党纪律处分条例解读（下）—— 群众纪律工作纪律生活纪律', duration: 45 },
-    { id: '1373', title: '新时代廉洁自律准则学习', duration: 35 },
-    { id: '1374', title: '典型案例警示教育', duration: 42 },
+    createCourse('1337', '全面从严治党的基本功——思想建党制度治党', 46),
+    createCourse('1338', '把权力关进制度的笼子里——反腐败体制机制建设', 48),
+    createCourse('1339', '十八大以来党风廉政建设和反腐败工作创新', 44),
+    createCourse('1340', '中国共产党纪律处分条例解读', 50),
+    createCourse('1341', '新时代廉洁自律准则学习', 35),
   ],
   'supervision-system': [
-    { id: '1380', title: '党和国家监督体系构建（上）—— 党内监督与国家监察', duration: 45 },
-    { id: '1381', title: '党和国家监督体系构建（下）—— 民主监督与社会监督', duration: 42 },
-    { id: '1382', title: '巡视巡察工作实务', duration: 48 },
-    { id: '1383', title: '审计监督与财经纪律', duration: 40 },
+    createCourse('1342', '党内监督体系与实施', 48),
+    createCourse('1343', '国家监察体制改革解读', 44),
+    createCourse('1344', '坚持和完善党和国家监督体系', 46),
+    createCourse('1345', '民主监督与审计监督实践', 42),
   ],
 };
 
@@ -123,7 +157,7 @@ export const partyKnowledgeGraph: KnowledgeNode = {
             { id: '1284', title: '中国共产党章程（第一章 党员）', duration: 38 },
             { id: '1285', title: '中国共产党章程（第二章至第十一章）', duration: 52 },
             { id: '1286', title: '党章修正案解读（上）', duration: 40 },
-            { id: '1287', title: '党章修正案解读（下）', duration: 42 },
+            { id: '1287', title: '习近平总书记在浙江的探索与实践', duration: 42 },
           ],
           relatedDocuments: [
             { id: 'd1', title: '中国共产党章程', type: '法规' },
@@ -217,10 +251,11 @@ export const partyKnowledgeGraph: KnowledgeNode = {
             summary: '深入解读党的二十大报告的核心内容和重大部署。'
           },
           courses: [
-            { id: '1297', title: '党的二十大报告导读（上）', duration: 55 },
-            { id: '1298', title: '党的二十大报告导读（中）', duration: 50 },
-            { id: '1299', title: '党的二十大报告导读（下）', duration: 48 },
-            { id: '1300', title: '新时代新征程中国共产党的使命任务', duration: 42 },
+            { id: '1050', title: '党的二十大精神导读（上）', duration: 55 },
+            { id: '1092', title: '党的二十大精神导读（中）', duration: 50 },
+            { id: '1091', title: '党的二十大精神导读（下）', duration: 48 },
+            { id: '1090', title: '新时代新征程中国共产党的使命任务', duration: 42 },
+            { id: '1089', title: '党和国家历史上具有深远意义的伟大转折', duration: 40 },
           ],
           relatedDocuments: [
             { id: 'd4', title: '党的二十大报告', type: '文件' },
@@ -247,9 +282,13 @@ export const partyKnowledgeGraph: KnowledgeNode = {
             summary: '系统阐述中国式现代化的理论内涵和实践要求。'
           },
           courses: [
-            { id: '1301', title: '中国式现代化的中国特色和本质要求', duration: 45 },
-            { id: '1302', title: '中国式现代化的重大原则', duration: 38 },
-            { id: '1303', title: '两步走战略安排解读', duration: 42 },
+            { id: '1301', title: '党的十九届五中全会关于2035年远景目标的战略构想（上）', duration: 45 },
+            { id: '1302', title: '深入学习贯彻党的十九届五中全会精神，开启全面建设社会主义现代化国家新征程（下）', duration: 38 },
+            { id: '1303', title: '深入学习贯彻党的十九届五中全会精神，开启全面建设社会主义现代化国家新征程（上）', duration: 42 },
+            { id: '1306', title: '中国式现代化的中国特色和本质要求', duration: 45 },
+            { id: '1307', title: '大统战系列之六：统一战线的一致性与多样性', duration: 42 },
+            { id: '1308', title: '大统战系列之七：坚持大统战工作格局的着力重点', duration: 40 },
+            { id: '1309', title: '大统战系列之八：用协商凝聚共识凝聚智慧凝聚力量', duration: 48 },
           ],
         },
         {
@@ -272,10 +311,10 @@ export const partyKnowledgeGraph: KnowledgeNode = {
             summary: '解读新时代党的建设总要求。'
           },
           courses: [
-            { id: '1304', title: '全面从严治党十年回顾', duration: 48 },
-            { id: '1305', title: '党的自我革命与历史主动', duration: 44 },
-            { id: '1306', title: '新时代政治建设新要求', duration: 40 },
-            { id: '1307', title: '四个全面战略布局深度解读', duration: 52 },
+            { id: '1310', title: '大统战系列之九：凝聚共识需要把握好哪些关系', duration: 48 },
+            { id: '1311', title: '大统战系列之十：中国新型政党制度', duration: 44 },
+            { id: '1312', title: '大统战系列之十一：中国新型政党制度的理论渊源', duration: 40 },
+            { id: '1313', title: '大统战系列之十二：中国新型政党制度的主要特征', duration: 52 },
           ],
         }
       ]
@@ -308,10 +347,10 @@ export const partyKnowledgeGraph: KnowledgeNode = {
             summary: '详解发展党员的五个阶段、二十五个关键环节。'
           },
           courses: [
-            { id: '1308', title: '发展党员工作流程详解（上）', duration: 48 },
-            { id: '1309', title: '发展党员工作流程详解（下）', duration: 46 },
-            { id: '1310', title: '入党积极分子培养教育', duration: 40 },
-            { id: '1311', title: '预备党员转正程序规范', duration: 38 },
+            { id: '1314', title: '大统战系列之十三：中国新型政党制度的文化根基', duration: 48 },
+            { id: '1315', title: '大统战系列之十四：中国新型政党制度的世界意义', duration: 46 },
+            { id: '1316', title: '大统战系列之十五：党外知识分子的身份类型与特征', duration: 40 },
+            { id: '1317', title: '大统战系列之十六：如何做好党外知识分子工作', duration: 38 },
           ],
           relatedDocuments: [
             { id: 'd6', title: '发展党员工作细则', type: '规定' }
@@ -338,9 +377,10 @@ export const partyKnowledgeGraph: KnowledgeNode = {
             summary: '如何提高党的组织生活质量，增强党员参与感。'
           },
           courses: [
-            { id: '1312', title: '三会一课规范化建设', duration: 45 },
-            { id: '1313', title: '主题党日活动创新与实践', duration: 38 },
-            { id: '1314', title: '组织生活会与民主评议党员', duration: 42 },
+            { id: '1318', title: '大统战系列之十七：为何要重视高校党外知识分子工作', duration: 45 },
+            { id: '1319', title: '大统战系列之十八：党外知识分子联谊会', duration: 42 },
+            { id: '1320', title: '大统战系列之十九：新媒体环境下统战工作面临的机遇和挑战', duration: 40 },
+            { id: '1321', title: '大统战系列之二十：如何做好新媒体环境下的统战工作', duration: 38 },
           ],
         },
         {
@@ -363,10 +403,12 @@ export const partyKnowledgeGraph: KnowledgeNode = {
             summary: '掌握新形势下群众工作的方式方法。'
           },
           courses: [
-            { id: '1315', title: '新时代群众工作方法论', duration: 42 },
-            { id: '1316', title: '基层矛盾纠纷调解技巧', duration: 38 },
-            { id: '1317', title: '践行党的群众路线', duration: 44 },
-            { id: '1318', title: '服务群众最后一公里', duration: 36 },
+            { id: '1145', title: '从疫情蔓延看人类命运共同体的构建（上）', duration: 45 },
+            { id: '1144', title: '从疫情蔓延看人类命运共同体的构建（中）', duration: 42 },
+            { id: '1143', title: '从疫情蔓延看人类命运共同体的构建（下）', duration: 40 },
+            { id: '1139', title: '推动协商民主多层发展', duration: 42 },
+            { id: '1132', title: '推动协商民主广泛发展', duration: 44 },
+            { id: '1131', title: '协商民主的制度化发展与党的领导', duration: 40 },
           ],
         }
       ]
@@ -399,9 +441,12 @@ export const partyKnowledgeGraph: KnowledgeNode = {
             summary: '全面解读乡村振兴战略的总体框架和五大目标。'
           },
           courses: [
-            { id: '1319', title: '乡村振兴战略总体要求解读', duration: 45 },
-            { id: '1320', title: '产业兴旺——乡村振兴的核心动力', duration: 42 },
-            { id: '1321', title: '生态宜居与乡风文明建设', duration: 38 },
+            { id: '1328', title: '乡村振兴战略总体要求解读', duration: 45 },
+            { id: '1329', title: '产业兴旺乡村振兴的核心动力', duration: 42 },
+            { id: '1330', title: '生态宜居与乡风文明建设', duration: 38 },
+            { id: '1331', title: '打好精准脱贫攻坚战', duration: 40 },
+            { id: '1332', title: '论精准扶贫与国家扶贫治理体系完善和优化', duration: 44 },
+            { id: '1333', title: '农村精准扶贫：理论基础与实践情势探析', duration: 42 },
           ],
         },
         {
@@ -424,9 +469,9 @@ export const partyKnowledgeGraph: KnowledgeNode = {
             summary: '探索党建引领下的乡村治理新模式。'
           },
           courses: [
-            { id: '1322', title: '党建引领乡村治理新模式', duration: 44 },
-            { id: '1323', title: '村民自治制度完善与实践', duration: 40 },
-            { id: '1324', title: '法治乡村与德治乡村建设', duration: 42 },
+            { id: '1334', title: '党建引领乡村治理新模式', duration: 44 },
+            { id: '1335', title: '村民自治制度完善与实践', duration: 40 },
+            { id: '1336', title: '法治乡村与德治乡村建设', duration: 42 },
           ],
         }
       ]
@@ -458,10 +503,11 @@ export const partyKnowledgeGraph: KnowledgeNode = {
             summary: '以案为鉴，筑牢拒腐防变的思想防线。'
           },
           courses: [
-            { id: '1325', title: '中央八项规定精神解读', duration: 46 },
-            { id: '1326', title: '反对四风典型案例剖析', duration: 48 },
-            { id: '1327', title: '廉洁自律准则学习', duration: 40 },
-            { id: '1328', title: '警示教育片精选', duration: 52 },
+            { id: '1337', title: '全面从严治党的基本功：思想建党、制度治党、法治权钱', duration: 46 },
+            { id: '1338', title: '把权力关进制度笼子里', duration: 48 },
+            { id: '1339', title: '论十八大以来党风廉政建设和反腐败工作的创新', duration: 44 },
+            { id: '1340', title: '中国共产党纪律处分条例解读', duration: 50 },
+            { id: '1341', title: '新时代廉洁自律准则学习', duration: 35 },
           ],
         },
         {
@@ -485,10 +531,10 @@ export const partyKnowledgeGraph: KnowledgeNode = {
             summary: '构建全方位、多层次的监督网络。'
           },
           courses: [
-            { id: '1329', title: '党内监督体系与实施', duration: 48 },
-            { id: '1330', title: '国家监察体制改革解读', duration: 44 },
-            { id: '1331', title: '民主监督与审计监督实践', duration: 42 },
-            { id: '1332', title: '社会监督与群众监督', duration: 38 },
+            { id: '1342', title: '党内监督体系与实施', duration: 48 },
+            { id: '1343', title: '国家监察体制改革解读', duration: 44 },
+            { id: '1344', title: '坚持和完善党和国家监督体系', duration: 46 },
+            { id: '1345', title: '民主监督与审计监督实践', duration: 42 },
           ],
         }
       ]

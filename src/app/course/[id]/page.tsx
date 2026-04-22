@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { NavBar } from '@/components/nav-bar';
 import { Button } from '@/components/ui/button';
@@ -21,7 +21,18 @@ import {
   Circle,
 } from 'lucide-react';
 import { partyKnowledgeGraph } from '@/lib/knowledge-graph';
+import { courseVideoMapping } from '@/lib/video-mapping';
 import type { KnowledgeNode, LearningProgress } from '@/lib/types';
+
+// 获取本地视频URL（优先使用本地视频）
+function getLocalVideoUrl(courseId: string): string | null {
+  const videoPath = courseVideoMapping[courseId];
+  if (videoPath) {
+    // 直接返回public目录下的静态文件路径
+    return `/${videoPath}`;
+  }
+  return null;
+}
 
 // 从后端获取课程详情（通过代理）
 async function fetchCourseDetail(courseId: string) {
@@ -217,16 +228,37 @@ export default function CoursePage() {
           } else {
             courseToPlay = node.courses[0];
           }
-          // 使用 courseToPlay.videoId 或 courseToPlay.id 作为 courseId 请求视频
-          const targetId = courseToPlay.videoId || courseToPlay.id;
-          const videoUrl = await fetchVideoUrl(targetId);
-          if (videoUrl) {
-            setVideoUrl(videoUrl);
+          
+          console.log('匹配课程:', courseToPlay.id, courseToPlay.title);
+          // 优先使用本地视频映射
+          const localUrl = getLocalVideoUrl(courseToPlay.id);
+          console.log('获取到的视频URL:', localUrl);
+          if (localUrl) {
+            setVideoUrl(localUrl);
+            console.log('[课程播放] 使用本地视频:', localUrl);
+          } else {
+            // 如果本地没有，再尝试从后端获取
+            const targetId = courseToPlay.videoId || courseToPlay.id;
+            const videoUrl = await fetchVideoUrl(targetId);
+            if (videoUrl) {
+              setVideoUrl(videoUrl);
+              console.log('[课程播放] 使用后端视频:', videoUrl);
+            }
           }
-        } else if (node.videoId) {
-          const videoUrl = await fetchVideoUrl(node.videoId);
-          if (videoUrl) {
-            setVideoUrl(videoUrl);
+        } else {
+          // 如果节点本身就是课程，直接用节点id查找视频
+          console.log('当前节点是课程，直接匹配:', node.id);
+          const localUrl = getLocalVideoUrl(node.id);
+          console.log('获取到的视频URL:', localUrl);
+          if (localUrl) {
+            setVideoUrl(localUrl);
+            console.log('[课程播放] 使用本地视频:', localUrl);
+          } else if (node.videoId) {
+            const videoUrl = await fetchVideoUrl(node.videoId);
+            if (videoUrl) {
+              setVideoUrl(videoUrl);
+              console.log('[课程播放] 使用后端视频:', videoUrl);
+            }
           }
         }
       }
@@ -250,10 +282,20 @@ export default function CoursePage() {
     setIsLoading(true);
     
     const course = currentNode.courses[courseIndex];
-    const targetId = course.videoId || course.id;
-    const videoUrl = await fetchVideoUrl(targetId);
-    if (videoUrl) {
-      setVideoUrl(videoUrl);
+    
+    // 优先使用本地视频映射
+    const localUrl = getLocalVideoUrl(course.id);
+    if (localUrl) {
+      setVideoUrl(localUrl);
+      console.log('[课程播放] 使用本地视频:', localUrl);
+    } else {
+      // 如果本地没有，再尝试从后端获取
+      const targetId = course.videoId || course.id;
+      const videoUrl = await fetchVideoUrl(targetId);
+      if (videoUrl) {
+        setVideoUrl(videoUrl);
+        console.log('[课程播放] 使用后端视频:', videoUrl);
+      }
     }
     
     setIsLoading(false);
@@ -289,11 +331,13 @@ export default function CoursePage() {
   };
 
   const togglePlay = () => {
-    if (videoRef.current) {
+    if (videoRef.current && videoUrl) {
       if (isPlaying) {
         videoRef.current.pause();
       } else {
-        videoRef.current.play();
+        videoRef.current.play().catch(e => {
+          console.error('播放失败:', e);
+        });
       }
       setIsPlaying(!isPlaying);
     }
@@ -375,24 +419,29 @@ export default function CoursePage() {
             {/* 视频播放器 */}
             <div className="bg-black rounded-lg overflow-hidden aspect-video relative group">
               {videoUrl ? (
-                <video
-                  ref={videoRef}
-                  src={videoUrl}
-                  className="w-full h-full object-contain"
-                  onTimeUpdate={handleTimeUpdate}
-                  onLoadedMetadata={handleLoadedMetadata}
-                  onPlay={() => setIsPlaying(true)}
-                  onPause={() => setIsPlaying(false)}
-                />
-              ) : (
-                <div className="flex items-center justify-center h-full bg-gray-900">
-                  <div className="text-center text-white">
-                    <Play className="h-16 w-16 mx-auto mb-4 text-gray-600" />
-                    <p className="text-gray-400">暂无视频资源</p>
-                    <p className="text-sm text-gray-500 mt-2">课程ID: {courseId}</p>
-                  </div>
-                </div>
-              )}
+            <video
+              ref={videoRef}
+              src={videoUrl}
+              className="w-full h-full object-contain"
+              onTimeUpdate={handleTimeUpdate}
+              onLoadedMetadata={handleLoadedMetadata}
+              onPlay={() => setIsPlaying(true)}
+              onPause={() => setIsPlaying(false)}
+              onError={(e) => {
+                console.error('视频加载失败:', e);
+                setVideoUrl('');
+              }}
+            />
+          ) : (
+            <div className="flex items-center justify-center h-full bg-gray-900">
+              <div className="text-center text-white p-6">
+                <div className="mb-4 text-gray-400 text-5xl">🎬</div>
+                <h3 className="text-xl font-bold mb-2">课程制作中</h3>
+                <p className="text-gray-400 mb-4">本课程视频资源正在整理上传，敬请期待</p>
+                <p className="text-sm text-gray-500">课程ID: {courseId}</p>
+              </div>
+            </div>
+          )}
               
               {/* 视频控制栏 */}
               {videoUrl && (

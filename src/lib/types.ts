@@ -4,6 +4,7 @@ export interface CourseInfo {
   title: string;
   duration: number;
   videoId?: string;
+  videoPath?: string; // 本地视频文件路径（相对于 VIDEO_BASE_PATH）
 }
 
 // 知识图谱节点

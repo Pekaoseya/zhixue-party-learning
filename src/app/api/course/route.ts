@@ -1,8 +1,14 @@
 // 课程 API 代理路由 - 连接 Frontend8082 后端服务
 import { NextRequest, NextResponse } from 'next/server';
+import http from 'http';
+import https from 'https';
+import { URL } from 'url';
 
 const BACKEND_BASE_URL = 'http://192.168.1.244:8082';
 const API_URL = `${BACKEND_BASE_URL}/api`;
+const BACKEND_HOST = '192.168.1.244';
+const BACKEND_PORT = 8082;
+const BACKEND_PROTOCOL = 'http:';
 
 // 后端 Session Cookie 缓存（服务端内存中共享）
 let backendSessionCookie: string | null = null;
@@ -10,6 +16,46 @@ let backendSessionCookie: string | null = null;
 let antiForgeryToken: Record<string, string> | null = null;
 let isAuthenticating = false;
 let authQueue: Array<() => void> = [];
+
+/**
+ * 使用 http 模块发送请求并捕获 Set-Cookie
+ */
+function httpPost(url: string, body: string, cookie?: string): Promise<{ data: string; cookies: string[]; status: number }> {
+  return new Promise((resolve, reject) => {
+    const parsedUrl = new URL(url);
+    const postData = body;
+    
+    const options: http.RequestOptions = {
+      hostname: parsedUrl.hostname,
+      port: parseInt(parsedUrl.port || '80'),
+      path: parsedUrl.pathname + parsedUrl.search,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+        'Content-Length': Buffer.byteLength(postData),
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      },
+    };
+    
+    if (cookie) {
+      (options.headers as Record<string, string>)['Cookie'] = cookie;
+    }
+    
+    const req = (parsedUrl.protocol === 'https:' ? https : http).request(options, (res) => {
+      const cookies: string[] = res.headers['set-cookie'] || [];
+      let data = '';
+      
+      res.on('data', (chunk) => { data += chunk; });
+      res.on('end', () => {
+        resolve({ data, cookies, status: res.statusCode || 500 });
+      });
+    });
+    
+    req.on('error', reject);
+    req.write(postData);
+    req.end();
+  });
+}
 
 /**
  * 获取后端认证 Cookie + AntiForgeryToken
@@ -21,6 +67,7 @@ async function ensureAuth(): Promise<{ cookie: string | null; token: Record<stri
   }
 
   if (isAuthenticating) {
+    console.log('[Backend Auth] Waiting for ongoing authentication...');
     return new Promise((resolve) => {
       authQueue.push(() => resolve({ cookie: backendSessionCookie, token: antiForgeryToken }));
     });
@@ -29,42 +76,40 @@ async function ensureAuth(): Promise<{ cookie: string | null; token: Record<stri
   isAuthenticating = true;
   try {
     console.log('[Backend Auth] Attempting login as yyf...');
-    const loginResponse = await fetch(`${API_URL}/Page/Login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-      },
-      body: new URLSearchParams({
-        Account: 'yyf',
-        PassWord: 'JYZXyyf@2026',
-        RememberMe: 'true',
-      }),
-    });
+    
+    // 使用 http 模块直接获取 Set-Cookie
+    const loginBody = new URLSearchParams({
+      account: 'yyf',
+      password: 'JYZXyyf@2026',
+    }).toString();
+    
+    const loginResult = await httpPost(`${API_URL}/Page/userLogin`, loginBody);
+    
+    console.log('[Backend Auth] Login status:', loginResult.status);
+    console.log('[Backend Auth] Login cookies count:', loginResult.cookies.length);
+    console.log('[Backend Auth] Login data:', loginResult.data.slice(0, 300));
+    
+    let loginData: any = null;
+    try {
+      loginData = JSON.parse(loginResult.data);
+      console.log('[Backend Auth] Login response:', JSON.stringify(loginData).slice(0, 500));
+    } catch (e) {
+      console.log('[Backend Auth] Login response is not JSON');
+    }
 
-    const loginData = await loginResponse.json();
-    console.log('[Backend Auth] Login response:', JSON.stringify(loginData).slice(0, 300));
-
-    // 提取 Set-Cookie
-    const setCookie = loginResponse.headers.getSetCookie
-      ? loginResponse.headers.getSetCookie()
-      : loginResponse.headers.get('set-cookie');
-
-    console.log('[Backend Auth] Set-Cookie:', setCookie);
-
-    if (setCookie) {
-      backendSessionCookie = Array.isArray(setCookie) ? setCookie.join('; ') : setCookie;
+    if (loginResult.cookies && loginResult.cookies.length > 0) {
+      backendSessionCookie = loginResult.cookies.join('; ');
+      console.log('[Backend Auth] Session cookie cached:', backendSessionCookie.slice(0, 150) + '...');
+    } else {
+      console.error('[Backend Auth] WARNING: No Set-Cookie header received!');
+      console.error('[Backend Auth] Login data:', loginResult.data.slice(0, 200));
     }
 
     // 获取防伪造 Token（需要先有 Session）
     if (backendSessionCookie) {
-      const tokenResponse = await fetch(`${API_URL}/Page/AntiForgeryToken`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-          'Cookie': backendSessionCookie,
-        },
-      });
-      const tokenHtml = await tokenResponse.text();
+      console.log('[Backend Auth] Fetching AntiForgeryToken...');
+      const tokenResult = await httpPost(`${API_URL}/Page/AntiForgeryToken`, '', backendSessionCookie);
+      const tokenHtml = tokenResult.data;
       console.log('[Backend Auth] AntiForgeryToken HTML:', tokenHtml.slice(0, 500));
 
       // 从 HTML 中提取 token: <input type="hidden" name="__RequestVerificationToken" value="xxx" />
@@ -73,6 +118,8 @@ async function ensureAuth(): Promise<{ cookie: string | null; token: Record<stri
       if (nameMatch && valueMatch) {
         antiForgeryToken = { [nameMatch[1]]: valueMatch[1] };
         console.log('[Backend Auth] AntiForgeryToken extracted:', antiForgeryToken);
+      } else {
+        console.error('[Backend Auth] WARNING: Could not extract AntiForgeryToken from HTML');
       }
     }
 
@@ -127,6 +174,14 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const body = await request.json();
   const { courseId, playType = 'Single' } = body;
+  
+  // 支持强制重新认证（用于调试）
+  const forceReauth = body.forceReauth === true;
+  if (forceReauth) {
+    console.log('[Play API] Force re-authentication requested');
+    backendSessionCookie = null;
+    antiForgeryToken = null;
+  }
 
   try {
     let apiUrl: string;
@@ -140,6 +195,18 @@ export async function POST(request: NextRequest) {
 
     // 获取认证信息
     const { cookie, token } = await ensureAuth();
+    
+    // 认证失败处理
+    if (!cookie) {
+      console.error('[Play API] Authentication failed! No session cookie available.');
+      console.error('[Play API] Please check backend credentials and server connectivity.');
+      return NextResponse.json({ 
+        error: 'no-token', 
+        message: '后端登录失败，请检查服务器连接或联系管理员',
+        IsSuccess: false,
+        Type: 401
+      }, { status: 401 });
+    }
 
     const requestBody = new URLSearchParams({ courseId });
     
@@ -150,22 +217,18 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-    };
-    if (cookie) {
-      headers['Cookie'] = cookie;
-    }
-
     console.log('[Play API] Calling:', apiUrl, 'with cookie:', !!cookie, 'token:', JSON.stringify(token));
 
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers,
-      body: requestBody,
-    });
-
-    const data = await response.json();
+    // 使用 http 模块发送请求，确保 Cookie 正确传递
+    const playResult = await httpPost(apiUrl, requestBody.toString(), cookie);
+    
+    let data: any;
+    try {
+      data = JSON.parse(playResult.data);
+    } catch (e) {
+      data = { error: 'Invalid response', raw: playResult.data.slice(0, 500) };
+    }
+    
     console.log('[Play API] Response for', courseId, ':', JSON.stringify(data).slice(0, 300));
     return NextResponse.json(data);
   } catch (error) {
