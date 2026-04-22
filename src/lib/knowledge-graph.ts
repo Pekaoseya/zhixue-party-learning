@@ -440,8 +440,18 @@ export const diagnosticOptions: DiagnosticOption[] = [
   { id: 't3', label: '党章党规', category: 'topic', tags: ['制度学习'] },
   { id: 't4', label: '基层党务', category: 'topic', tags: ['实务操作'] },
   { id: 't5', label: '乡村振兴', category: 'topic', tags: ['政策解读'] },
-  { id: 't6', label: '廉政教育', category: 'topic', tags: ['警示教育'] },
+  { id: 't6', label: '党风廉政', category: 'topic', tags: ['警示教育'] },
 ];
+
+// 主题映射到对应节点
+export const topicNodeMap: Record<string, string> = {
+  '二十大精神': 'party-20th-congress',
+  '党史学习': 'party-history',
+  '党章党规': 'party-constitution',
+  '基层党务': 'grassroots-party-work',
+  '乡村振兴': 'rural-revitalization',
+  '党风廉政': 'disciplinary-style',
+};
 
 // 递归查找节点
 export function getNodeById(id: string, node: KnowledgeNode): KnowledgeNode | null {
@@ -465,7 +475,7 @@ function filterNodes(
   if (level === 'beginner' && node.level > 2) {
     return null;
   }
-  if (level === 'intermediate' && node.level > 2) {
+  if (level === 'intermediate' && node.level > 3) {
     return null;
   }
 
@@ -525,15 +535,7 @@ export function generateLearningPath(profile: {
     '预备党员': ['party-theory', 'integrity-education'],
   };
 
-  // 主题映射到对应节点
-  const topicNodeMap: Record<string, string> = {
-    '二十大精神': 'party-20th-congress',
-    '党史学习': 'party-history',
-    '党章党规': 'party-constitution',
-    '基层党务': 'grassroots-party-work',
-    '乡村振兴': 'rural-revitalization',
-    '廉政教育': 'disciplinary-style',
-  };
+  // 主题映射到对应节点（使用全局映射）
 
   profile.roles.forEach(role => {
     const nodes = roleNodeMap[role];

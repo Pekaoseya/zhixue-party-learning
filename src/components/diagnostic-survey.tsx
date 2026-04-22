@@ -77,7 +77,7 @@ export function DiagnosticSurvey({ onPathGenerated }: DiagnosticSurveyProps) {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -20 }}
         >
-          <Card className="border-0 shadow-xl">
+          <Card className="border-0 shadow-xlt">
             <CardHeader className="text-center pb-2">
               <CardTitle className="text-2xl flex items-center justify-center gap-3">
                 <Users className="w-8 h-8 text-red-600" />
@@ -132,7 +132,7 @@ export function DiagnosticSurvey({ onPathGenerated }: DiagnosticSurveyProps) {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -20 }}
         >
-          <Card className="border-0 shadow-xl">
+          <Card className="border-0 shadow-xlt">
             <CardHeader className="text-center pb-2">
               <CardTitle className="text-2xl flex items-center justify-center gap-3">
                 <BookOpen className="w-8 h-8 text-red-600" />
@@ -193,7 +193,7 @@ export function DiagnosticSurvey({ onPathGenerated }: DiagnosticSurveyProps) {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -20 }}
         >
-          <Card className="border-0 shadow-xl">
+          <Card className="border-0 shadow-xlt">
             <CardHeader className="text-center pb-2">
               <CardTitle className="text-2xl flex items-center justify-center gap-3">
                 <Sparkles className="w-8 h-8 text-red-600" />
@@ -236,9 +236,9 @@ export function DiagnosticSurvey({ onPathGenerated }: DiagnosticSurveyProps) {
                 </label>
                 <div className="grid grid-cols-3 gap-3">
                   {[
-                    { value: 'beginner', label: '入门', desc: '从基础开始' },
-                    { value: 'intermediate', label: '进阶', desc: '巩固提升' },
-                    { value: 'advanced', label: '深入', desc: '全面系统' }
+                    { value: 'beginner', label: '入门', desc: '核心基础知识点（1-2级）' },
+                    { value: 'intermediate', label: '进阶', desc: '扩展内容（1-3级）' },
+                    { value: 'advanced', label: '深入', desc: '完整知识体系（所有层级）' }
                   ].map((opt) => (
                     <button
                       key={opt.value}

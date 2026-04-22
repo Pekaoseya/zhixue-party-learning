@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { OnboardingFlow } from '@/components/onboarding-flow';
+import { useAuth } from '@/lib/auth';
 import { 
   Play,
   Pause,
@@ -1148,6 +1150,9 @@ function ReadingModal({ item, isOpen, onClose }: { item: ContentItem | null; isO
 }
 
 export default function HomePage() {
+  const router = useRouter();
+  const { user, loading } = useAuth();
+  
   // 首次访问检测 - 必须在顶部调用
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean | null>(null);
   
@@ -1159,6 +1164,13 @@ export default function HomePage() {
   const [activeCategory, setActiveCategory] = useState('all');
   const [isKnowledgeGraphOpen, setIsKnowledgeGraphOpen] = useState(false);
   
+  // 检查登录状态
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [user, loading, router]);
+  
   // 检查是否已完成引导
   useEffect(() => {
     const completed = localStorage.getItem('onboarding_completed');
@@ -1169,6 +1181,11 @@ export default function HomePage() {
   const handleOnboardingComplete = () => {
     localStorage.setItem('onboarding_completed', 'true');
     setHasCompletedOnboarding(true);
+    
+    // 触发引导完成事件，通知导航栏更新状态
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('onboardingCompleted'));
+    }
   };
   
   // 显示加载状态，避免闪烁

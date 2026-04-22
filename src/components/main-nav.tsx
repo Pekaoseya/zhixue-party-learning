@@ -9,11 +9,13 @@ import {
   Bell,
   User,
   Library,
+  Users,
   Bookmark,
   PenTool,
   ChevronDown,
   ChevronUp,
-  Play
+  Play,
+  LogOut
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
@@ -21,6 +23,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavContext } from './nav-context';
+import { useAuth } from '@/lib/auth';
 
 const navItems = [
   { id: 'home', name: '首页', href: '/', icon: Home },
@@ -33,16 +36,64 @@ const navItems = [
 export function MainNav() {
   const pathname = usePathname();
   const isHomePage = pathname === '/';
+  const isLoginPage = pathname === '/login';
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   
   // 使用全局 Context 共享展开/收起状态
   const { isExpanded, setIsExpanded } = useNavContext();
+  
+  // 使用登录状态管理
+  const { user, loading, logout } = useAuth();
+  
+  // 强制同步用户状态
+  useEffect(() => {
+    // 只在客户端执行
+    if (typeof window !== 'undefined') {
+      const userData = localStorage.getItem('user');
+      if (userData) {
+        // 直接从localStorage读取用户信息，确保导航栏立即显示
+        setHasCompletedOnboarding(true);
+      }
+    }
+  }, []);
 
   // 检测引导完成状态
   useEffect(() => {
-    const completed = localStorage.getItem('onboarding_completed');
-    setHasCompletedOnboarding(completed === 'true');
+    // 只在客户端执行
+    if (typeof window !== 'undefined') {
+      const completed = localStorage.getItem('onboarding_completed');
+      setHasCompletedOnboarding(completed === 'true');
+    }
+  }, [user, pathname, loading]); // 当登录状态、路径或加载状态变化时重新检查
+
+  // 监听登录成功事件，强制更新用户状态
+  useEffect(() => {
+    const handleLoginSuccess = (event: CustomEvent) => {
+      if (event.detail) {
+        // 直接更新用户状态，确保导航栏立即显示用户信息
+        setHasCompletedOnboarding(true);
+      }
+    };
+
+    // 监听引导完成事件，更新导航栏状态
+    const handleOnboardingComplete = () => {
+      // 直接更新引导完成状态，确保导航栏立即显示
+      setHasCompletedOnboarding(true);
+    };
+
+    // 只在客户端添加事件监听器
+    if (typeof window !== 'undefined') {
+      window.addEventListener('userLoggedIn', handleLoginSuccess as EventListener);
+      window.addEventListener('onboardingCompleted', handleOnboardingComplete as EventListener);
+    }
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('userLoggedIn', handleLoginSuccess as EventListener);
+        window.removeEventListener('onboardingCompleted', handleOnboardingComplete as EventListener);
+      }
+    };
   }, []);
 
   // 路由切换时收起/展开导航栏
@@ -55,8 +106,13 @@ export function MainNav() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
-  // 首页未完成引导：隐藏导航栏
-  if (isHomePage && hasCompletedOnboarding === false) {
+  // 登录页面：隐藏导航栏
+  if (isLoginPage) {
+    return null;
+  }
+
+  // 引导页：隐藏导航栏，因为OnboardingFlow组件有自己的导航栏
+  if (hasCompletedOnboarding === false) {
     return null;
   }
 
@@ -71,7 +127,7 @@ export function MainNav() {
   return (
     <header 
       className={cn(
-        "w-full z-50 sticky top-0 transition-all duration-500 ease-in-out overflow-hidden",
+        "w-full z-50 sticky top-0 transition-all duration-500 ease-in-out",
         baseHeaderStyle,
         isExpanded && showExpandedContent ? "h-56" : "h-16"
       )}
@@ -166,11 +222,37 @@ export function MainNav() {
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-400 rounded-full" />
             </Button>
             
-            <Link href="/profile">
-              <Avatar className="h-8 w-8 cursor-pointer border-2 border-white/50">
-                <AvatarFallback className="bg-white text-red-600 font-medium">党员</AvatarFallback>
-              </Avatar>
-            </Link>
+            {user ? (
+              <div className="relative group">
+                <Link href="/profile">
+                  <Avatar className="h-8 w-8 cursor-pointer border-2 border-white/50">
+                    <AvatarFallback className="bg-white text-red-600 font-medium">{user.name?.charAt(0) || user.Account?.charAt(0) || '党'}</AvatarFallback>
+                  </Avatar>
+                </Link>
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  <div className="px-4 py-2 text-sm text-gray-700 border-b border-gray-100">
+                    {user.name || user.Account || '用户'}
+                  </div>
+                  <button 
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    onClick={() => logout()}
+                  >
+                    <LogOut className="inline-block h-4 w-4 mr-2" />
+                    退出登录
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <Link href="/login">
+                <Button 
+                  variant="default" 
+                  size="sm"
+                  className="bg-white text-red-600 hover:bg-white/90"
+                >
+                  登录
+                </Button>
+              </Link>
+            )}
             
             {/* 展开/收起按钮 */}
             {showExpandedContent && (

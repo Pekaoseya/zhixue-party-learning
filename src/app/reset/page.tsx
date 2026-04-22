@@ -61,9 +61,8 @@ export default function ResetPage() {
           </div>
 
           <div className="p-4 bg-red-50 rounded-lg border border-red-200">
-            <h3 className="font-medium text-sm text-red-700 mb-2">其他测试账号：</h3>
+            <h3 className="font-medium text-sm text-red-700 mb-2">测试账号：</h3>
             <div className="text-xs text-red-600 space-y-1">
-              <p>admin / admin123</p>
               <p>user1 / user123</p>
               <p>user2 / user123</p>
               <p>user3 / user123</p>

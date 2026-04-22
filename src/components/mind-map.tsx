@@ -78,7 +78,22 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
     // 创建树布局 - 水平方向
     const treeLayout = d3.tree<KnowledgeNode>()
       .size([innerHeight, innerWidth])
-      .separation((a, b) => (a.parent === b.parent ? 1.2 : 1.8));
+      .separation((a, b) => {
+        // 检查是否为末尾节点（叶子节点）
+        const isLeafA = !a.children || a.children.length === 0;
+        const isLeafB = !b.children || b.children.length === 0;
+        
+        // 如果都是末尾节点且是兄弟节点，设置更大的间隔
+        if (a.parent === b.parent && isLeafA && isLeafB) {
+          return 2.2; // 末尾节点的间隔
+        }
+        // 兄弟节点的间隔
+        if (a.parent === b.parent) {
+          return 1.8;
+        }
+        // 非兄弟节点的间隔
+        return 2.5;
+      });
 
     // 创建层级数据
     const root = d3.hierarchy(data, d => d.children);
@@ -91,10 +106,23 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
       return 120;
     };
     
+    // 动态计算节点高度，根据可用空间调整
     const getNodeHeight = (level: number) => {
-      if (level === 0) return 60;
-      if (level === 1) return 50;
-      return 44;
+      // 基础高度
+      let baseHeight = 0;
+      if (level === 0) baseHeight = 60;
+      else if (level === 1) baseHeight = 50;
+      else baseHeight = 44;
+      
+      // 根据可用高度调整节点高度，避免叠加
+      const nodeCount = treeData.descendants().length;
+      const estimatedHeightPerNode = innerHeight / (nodeCount * 0.8); // 预留20%空间
+      
+      // 确保节点高度不小于最小高度，同时不超过基础高度
+      const minHeight = 30; // 最小节点高度
+      const adjustedHeight = Math.min(baseHeight, Math.max(minHeight, estimatedHeightPerNode));
+      
+      return adjustedHeight;
     };
 
     // 绘制连接线（贝塞尔曲线）
@@ -244,7 +272,7 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
   }, [data, dimensions, getNodeStatus, highlightedNodes, onNodeClick, progress, interactive]);
 
   return (
-    <div ref={containerRef} className="relative w-full h-full bg-gradient-to-br from-slate-50 to-blue-50 rounded-xl overflow-hidden">
+    <div ref={containerRef} className="relative w-full h-full rounded-xl overflow-hidden">
       {/* SVG容器 */}
       <svg
         ref={svgRef}
@@ -337,7 +365,8 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
           
           <button
             onClick={() => setSelectedNode(null)}
-            className="absolute top-2 right-2 w-6 h-6 bg-white/20 hover:bg-white/40 rounded-full flex items-center justify-center text-white text-sm transition-colors"
+            className="absolute top-2 right-2 w-6 h-6 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center text-white text-sm font-bold transition-colors"
+            aria-label="关闭"
           >
             ×
           </button>
@@ -368,6 +397,8 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
           {interactive ? '点击节点查看详情 · 拖拽或滚轮缩放' : '点击节点查看详情'}
         </p>
       </div>
+      
+
     </div>
   );
 }
