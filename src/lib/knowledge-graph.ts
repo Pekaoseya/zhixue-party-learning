@@ -17,6 +17,7 @@ export const partyKnowledgeGraph: KnowledgeNode = {
           id: 'party-constitution',
           name: '党章学习',
           level: 2,
+          difficulty: 1,
           description: '中国共产党的根本大法',
           keyPoints: [
             '党的性质和宗旨',
@@ -40,6 +41,7 @@ export const partyKnowledgeGraph: KnowledgeNode = {
           id: 'party-history',
           name: '党史学习',
           level: 2,
+          difficulty: 1,
           description: '中国共产党百年奋斗历程',
           keyPoints: [
             '建党初期革命历程',
@@ -62,6 +64,7 @@ export const partyKnowledgeGraph: KnowledgeNode = {
           id: 'party-theory',
           name: '党的创新理论',
           level: 2,
+          difficulty: 2,
           description: '马克思主义中国化的理论成果',
           keyPoints: [
             '毛泽东思想',
@@ -91,6 +94,7 @@ export const partyKnowledgeGraph: KnowledgeNode = {
           id: '20th-report',
           name: '二十大报告解读',
           level: 2,
+          difficulty: 2,
           description: '党的二十大报告核心要义',
           keyPoints: [
             '大会主题与历史意义',
@@ -115,6 +119,7 @@ export const partyKnowledgeGraph: KnowledgeNode = {
           id: 'chinese-modernization',
           name: '中国式现代化',
           level: 2,
+          difficulty: 2,
           description: '中国式现代化的中国特色和本质要求',
           keyPoints: [
             '中国式现代化的中国特色',
@@ -134,6 +139,7 @@ export const partyKnowledgeGraph: KnowledgeNode = {
           id: 'comprehensive-strict-governance',
           name: '全面从严治党',
           level: 2,
+          difficulty: 2,
           description: '新时代党的建设新的伟大工程',
           keyPoints: [
             '两个确立的决定性意义',
@@ -162,6 +168,7 @@ export const partyKnowledgeGraph: KnowledgeNode = {
           id: 'membership-development',
           name: '发展党员工作',
           level: 2,
+          difficulty: 2,
           description: '党员发展规范化流程',
           keyPoints: [
             '入党申请与教育',
@@ -185,6 +192,7 @@ export const partyKnowledgeGraph: KnowledgeNode = {
           id: 'party-life',
           name: '党的组织生活',
           level: 2,
+          difficulty: 1,
           description: '三会一课与主题党日',
           keyPoints: [
             '支部党员大会',
@@ -205,6 +213,7 @@ export const partyKnowledgeGraph: KnowledgeNode = {
           id: 'mass-work',
           name: '群众工作方法',
           level: 2,
+          difficulty: 1,
           description: '做好新时代的群众工作',
           keyPoints: [
             '践行党的群众路线',
@@ -233,6 +242,7 @@ export const partyKnowledgeGraph: KnowledgeNode = {
           id: 'rural-policy',
           name: '乡村振兴政策',
           level: 2,
+          difficulty: 1,
           description: '乡村振兴总体要求和重点任务',
           keyPoints: [
             '产业兴旺',
@@ -253,6 +263,7 @@ export const partyKnowledgeGraph: KnowledgeNode = {
           id: 'rural-governance',
           name: '乡村治理现代化',
           level: 2,
+          difficulty: 2,
           description: '完善乡村治理体系',
           keyPoints: [
             '党建引领乡村振兴',
@@ -281,6 +292,7 @@ export const partyKnowledgeGraph: KnowledgeNode = {
           id: 'integrity-education',
           name: '廉政教育',
           level: 2,
+          difficulty: 2,
           description: '廉洁自律警示教育',
           keyPoints: [
             '中央八项规定精神',
@@ -300,6 +312,7 @@ export const partyKnowledgeGraph: KnowledgeNode = {
           id: 'supervision-system',
           name: '监督执纪体系',
           level: 2,
+          difficulty: 3,
           description: '健全党和国家监督体系',
           keyPoints: [
             '党内监督',
@@ -361,23 +374,7 @@ export function getNodeById(id: string, node: KnowledgeNode): KnowledgeNode | nu
   return null;
 }
 
-// 内容复杂度映射
-// 1级：基础内容，2级：中等难度，3级：复杂内容
-export const contentComplexityMap: Record<string, number> = {
-  'party-constitution': 1,
-  'party-history': 1,
-  'party-theory': 2,
-  '20th-report': 2,
-  'chinese-modernization': 2,
-  'comprehensive-strict-governance': 2,
-  'membership-development': 2,
-  'party-life': 1,
-  'mass-work': 1,
-  'rural-policy': 1,
-  'rural-governance': 2,
-  'integrity-education': 2,
-  'supervision-system': 3
-};
+
 
 // 筛选节点
 function filterNodes(
@@ -392,7 +389,7 @@ function filterNodes(
 
   // 筛选逻辑 - 优先保留用户选择的主题节点
   const isSelected = selectedIds.has(node.id);
-  const complexity = contentComplexityMap[node.id];
+  const complexity = node.difficulty;
   
   // 如果是用户选择的节点，或者是根节点，或者有子节点被选中，则保留
   if (isSelected || node.level === 0 || filteredChildren?.length > 0) {

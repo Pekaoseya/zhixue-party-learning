@@ -5,7 +5,6 @@ import * as d3 from 'd3';
 import { KnowledgeNode, LearningProgress } from '@/lib/types';
 import { motion } from 'framer-motion';
 import { ChevronRight, Play, BookOpen, FileText, Circle, Target } from 'lucide-react';
-import { contentComplexityMap } from '@/lib/knowledge-graph';
 
 interface MindMapProps {
   data: KnowledgeNode;
@@ -304,12 +303,12 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
         >
           <div className="flex items-start justify-between mb-3">
             <h3 className="text-lg font-bold text-slate-900">{selectedNode.name}</h3>
-            {contentComplexityMap[selectedNode.id] && (
+            {selectedNode.difficulty && (
               <div className="flex items-center gap-1 px-2 py-1 bg-slate-100 rounded-full">
                 <Target className="w-3 h-3 text-slate-500" />
                 <span className="text-xs font-medium text-slate-700">
-                  {contentComplexityMap[selectedNode.id] === 1 ? '基础' : 
-                   contentComplexityMap[selectedNode.id] === 2 ? '中等' : '复杂'}
+                  {selectedNode.difficulty === 1 ? '基础' : 
+                   selectedNode.difficulty === 2 ? '中等' : '复杂'}
                 </span>
               </div>
             )}

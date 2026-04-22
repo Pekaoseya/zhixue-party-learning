@@ -110,10 +110,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     return null;
   });
 
-  const [progress] = useState<LearningProgress[]>([
-    { nodeId: 'party-constitution', status: 'completed', score: 95 },
-    { nodeId: 'party-history', status: 'completed', score: 88 }
-  ]);
+  const [progress] = useState<LearningProgress[]>([]);
 
   // 随机选择欢迎语 + 打字机效果
   useEffect(() => {

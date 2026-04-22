@@ -82,6 +82,7 @@ export function AIIntentChat({ onIntentDetected }: AIIntentChatProps) {
     
     // 触发意图检测回调
     if (result.keywords.length > 0) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
       onIntentDetected?.(result.keywords, result.matchedPath);
     }
   };

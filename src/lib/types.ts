@@ -12,6 +12,7 @@ export interface KnowledgeNode {
   name: string;
   description?: string;
   level: number;
+  difficulty?: number; // 1: 基础, 2: 中等, 3: 复杂
   children?: KnowledgeNode[];
   content?: CourseContent;
   courses?: CourseItem[];
