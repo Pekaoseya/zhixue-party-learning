@@ -236,9 +236,9 @@ export function DiagnosticSurvey({ onPathGenerated }: DiagnosticSurveyProps) {
                 </label>
                 <div className="grid grid-cols-3 gap-3">
                   {[
-                    { value: 'beginner', label: '入门', desc: '核心基础知识点（1-2级）' },
-                    { value: 'intermediate', label: '进阶', desc: '扩展内容（1-3级）' },
-                    { value: 'advanced', label: '深入', desc: '完整知识体系（所有层级）' }
+                    { value: 'beginner', label: '入门', desc: '基础内容，适合初学者' },
+                    { value: 'intermediate', label: '进阶', desc: '中等难度，适合有一定基础' },
+                    { value: 'advanced', label: '深入', desc: '全面内容，包括复杂主题' }
                   ].map((opt) => (
                     <button
                       key={opt.value}

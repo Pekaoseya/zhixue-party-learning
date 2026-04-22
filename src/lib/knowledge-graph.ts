@@ -18,14 +18,6 @@ export const partyKnowledgeGraph: KnowledgeNode = {
           name: '党章学习',
           level: 2,
           description: '中国共产党的根本大法',
-          videoId: '1482',
-          courses: [
-            { id: '1482', title: '终身课题、常炼常修——干部的修养修炼没有休止符（下）', duration: 28, videoId: '1482' },
-            { id: '1481', title: '终身课题、常炼常修——干部的修养修炼没有休止符（上）', duration: 31, videoId: '1481' },
-            { id: '1365', title: '重温《论共产党员的修养》的诞生历程', duration: 18, videoId: '1365' },
-            { id: '1361', title: '从《我的修养要则》看周恩来的精神境界', duration: 13, videoId: '1361' },
-            { id: '707', title: '古代官德与干部修养', duration: 60, videoId: '707' },
-          ],
           keyPoints: [
             '党的性质和宗旨',
             '党员的权利和义务',
@@ -49,14 +41,6 @@ export const partyKnowledgeGraph: KnowledgeNode = {
           name: '党史学习',
           level: 2,
           description: '中国共产党百年奋斗历程',
-          videoId: '1475',
-          courses: [
-            { id: '1475', title: '党的百年奋斗的历史意义——党的十九届六中全会精神解读（上）', duration: 28, videoId: '1475' },
-            { id: '1474', title: '党的百年奋斗的历史意义——党的十九届六中全会精神解读（下）', duration: 29, videoId: '1474' },
-            { id: '1469', title: '中国共产党百年奋斗的重大成就（一）', duration: 29, videoId: '1469' },
-            { id: '1468', title: '中国共产党百年奋斗的重大成就（二）', duration: 26, videoId: '1468' },
-            { id: '1467', title: '中国共产党百年奋斗的重大成就（三）', duration: 37, videoId: '1467' },
-          ],
           keyPoints: [
             '建党初期革命历程',
             '新中国成立与社会主义建设',
@@ -79,14 +63,6 @@ export const partyKnowledgeGraph: KnowledgeNode = {
           name: '党的创新理论',
           level: 2,
           description: '马克思主义中国化的理论成果',
-          videoId: '1487',
-          courses: [
-            { id: '1487', title: '习近平生态文明思想与浙江实践', duration: 88, videoId: '1487' },
-            { id: '1460', title: '新时代新型政党制度的创新发展和浙江实践', duration: 32, videoId: '1460' },
-            { id: '1457', title: '回眸党的百年海外统战史，开创新时代海外统战新局面', duration: 39, videoId: '1457' },
-            { id: '1445', title: '新时代中国共产党领导实现中华民族伟大复兴的政治宣言和行动指南（上）', duration: 39, videoId: '1445' },
-            { id: '1444', title: '新时代中国共产党领导实现中华民族伟大复兴的政治宣言和行动指南（中）', duration: 42, videoId: '1444' },
-          ],
           keyPoints: [
             '毛泽东思想',
             '邓小平理论',
@@ -116,14 +92,6 @@ export const partyKnowledgeGraph: KnowledgeNode = {
           name: '二十大报告解读',
           level: 2,
           description: '党的二十大报告核心要义',
-          videoId: '1465',
-          courses: [
-            { id: '1465', title: '以史为鉴、开创未来——学习党的十九届六中全会精神（上）', duration: 33, videoId: '1465' },
-            { id: '1464', title: '以史为鉴、开创未来——学习党的十九届六中全会精神（下）', duration: 28, videoId: '1464' },
-            { id: '1352', title: '党和国家历史上具有深远意义的伟大转折――党的十一届三中全会的召开（上）', duration: 44, videoId: '1352' },
-            { id: '1351', title: '党和国家历史上具有深远意义的伟大转折――党的十一届三中全会的召开（下）', duration: 33, videoId: '1351' },
-            { id: '1305', title: '夺取全面建设社会主义现代化强国新胜利——深入学习党的十九届五中全会精神（上）', duration: 32, videoId: '1305' },
-          ],
           keyPoints: [
             '大会主题与历史意义',
             '过去五年的工作和新时代十年的伟大变革',
@@ -148,14 +116,6 @@ export const partyKnowledgeGraph: KnowledgeNode = {
           name: '中国式现代化',
           level: 2,
           description: '中国式现代化的中国特色和本质要求',
-          videoId: '1304',
-          courses: [
-            { id: '1304', title: '夺取全面建设社会主义现代化强国新胜利——深入学习党的十九届五中全会精神（下）', duration: 28, videoId: '1304' },
-            { id: '1303', title: '深入学习贯彻党的十九届五中全会精神，开启全面建设社会主义现代化国家新征程（上）', duration: 43, videoId: '1303' },
-            { id: '1302', title: '深入学习贯彻党的十九届五中全会精神，开启全面建设社会主义现代化国家新征程（下）', duration: 40, videoId: '1302' },
-            { id: '1040', title: '统一战线与国家治理现代化', duration: 24, videoId: '1040' },
-            { id: '997', title: '推进新时代改革开放：化制度优势为治理效能（上）', duration: 35, videoId: '997' },
-          ],
           keyPoints: [
             '中国式现代化的中国特色',
             '中国式现代化的本质要求',
@@ -175,14 +135,6 @@ export const partyKnowledgeGraph: KnowledgeNode = {
           name: '全面从严治党',
           level: 2,
           description: '新时代党的建设新的伟大工程',
-          videoId: '1450',
-          courses: [
-            { id: '1450', title: '勇于自我革命——必须不断推进党的建设新的伟大工程', duration: 44, videoId: '1450' },
-            { id: '1415', title: '学习政党理论，推进全面从严治党（上）', duration: 26, videoId: '1415' },
-            { id: '1414', title: '学习政党理论，推进全面从严治党（下）', duration: 26, videoId: '1414' },
-            { id: '793', title: '全面从严治党的基本功：思想建党、制度治党、法治权钱', duration: 60, videoId: '793' },
-            { id: '784', title: '习近平总书记全面从严治党新思路', duration: 60, videoId: '784' },
-          ],
           keyPoints: [
             '两个确立的决定性意义',
             '四个全面的战略布局',
@@ -211,14 +163,6 @@ export const partyKnowledgeGraph: KnowledgeNode = {
           name: '发展党员工作',
           level: 2,
           description: '党员发展规范化流程',
-          videoId: '1381',
-          courses: [
-            { id: '1381', title: '《我说40年：先锋》', duration: 35, videoId: '1381' },
-            { id: '903', title: '大数据时代如何提高党员干部的网络安全素养（一）', duration: 39, videoId: '903' },
-            { id: '902', title: '大数据时代如何提高党员干部的网络安全素养（二）', duration: 39, videoId: '902' },
-            { id: '901', title: '大数据时代如何提高党员干部的网络安全素养（三）', duration: 45, videoId: '901' },
-            { id: '900', title: '大数据时代如何提高党员干部的网络安全素养（四）', duration: 45, videoId: '900' },
-          ],
           keyPoints: [
             '入党申请与教育',
             '入党积极分子确定',
@@ -242,14 +186,6 @@ export const partyKnowledgeGraph: KnowledgeNode = {
           name: '党的组织生活',
           level: 2,
           description: '三会一课与主题党日',
-          videoId: '1035',
-          courses: [
-            { id: '1035', title: '如何正确认识共产党领导与民主党派组织独立性之间的关系', duration: 14, videoId: '1035' },
-            { id: '913', title: '减轻灾害风险 提升基层减灾综合防范能力（上）', duration: 40, videoId: '913' },
-            { id: '912', title: '减轻灾害风险 提升基层减灾综合防范能力（下）', duration: 50, videoId: '912' },
-            { id: '849', title: '中国共产党为什么"能"（上）', duration: 24, videoId: '849' },
-            { id: '848', title: '中国共产党为什么"能"（下）', duration: 29, videoId: '848' },
-          ],
           keyPoints: [
             '支部党员大会',
             '支部委员会',
@@ -270,14 +206,6 @@ export const partyKnowledgeGraph: KnowledgeNode = {
           name: '群众工作方法',
           level: 2,
           description: '做好新时代的群众工作',
-          videoId: '1405',
-          courses: [
-            { id: '1405', title: '意识形态工作如何凝民心聚共识——习近平总书记关于意识形态工作重要讲话精神解读（上）', duration: 43, videoId: '1405' },
-            { id: '1404', title: '意识形态工作如何凝民心聚共识——习近平总书记关于意识形态工作重要讲话精神解读（中）', duration: 38, videoId: '1404' },
-            { id: '1403', title: '意识形态工作如何凝民心聚共识——习近平总书记关于意识形态工作重要讲话精神解读（下）', duration: 35, videoId: '1403' },
-            { id: '1350', title: '深入基层，提高调查研究能力（上）', duration: 26, videoId: '1350' },
-            { id: '1349', title: '深入基层，提高调查研究能力（下）', duration: 33, videoId: '1349' },
-          ],
           keyPoints: [
             '践行党的群众路线',
             '密切联系群众',
@@ -306,14 +234,6 @@ export const partyKnowledgeGraph: KnowledgeNode = {
           name: '乡村振兴政策',
           level: 2,
           description: '乡村振兴总体要求和重点任务',
-          videoId: '1501',
-          courses: [
-            { id: '1501', title: '法治建设护航乡村振兴的"余村样板"', duration: 31, videoId: '1501' },
-            { id: '1055', title: '学习习近平总书记关于脱贫攻坚工作的重要指示精神', duration: 9, videoId: '1055' },
-            { id: '951', title: '大力实施乡村振兴战略（上）', duration: 30, videoId: '951' },
-            { id: '950', title: '大力实施乡村振兴战略（下）', duration: 30, videoId: '950' },
-            { id: '919', title: '实施乡村振兴战略，着力推进"五个振兴"', duration: 65, videoId: '919' },
-          ],
           keyPoints: [
             '产业兴旺',
             '生态宜居',
@@ -334,14 +254,6 @@ export const partyKnowledgeGraph: KnowledgeNode = {
           name: '乡村治理现代化',
           level: 2,
           description: '完善乡村治理体系',
-          videoId: '1027',
-          courses: [
-            { id: '1027', title: '新乡贤与基层统战工作', duration: 123, videoId: '1027' },
-            { id: '946', title: '打造共建共治共享的社会治理格局', duration: 20, videoId: '946' },
-            { id: '938', title: '构建新型基层社会治理体系，打造扫黑除恶坚固防线（上）', duration: 40, videoId: '938' },
-            { id: '937', title: '构建新型基层社会治理体系，打造扫黑除恶坚固防线（中）', duration: 45, videoId: '937' },
-            { id: '936', title: '构建新型基层社会治理体系，打造扫黑除恶坚固防线（下）', duration: 45, videoId: '936' },
-          ],
           keyPoints: [
             '党建引领乡村振兴',
             '村民自治制度完善',
@@ -370,14 +282,6 @@ export const partyKnowledgeGraph: KnowledgeNode = {
           name: '廉政教育',
           level: 2,
           description: '廉洁自律警示教育',
-          videoId: '1418',
-          courses: [
-            { id: '1418', title: '领导干部廉洁从政从业风险防范（上）', duration: 45, videoId: '1418' },
-            { id: '1417', title: '领导干部廉洁从政从业风险防范（中）', duration: 40, videoId: '1417' },
-            { id: '1416', title: '领导干部廉洁从政从业风险防范（下）', duration: 40, videoId: '1416' },
-            { id: '1360', title: '走近抗大，弘扬艰苦奋斗的优良作风', duration: 15, videoId: '1360' },
-            { id: '878', title: '廉政建设中正面引导的价值——以明代为例', duration: 35, videoId: '878' },
-          ],
           keyPoints: [
             '中央八项规定精神',
             '反对四风',
@@ -397,14 +301,6 @@ export const partyKnowledgeGraph: KnowledgeNode = {
           name: '监督执纪体系',
           level: 2,
           description: '健全党和国家监督体系',
-          videoId: '1345',
-          courses: [
-            { id: '1345', title: '党员领导干部要在执行党的纪律中作表率', duration: 77, videoId: '1345' },
-            { id: '1342', title: '构建全方位、立体式、动态化干部大监督工作机制', duration: 50, videoId: '1342' },
-            { id: '993', title: '坚持和完善党和国家监督体系，强化对权力运行的制约和监督（上）', duration: 40, videoId: '993' },
-            { id: '992', title: '坚持和完善党和国家监督体系，强化对权力运行的制约和监督（下）', duration: 40, videoId: '992' },
-            { id: '780', title: '《中国共产党问责条例》：全面从严治党、依规治党的新举措', duration: 50, videoId: '780' },
-          ],
           keyPoints: [
             '党内监督',
             '国家监察',
@@ -464,6 +360,24 @@ export function getNodeById(id: string, node: KnowledgeNode): KnowledgeNode | nu
   }
   return null;
 }
+
+// 内容复杂度映射
+// 1级：基础内容，2级：中等难度，3级：复杂内容
+export const contentComplexityMap: Record<string, number> = {
+  'party-constitution': 1,
+  'party-history': 1,
+  'party-theory': 2,
+  '20th-report': 2,
+  'chinese-modernization': 2,
+  'comprehensive-strict-governance': 2,
+  'membership-development': 2,
+  'party-life': 1,
+  'mass-work': 1,
+  'rural-policy': 1,
+  'rural-governance': 2,
+  'integrity-education': 2,
+  'supervision-system': 3
+};
 
 // 筛选节点
 function filterNodes(
