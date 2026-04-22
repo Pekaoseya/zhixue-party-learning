@@ -92,20 +92,20 @@ const generateRecommendedUsers = (topic: string, count: number = 6) => {
 
 // 预设的课程模板
 const courseTemplates = [
-  { id: 1387, name: '习近平新时代中国特色社会主义思想概论', teacher: '王教授', hours: 8 },
-  { id: 860, name: '统一战线理论与实践', teacher: '李教授', hours: 6 },
-  { id: 1023, name: '中国式现代化与统战工作', teacher: '张教授', hours: 4 },
-  { id: 861, name: '协商民主与参政议政', teacher: '陈教授', hours: 6 },
-  { id: 1016, name: '新时代统战工作创新', teacher: '刘教授', hours: 4 },
-  { id: 954, name: '统战条例解读', teacher: '赵教授', hours: 4 },
-  { id: 1020, name: '民族宗教工作专题', teacher: '孙教授', hours: 4 },
-  { id: 1017, name: '新的社会阶层人士工作', teacher: '周教授', hours: 4 },
-  { id: 1021, name: '港澳台统战工作', teacher: '吴教授', hours: 4 },
-  { id: 687, name: '统战干部能力提升', teacher: '郑教授', hours: 6 },
-  { id: 701, name: '民营经济发展政策解读', teacher: '刘教授', hours: 6 },
-  { id: 702, name: '基层统战工作实务', teacher: '陈教授', hours: 4 },
-  { id: 703, name: '党外干部能力培养', teacher: '周教授', hours: 6 },
-  { id: 704, name: '民族宗教事务管理', teacher: '赵教授', hours: 4 },
+  { id: 1387, name: '习近平新时代中国特色社会主义思想概论', teacher: '王教授', hours: 8, reason: '核心理论课程，夯实政治理论基础' },
+  { id: 860, name: '统一战线理论与实践', teacher: '李教授', hours: 6, reason: '统战工作核心业务必修课程' },
+  { id: 1023, name: '中国式现代化与统战工作', teacher: '张教授', hours: 4, reason: '结合新时代背景，聚焦统战工作新使命' },
+  { id: 861, name: '协商民主与参政议政', teacher: '陈教授', hours: 6, reason: '提升民主党派参政议政能力' },
+  { id: 1016, name: '新时代统战工作创新', teacher: '刘教授', hours: 4, reason: '掌握统战工作新方法、新路径' },
+  { id: 954, name: '统战条例解读', teacher: '赵教授', hours: 4, reason: '法规学习，夯实统战工作法治基础' },
+  { id: 1020, name: '民族宗教工作专题', teacher: '孙教授', hours: 4, reason: '民族宗教事务管理实务指南' },
+  { id: 1017, name: '新的社会阶层人士工作', teacher: '周教授', hours: 4, reason: '针对新阶层特点，精准施策' },
+  { id: 1021, name: '港澳台统战工作', teacher: '吴教授', hours: 4, reason: '拓展港澳台统战工作视野' },
+  { id: 687, name: '统战干部能力提升', teacher: '郑教授', hours: 6, reason: '全面提升统战干部业务素养' },
+  { id: 701, name: '民营经济发展政策解读', teacher: '刘教授', hours: 6, reason: '服务民营经济，促进高质量发展' },
+  { id: 702, name: '基层统战工作实务', teacher: '陈教授', hours: 4, reason: '基层统战工作实操技能提升' },
+  { id: 703, name: '党外干部能力培养', teacher: '周教授', hours: 6, reason: '党外干部履职能力专项提升' },
+  { id: 704, name: '民族宗教事务管理', teacher: '赵教授', hours: 4, reason: '民族宗教工作规范化培训' },
 ];
 
 // 预设组班方案
@@ -367,24 +367,24 @@ export default function TrainingCandidatesPage() {
         <Card className="mb-8 border-red-100 bg-gradient-to-r from-purple-50 to-pink-50">
           <CardContent className="p-6">
             <div className="flex items-start gap-6">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center flex-shrink-0">
-                <Sparkles className="h-8 w-8 text-white" />
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center flex-shrink-0">
+                <Sparkles className="h-10 w-10 text-white" />
               </div>
               <div className="flex-1">
-                <h2 className="text-xl font-bold mb-4 text-gray-800">AI智能组班系统</h2>
-                <div className="flex flex-col sm:flex-row gap-4 mb-4">
+                <h2 className="text-2xl font-bold mb-5 text-gray-800">AI智能组班系统</h2>
+                <div className="flex flex-col sm:flex-row gap-4 mb-5">
                   <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                     <Input 
                       placeholder="输入开班需求，如：举办一期低空经济政策培训班，面向统战系统干部..."
-                      className="pl-10 border-purple-200 h-12 text-base"
+                      className="pl-11 border-purple-200 h-14 text-lg"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && handleCreateClass()}
                     />
                   </div>
                   <Button 
-                    className="h-12 px-8 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 flex-shrink-0"
+                    className="h-14 px-10 text-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 flex-shrink-0"
                     onClick={handleCreateClass}
                     disabled={isSearching || !searchQuery.trim()}
                   >
@@ -393,9 +393,9 @@ export default function TrainingCandidatesPage() {
                 </div>
                 
                 {/* 预设方案快捷按钮 */}
-                <div className="mb-4">
-                  <div className="text-sm text-gray-600 mb-2 flex items-center gap-2">
-                    <span className="w-1 h-4 bg-purple-500 rounded-full"></span>
+                <div className="mb-5">
+                  <div className="text-lg text-gray-600 mb-3 flex items-center gap-2">
+                    <span className="w-1.5 h-5 bg-purple-500 rounded-full"></span>
                     快捷预设：
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -404,7 +404,7 @@ export default function TrainingCandidatesPage() {
                         key={plan.key}
                         variant="secondary"
                         size="sm"
-                        className="bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs"
+                        className="bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-sm px-4 py-2 h-9"
                         onClick={() => handlePresetClick(plan)}
                         disabled={isSearching}
                       >
@@ -416,17 +416,17 @@ export default function TrainingCandidatesPage() {
 
                 {/* AI思考过程 */}
                 {isSearching && (
-                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                    <h3 className="font-semibold text-purple-700 mb-2 flex items-center gap-2">
+                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-5">
+                    <h3 className="font-semibold text-purple-700 mb-3 flex items-center gap-2 text-lg">
                       <span className="animate-pulse">🤖</span> AI思考过程
                     </h3>
-                    <div className="space-y-2">
+                    <div className="space-y-2.5">
                       {thinkingSteps.slice(0, currentStep + 1).map((step, idx) => (
-                        <div key={idx} className="flex items-center gap-2 text-sm text-purple-800 pl-4 relative">
+                        <div key={idx} className="flex items-center gap-2 text-base text-purple-800 pl-4 relative">
                           {idx < currentStep ? (
-                            <CheckCircle2 className="h-4 w-4 text-green-600 absolute left-0" />
+                            <CheckCircle2 className="h-5 w-5 text-green-600 absolute left-0" />
                           ) : (
-                            <span className="absolute left-0 animate-pulse">●</span>
+                            <span className="absolute left-0 animate-pulse text-lg">●</span>
                           )}
                           {step}
                         </div>
@@ -536,45 +536,45 @@ export default function TrainingCandidatesPage() {
             {/* 班级信息 */}
             <Card className="mb-8 border-purple-100 border-l-4 border-l-purple-600">
               <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-bold text-gray-800">{generatedData?.className || `${searchQuery}培训班`}</h2>
-                  <Button className="bg-green-600 hover:bg-green-700">✓ 创建培训班</Button>
+                <div className="flex items-center justify-between mb-5">
+                  <h2 className="text-3xl font-bold text-gray-800">{generatedData?.className || `${searchQuery}培训班`}</h2>
+                  <Button className="bg-green-600 hover:bg-green-700 text-lg px-6 h-12">✓ 创建培训班</Button>
                 </div>
                 <div className="grid md:grid-cols-3 gap-6 mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center text-purple-600">
-                      <Clock className="h-5 w-5" />
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-lg bg-purple-100 flex items-center justify-center text-purple-600">
+                      <Clock className="h-6 w-6" />
                     </div>
                     <div>
-                      <div className="text-xs text-gray-500">举办时间</div>
-                      <div className="font-semibold">{generatedData?.classTime || '待定'}</div>
+                      <div className="text-sm text-gray-500">举办时间</div>
+                      <div className="font-semibold text-base">{generatedData?.classTime || '待定'}</div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
                     </div>
                     <div>
-                      <div className="text-xs text-gray-500">举办地点</div>
-                      <div className="font-semibold">{generatedData?.classLocation || '待定'}</div>
+                      <div className="text-sm text-gray-500">举办地点</div>
+                      <div className="font-semibold text-base">{generatedData?.classLocation || '待定'}</div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center text-green-600">
-                      <Users className="h-5 w-5" />
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center text-green-600">
+                      <Users className="h-6 w-6" />
                     </div>
                     <div>
-                      <div className="text-xs text-gray-500">推荐学员</div>
-                      <div className="font-semibold">{generatedData?.recommendedUsers?.length || 0}人（避开{generatedData?.avoidedUsers?.length || 0}人）</div>
+                      <div className="text-sm text-gray-500">推荐学员</div>
+                      <div className="font-semibold text-base">{generatedData?.recommendedUsers?.length || 0}人（避开{generatedData?.avoidedUsers?.length || 0}人）</div>
                     </div>
                   </div>
                 </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-2">班级简介</h3>
-                  <p className="text-gray-600">
+                <div className="bg-gray-50 p-5 rounded-lg">
+                  <h3 className="text-base font-semibold text-gray-700 mb-2">班级简介</h3>
+                  <p className="text-base text-gray-600">
                     {generatedData?.classIntroduction || `本培训班围绕"${searchQuery}"主题，系统梳理相关政策要点、实践案例和工作方法，
                     提升参训人员的业务能力和理论水平。培训为期2天，包含专题授课、案例研讨和现场教学等环节。`}
                   </p>
@@ -585,21 +585,28 @@ export default function TrainingCandidatesPage() {
             {/* 课程安排 */}
             <Card className="mb-8 border-red-100">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BookOpen className="h-5 w-5 text-red-600" />
+                <CardTitle className="flex items-center gap-2 text-xl">
+                  <BookOpen className="h-6 w-6 text-red-600" />
                   课程安排（{generatedData?.courses?.length || 0}门）
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid md:grid-cols-2 gap-4">
                   {generatedData?.courses?.map((course: any, idx: number) => (
-                    <div key={course.id} className="flex items-center gap-3 p-4 border border-gray-100 rounded-lg hover:border-red-200 transition-all">
-                      <div className="w-8 h-8 rounded bg-red-100 text-red-700 flex items-center justify-center flex-shrink-0 font-semibold">
+                    <div key={course.id} className="flex items-start gap-3 p-5 border border-gray-100 rounded-lg hover:border-red-200 transition-all">
+                      <div className="w-12 h-12 rounded bg-red-100 text-red-700 flex items-center justify-center flex-shrink-0 font-bold text-lg">
                         {idx + 1}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="font-semibold text-sm">{course.name}</div>
-                        <div className="text-xs text-gray-500 mt-1">{course.teacher} · {course.hours}学时</div>
+                        <div className="font-bold text-lg leading-snug">{course.name}</div>
+                        <div className="text-base text-gray-500 mt-1">{course.teacher} · {course.hours}学时</div>
+                        {course.reason && (
+                          <div className="mt-2 px-3 py-2 bg-orange-50 border border-orange-100 rounded-lg">
+                            <span className="text-base font-medium text-orange-700">
+                              💡 {course.reason}
+                            </span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -609,16 +616,16 @@ export default function TrainingCandidatesPage() {
 
             {/* 学员筛选 */}
             <Card className="mb-8 border-gray-100 bg-gray-50">
-              <CardContent className="p-4">
-                <h3 className="font-semibold mb-4 flex items-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <CardContent className="p-5">
+                <h3 className="font-semibold mb-5 flex items-center gap-2 text-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                   </svg>
                   学员筛选
                 </h3>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <div className="w-full sm:w-48">
-                    <label className="text-xs text-gray-500 mb-1 block">党派</label>
+                    <label className="text-sm text-gray-500 mb-1.5 block">党派</label>
                     <Select defaultValue="all_party" onValueChange={(v) => setFilters({...filters, role: v})}>
                       <SelectTrigger>
                         <SelectValue placeholder="全部党派" />
@@ -639,15 +646,16 @@ export default function TrainingCandidatesPage() {
                     </Select>
                   </div>
                   <div className="flex-1">
-                    <label className="text-xs text-gray-500 mb-1 block">搜索学员</label>
+                    <label className="text-sm text-gray-500 mb-1.5 block">搜索学员</label>
                     <Input 
                       placeholder="输入姓名或单位" 
+                      className="text-base h-11"
                       value={filters.keyword}
                       onChange={(e) => setFilters({...filters, keyword: e.target.value})}
                     />
                   </div>
                   <div className="w-full sm:w-48">
-                    <label className="text-xs text-gray-500 mb-1 block">参训状态</label>
+                    <label className="text-sm text-gray-500 mb-1.5 block">参训状态</label>
                     <Select defaultValue="all" onValueChange={(v) => setFilters({...filters, status: v})}>
                       <SelectTrigger>
                         <SelectValue placeholder="全部" />
@@ -670,28 +678,28 @@ export default function TrainingCandidatesPage() {
 
             {/* 推荐学员 */}
             <div className="mb-8">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold flex items-center gap-2">
-                  <Users className="h-5 w-5 text-red-600" />
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-xl font-bold flex items-center gap-2">
+                  <Users className="h-6 w-6 text-red-600" />
                   推荐学员
                 </h2>
                 <div className="flex gap-2">
-                  <Button variant="ghost" size="sm">批量邀请</Button>
-                  <Button variant="ghost" size="sm">导出名单</Button>
+                  <Button variant="ghost" size="sm" className="text-base">批量邀请</Button>
+                  <Button variant="ghost" size="sm" className="text-base">导出名单</Button>
                 </div>
               </div>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredUsers.map((user: { id: number; name: string; role: string; org: string; region: string; tags: string[]; status: string; reason: string; records?: unknown[] }) => (
                   <Card key={user.id} className="border-gray-100 hover:shadow-lg transition-all">
-                    <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-4">
-                      <div className="flex items-center justify-between mb-2">
+                    <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-5">
+                      <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
-                          <Avatar className="h-10 w-10 bg-white/20">
-                            <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                          <Avatar className="h-12 w-12 bg-white/20">
+                            <AvatarFallback className="text-base">{user.name.charAt(0)}</AvatarFallback>
                           </Avatar>
                           <div>
-                            <div className="font-bold">{user.name}</div>
-                            <div className="text-xs text-white/80">{user.role}</div>
+                            <div className="font-bold text-base">{user.name}</div>
+                            <div className="text-sm text-white/80">{user.role}</div>
                           </div>
                         </div>
                         <div className="flex gap-1">
@@ -700,26 +708,26 @@ export default function TrainingCandidatesPage() {
                           )}
                         </div>
                       </div>
-                      <div className="text-xs text-white/80">
+                      <div className="text-sm text-white/80">
                         {user.org} · {user.region}
                       </div>
                     </div>
-                    <CardContent className="p-4">
+                    <CardContent className="p-5">
                       <div className="mb-3">
-                        <div className="text-xs text-gray-500 mb-1">标签</div>
+                        <div className="text-sm text-gray-500 mb-1.5">标签</div>
                         <div className="flex flex-wrap gap-1">
                           {user.tags.map((tag: string) => (
-                            <Badge key={tag} variant="outline" className="text-xs border-purple-200 text-purple-700">{tag}</Badge>
+                            <Badge key={tag} variant="outline" className="text-sm border-purple-200 text-purple-700">{tag}</Badge>
                           ))}
                         </div>
                       </div>
-                      <div className="bg-purple-50 text-purple-800 p-3 rounded-lg text-xs mb-3">
+                      <div className="bg-purple-50 text-purple-800 p-3 rounded-lg text-sm mb-4">
                         {user.reason}
                       </div>
 
                       <div className="flex gap-2">
-                        <Button size="sm" className="flex-1 bg-purple-600 hover:bg-purple-700">邀请参训</Button>
-                        <Button size="sm" variant="ghost" className="flex-1">查看详情</Button>
+                        <Button size="sm" className="flex-1 bg-purple-600 hover:bg-purple-700 text-base h-10">邀请参训</Button>
+                        <Button size="sm" variant="ghost" className="flex-1 text-base h-10">查看详情</Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -729,14 +737,14 @@ export default function TrainingCandidatesPage() {
 
             {/* 底部提交栏 */}
             <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-xl p-6 flex items-center justify-between">
-              <div className="text-gray-700">
+              <div className="text-gray-700 text-base">
                 班级方案已生成：<strong className="text-purple-700">{generatedData?.className || searchQuery}</strong> ·
                 <strong className="text-purple-700">{generatedData?.courses?.length || 0}</strong>门课程 ·
                 <strong className="text-purple-700">{generatedData?.recommendedUsers?.length || 0}</strong>名推荐学员 ·
                 避开<strong className="text-amber-700">{generatedData?.avoidedUsers?.length || 0}</strong>名已参训人员
 
               </div>
-              <Button size="lg" className="bg-green-600 hover:bg-green-700">
+              <Button size="lg" className="bg-green-600 hover:bg-green-700 text-base">
                 ✓ 确认创建培训班
               </Button>
             </div>
@@ -745,12 +753,12 @@ export default function TrainingCandidatesPage() {
 
         {/* 空状态 */}
         {!isSearching && !showResult && (
-          <div className="text-center py-16">
-            <div className="w-24 h-24 mx-auto bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center mb-4">
-              <Sparkles className="h-12 w-12 text-purple-500" />
+          <div className="text-center py-24">
+            <div className="w-32 h-32 mx-auto bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center mb-6">
+              <Sparkles className="h-16 w-16 text-purple-500" />
             </div>
-            <h2 className="text-xl font-bold text-gray-700 mb-2">请在上方输入开班需求开始智能组班</h2>
-            <p className="text-gray-400">例如输入"举办一期低空经济政策培训班，面向统战系统干部"</p>
+            <h2 className="text-2xl font-bold text-gray-700 mb-3">请在上方输入开班需求开始智能组班</h2>
+            <p className="text-lg text-gray-400">例如输入"举办一期低空经济政策培训班，面向统战系统干部"</p>
           </div>
         )}
       </div>

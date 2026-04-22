@@ -141,6 +141,10 @@ export default function LibraryPage() {
   const [generatedCourse, setGeneratedCourse] = useState<any>(null);
   const [editMode, setEditMode] = useState(false);
   const [editedChapters, setEditedChapters] = useState<any[]>([]);
+  // 诊断数据
+  const [diagnosticData, setDiagnosticData] = useState<{ roles: string[]; topics: string[]; difficulty: string } | null>(null);
+  // 生成逻辑说明（动态）
+  const [generationLogic, setGenerationLogic] = useState<any>(null);
 
   const presetCourseTopics = [
     {
@@ -225,6 +229,7 @@ export default function LibraryPage() {
   ];
 
   const thinkingSteps = [
+    '正在读取您的知识图谱诊断结果...',
     '正在分析课程需求与目标受众...',
     '正在检索相关知识点与资料...',
     '正在设计课程结构与章节安排...',
@@ -232,6 +237,43 @@ export default function LibraryPage() {
     '正在优化课程大纲与教学设计...',
     '课程生成完成！',
   ];
+
+  // 根据诊断结果动态生成课程生成逻辑说明
+  const generateLogicExplanation = (topic: string, diagnostic: { roles: string[]; topics: string[]; difficulty: string } | null) => {
+    const hasDiag = diagnostic && (diagnostic.roles.length > 0 || diagnostic.topics.length > 0);
+    
+    // 角色解读
+    const roleInterpretation = hasDiag ? (
+      diagnostic!.roles.length > 0 
+        ? `根据您在学习诊断中选择的身份「${diagnostic!.roles.join('、')}」，系统判断您需要侧重${diagnostic!.roles.includes('党支部书记') || diagnostic!.roles.includes('党务工作者') ? '实务操作和基层党建方法' : '理论学习和思想武装'}方面的内容。`
+        : '系统根据您的身份标签，判断了适合您的内容深度和学习方向。'
+    ) : '由于暂未完成学习诊断，系统默认以中级难度和综合受众为标准生成课程。';
+
+    // 主题关联解读
+    const topicConnection = hasDiag ? (
+      diagnostic!.topics.length > 0
+        ? `您在学习诊断中感兴趣的主题「${diagnostic!.topics.join('、')}」与本课程内容高度关联。AI已将相关知识点融入章节设计中，确保内容与您的学习偏好相匹配。`
+        : '系统根据课程主题自动匹配了相关知识模块。'
+    ) : '系统根据课程主题自动匹配了相关知识模块。';
+
+    // 难度匹配解读
+    const difficultyMatch = hasDiag ? (
+      `您选择的难度等级「${diagnostic!.difficulty === 'beginner' ? '入门' : diagnostic!.difficulty === 'intermediate' ? '进阶' : '深入'}」决定了课程的深度和广度。AI已据此调整章节数量和理论深度。`
+    ) : '系统默认以中级难度生成课程，包含适中的理论深度和实践内容。';
+
+    // 综合推荐逻辑
+    const recommendation = hasDiag
+      ? `综上，AI根据您完整的诊断画像（身份 + 主题偏好 + 难度等级），为您智能生成了这套课程。所有章节、时长、学习目标均经过个性化匹配，旨在最大化您的学习效率。`
+      : `当前课程基于通用标准生成。建议前往引导页完成学习诊断，获取更精准的个性化课程推荐。`;
+
+    return {
+      roleInterpretation,
+      topicConnection,
+      difficultyMatch,
+      recommendation,
+      hasDiagnosis: hasDiag,
+    };
+  };
 
   const handlePresetClick = (plan: any) => {
     setCourseTopic(plan.name);
@@ -241,9 +283,31 @@ export default function LibraryPage() {
   const handleGenerate = (presetData?: any) => {
     if (!courseTopic.trim() && !presetData) return;
 
+    // 读取诊断数据（同步读取，确保在生成逻辑中使用最新数据）
+    let currentDiagnostic: { roles: string[]; topics: string[]; difficulty: string } | null = null;
+    try {
+      const saved = localStorage.getItem('user_diagnostic');
+      console.log('[课程生成] localStorage中的诊断数据:', saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        currentDiagnostic = {
+          roles: parsed.roles || [],
+          topics: parsed.topics || [],
+          difficulty: parsed.difficulty || 'intermediate',
+        };
+        setDiagnosticData(currentDiagnostic);
+        console.log('[课程生成] 诊断数据解析成功:', currentDiagnostic);
+      } else {
+        console.log('[课程生成] localStorage中没有诊断数据');
+      }
+    } catch (e) {
+      console.error('[课程生成] 读取诊断数据失败:', e);
+    }
+
     setIsGenerating(true);
     setCurrentStep(0);
     setShowResult(false);
+    setGenerationLogic(null);
 
     const interval = setInterval(() => {
       setCurrentStep(prev => {
@@ -256,6 +320,7 @@ export default function LibraryPage() {
     }, 400);
 
     setTimeout(() => {
+      const topic = presetData ? presetData.courseName : courseTopic;
       const courseData = presetData || {
         courseName: `${courseTopic}专题课程`,
         courseType: '专题课程',
@@ -273,6 +338,9 @@ export default function LibraryPage() {
       };
       setGeneratedCourse(courseData);
       setEditedChapters([...courseData.chapters]);
+      // 使用局部变量currentDiagnostic，而不是状态变量diagnosticData（setState是异步的）
+      console.log('[课程生成] 生成逻辑说明使用的诊断数据:', currentDiagnostic);
+      setGenerationLogic(generateLogicExplanation(topic, currentDiagnostic));
       setIsGenerating(false);
       setShowResult(true);
     }, 2500);
@@ -525,274 +593,432 @@ export default function LibraryPage() {
 
           {/* AI生成课程 */}
           <TabsContent value="ai-course">
-            <Card className="mb-8 border-purple-100 bg-gradient-to-r from-purple-50 to-pink-50">
-              <CardContent className="p-6">
-                <div className="flex items-start gap-6">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center flex-shrink-0">
-                    <Sparkles className="h-8 w-8 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <h2 className="text-xl font-bold mb-4 text-gray-800 flex items-center gap-2">
-                      <BookOpen className="h-5 w-5 text-purple-600" />
-                      AI智能生成课程
-                    </h2>
-                    <div className="flex gap-4 mb-4">
-                      <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                        <Input
-                          placeholder="输入课程主题，如：习近平关于宗教工作的重要论述..."
-                          className="pl-10 border-purple-200 h-12 text-base"
-                          value={courseTopic}
-                          onChange={(e) => setCourseTopic(e.target.value)}
-                          onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
-                        />
-                      </div>
-                      <Button
-                        className="h-12 px-8 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                        onClick={() => handleGenerate()}
-                        disabled={isGenerating || !courseTopic.trim()}
-                      >
-                        {isGenerating ? '生成中...' : '🚀 AI生成'}
-                      </Button>
-                    </div>
+            {/* 顶部横幅导航区 */}
+            <div className="mb-6 border-2 border-black bg-amber-400 px-5 py-3 flex items-center justify-between" style={{ boxShadow: '4px 4px 0 0 #000' }}>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-black flex items-center justify-center">
+                  <Sparkles className="h-6 w-6 text-amber-400" />
+                </div>
+                <span className="text-lg font-black text-black tracking-tight">AI课程生成控制台</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {['平台总览', '课程库', '生成记录', '模板中心'].map((label) => (
+                  <button
+                    key={label}
+                    className="px-4 py-1.5 bg-white border-2 border-black text-xs font-bold hover:bg-black hover:text-amber-400 transition-colors"
+                    style={{ boxShadow: '2px 2px 0 0 #000' }}
+                    disabled
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-                    {/* AI思考过程 */}
-                    {isGenerating && (
-                      <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                        <h3 className="font-semibold text-purple-700 mb-2 flex items-center gap-2">
-                          <span className="animate-pulse">🤖</span> AI正在生成课程
-                        </h3>
-                        <div className="space-y-2">
-                          {thinkingSteps.slice(0, currentStep + 1).map((step, idx) => (
-                            <div key={idx} className="flex items-center gap-2 text-sm text-purple-800 pl-4 relative">
-                              {idx < currentStep ? (
-                                <CheckCircle2 className="h-4 w-4 text-green-600 absolute left-0" />
-                              ) : (
-                                <span className="absolute left-0 animate-pulse">●</span>
-                              )}
-                              {step}
-                            </div>
-                          ))}
+            {/* 主视觉标题区 + 右侧信息面板 */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+              {/* 左侧：超大标题区 */}
+              <div className="lg:col-span-2 border-2 border-black bg-white p-8 relative" style={{ boxShadow: '4px 4px 0 0 #000' }}>
+                <div className="absolute top-3 right-3 bg-purple-600 text-white text-xs font-bold px-3 py-1 border-2 border-black" style={{ boxShadow: '2px 2px 0 0 #000', transform: 'rotate(2deg)' }}>
+                  AI DRIVEN
+                </div>
+                <h1 className="text-5xl font-black text-black mb-4 leading-none tracking-tighter" style={{ textShadow: '2px 2px 0 #e0e0e0' }}>
+                  AI智能<br/>生成课程
+                </h1>
+                <p className="text-base text-gray-600 mb-6 max-w-lg leading-relaxed">
+                  输入课程主题，AI自动设计课程结构、生成章节内容、匹配学习目标，让课程创作效率提升10倍。
+                </p>
+                {/* 输入区 */}
+                <div className="flex gap-3">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      placeholder="输入课程主题，如：习近平关于宗教工作的重要论述..."
+                      className="pl-10 h-12 text-base border-2 border-black font-medium"
+                      style={{ borderRadius: '0' }}
+                      value={courseTopic}
+                      onChange={(e) => setCourseTopic(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
+                    />
+                  </div>
+                  <Button
+                    className="h-12 px-8 bg-amber-400 hover:bg-amber-500 text-black font-bold border-2 border-black text-base"
+                    style={{ borderRadius: '0', boxShadow: '3px 3px 0 0 #000' }}
+                    onClick={() => handleGenerate()}
+                    disabled={isGenerating || !courseTopic.trim()}
+                  >
+                    {isGenerating ? '生成中...' : '🚀 开始生成'}
+                  </Button>
+                </div>
+
+                {/* 生成逻辑说明 */}
+                <div className="mt-6 pt-6 border-t-2 border-black">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-7 h-7 bg-amber-400 flex items-center justify-center border-2 border-black" style={{ boxShadow: '2px 2px 0 0 #000' }}>
+                      <Lightbulb className="h-4 w-4 text-black" />
+                    </div>
+                    <span className="font-black text-sm text-black">
+                      {generationLogic ? '本次生成逻辑解读' : '课程生成逻辑说明'}
+                    </span>
+                    {generationLogic && !generationLogic.hasDiagnosis && (
+                      <span className="text-[10px] text-gray-500 ml-2">（通用模式）</span>
+                    )}
+                  </div>
+
+                  {generationLogic ? (
+                    /* 动态生成逻辑说明 - 基于诊断结果 */
+                    <div className="space-y-3">
+                      {/* 角色解读 */}
+                      <div className="flex items-start gap-3 p-3 border-2 border-black bg-red-50 relative" style={{ boxShadow: '2px 2px 0 0 #000' }}>
+                        <div className="absolute -top-2.5 left-2 bg-red-600 text-white text-[10px] font-black px-2 py-0.5">身份匹配</div>
+                        <div className="mt-1">
+                          <div className="text-[12px] text-gray-800 leading-relaxed">{generationLogic.roleInterpretation}</div>
                         </div>
                       </div>
-                    )}
-
-                    {/* 预设主题 */}
-                    <div className="mt-4">
-                      <div className="text-sm text-gray-600 mb-2 flex items-center gap-2">
-                        <span className="w-1 h-4 bg-purple-500 rounded-full"></span>
-                        热门预设主题：
+                      {/* 主题关联 */}
+                      <div className="flex items-start gap-3 p-3 border-2 border-black bg-purple-50 relative" style={{ boxShadow: '2px 2px 0 0 #000' }}>
+                        <div className="absolute -top-2.5 left-2 bg-purple-600 text-white text-[10px] font-black px-2 py-0.5">主题关联</div>
+                        <div className="mt-1">
+                          <div className="text-[12px] text-gray-800 leading-relaxed">{generationLogic.topicConnection}</div>
+                        </div>
                       </div>
-                      <div className="flex flex-wrap gap-2">
-                        {presetCourseTopics.map(plan => (
-                          <Button
-                            key={plan.key}
-                            variant="secondary"
-                            size="sm"
-                            className="bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs"
-                            onClick={() => handlePresetClick(plan)}
-                            disabled={isGenerating}
-                          >
-                            {plan.name}
-                          </Button>
-                        ))}
+                      {/* 难度匹配 */}
+                      <div className="flex items-start gap-3 p-3 border-2 border-black bg-amber-50 relative" style={{ boxShadow: '2px 2px 0 0 #000' }}>
+                        <div className="absolute -top-2.5 left-2 bg-amber-500 text-black text-[10px] font-black px-2 py-0.5">难度适配</div>
+                        <div className="mt-1">
+                          <div className="text-[12px] text-gray-800 leading-relaxed">{generationLogic.difficultyMatch}</div>
+                        </div>
+                      </div>
+                      {/* 综合推荐 */}
+                      <div className="flex items-start gap-3 p-3 border-2 border-black bg-emerald-50 relative" style={{ boxShadow: '2px 2px 0 0 #000' }}>
+                        <div className="absolute -top-2.5 left-2 bg-emerald-600 text-white text-[10px] font-black px-2 py-0.5">综合推荐</div>
+                        <div className="mt-1">
+                          <div className="text-[12px] text-gray-800 leading-relaxed font-medium">{generationLogic.recommendation}</div>
+                        </div>
                       </div>
                     </div>
+                  ) : (
+                    /* 通用5步流程说明 - 未生成课程时显示 */
+                    <>
+                      <div className="grid grid-cols-5 gap-3">
+                        {[
+                          { step: '01', title: '诊断读取', desc: '读取您的知识图谱诊断结果' },
+                          { step: '02', title: '需求分析', desc: '理解您的课程主题与目标受众' },
+                          { step: '03', title: '知识检索', desc: '从党建知识库中匹配相关内容' },
+                          { step: '04', title: '结构设计', desc: '自动编排章节顺序与课时分配' },
+                          { step: '05', title: '目标匹配', desc: '输出学习目标与课程简介' },
+                        ].map((item) => (
+                          <div key={item.step} className="border-2 border-black bg-gray-50 p-3 relative" style={{ boxShadow: '2px 2px 0 0 #000' }}>
+                            <div className="absolute -top-2.5 left-2 bg-black text-amber-400 text-[10px] font-black px-2 py-0.5">
+                              {item.step}
+                            </div>
+                            <div className="font-black text-sm text-black mb-1 mt-1">{item.title}</div>
+                            <div className="text-[11px] text-gray-600 leading-snug">{item.desc}</div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="mt-3 flex items-center gap-2 text-xs text-gray-500">
+                        <span className="w-1 h-3 bg-purple-600 rounded-full"></span>
+                        基于大语言模型 + 党建知识图谱 + 您的诊断结果 · 生成结果可编辑后确认创建
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* 右侧信息面板 */}
+              <div className="border-2 border-black bg-purple-600 p-6 text-white relative" style={{ boxShadow: '4px 4px 0 0 #000' }}>
+                <div className="absolute top-3 right-3 bg-amber-400 text-black text-xs font-bold px-2 py-1 border-2 border-black" style={{ boxShadow: '2px 2px 0 0 #000' }}>
+                  平台能力
+                </div>
+                <div className="mt-4">
+                  <div className="text-6xl font-black mb-1" style={{ textShadow: '3px 3px 0 #000' }}>
+                    {isGenerating ? `${currentStep + 1}` : '5'}
+                  </div>
+                  <div className="text-sm font-bold mb-4">大步骤智能生成</div>
+                  <div className="space-y-2 mb-5">
+                    {thinkingSteps.slice(0, isGenerating ? currentStep + 1 : 5).map((step, idx) => (
+                      <div key={idx} className="flex items-center gap-2 text-xs bg-white/20 px-3 py-1.5 border border-white/30">
+                        {idx < currentStep || !isGenerating ? (
+                          <CheckCircle2 className="h-3 w-3 text-amber-400 flex-shrink-0" />
+                        ) : (
+                          <span className="w-3 h-3 flex-shrink-0 animate-pulse text-amber-400">●</span>
+                        )}
+                        <span className="truncate">{step.replace('正在', '').replace('...', '')}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="text-[10px] text-white/60 border-t border-white/20 pt-3">
+                    基于大语言模型与知识图谱驱动
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
+
+            {/* AI思考过程（生成中显示） */}
+            {isGenerating && (
+              <div className="border-2 border-black bg-gray-900 p-5 mb-6 text-white" style={{ boxShadow: '4px 4px 0 0 #000' }}>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="animate-pulse text-2xl">🤖</span>
+                  <span className="font-bold text-amber-400">AI正在生成课程</span>
+                  <span className="text-xs text-gray-400 ml-auto">Step {currentStep + 1}/{thinkingSteps.length}</span>
+                </div>
+                <div className="space-y-1.5">
+                  {thinkingSteps.map((step, idx) => (
+                    <div key={idx} className="flex items-center gap-3 text-sm pl-4 relative">
+                      {idx < currentStep ? (
+                        <CheckCircle2 className="h-4 w-4 text-green-400 absolute left-0" />
+                      ) : idx === currentStep ? (
+                        <span className="absolute left-0 animate-pulse text-amber-400">▶</span>
+                      ) : (
+                        <span className="absolute left-0 text-gray-600">○</span>
+                      )}
+                      <span className={idx <= currentStep ? 'text-white' : 'text-gray-600'}>{step}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-3 h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-amber-400 to-purple-600 transition-all duration-300"
+                    style={{ width: `${((currentStep + 1) / thinkingSteps.length) * 100}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* 预设主题 - 标签式按钮 */}
+            {!showResult && !isGenerating && (
+              <div className="border-2 border-black bg-white p-5 mb-6" style={{ boxShadow: '4px 4px 0 0 #000' }}>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 bg-purple-600 flex items-center justify-center border-2 border-black" style={{ boxShadow: '2px 2px 0 0 #000' }}>
+                    <span className="text-white text-xs font-black">热</span>
+                  </div>
+                  <span className="font-bold text-black">热门预设主题</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {presetCourseTopics.map(plan => (
+                    <Button
+                      key={plan.key}
+                      className="px-5 py-2 border-2 border-black font-bold text-sm hover:bg-black hover:text-white transition-colors"
+                      style={{
+                        borderRadius: '0',
+                        boxShadow: '2px 2px 0 0 #000',
+                        backgroundColor: plan.key === 'xjp_thought' ? '#fbbf24' : plan.key === 'united_front' ? '#c084fc' : '#fb7185',
+                      }}
+                      onClick={() => handlePresetClick(plan)}
+                      disabled={isGenerating}
+                    >
+                      {plan.name}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* 生成结果 */}
             {showResult && generatedCourse && (
               <>
-                {/* 课程基本信息 */}
-                <Card className="mb-8 border-purple-200 border-l-4 border-l-purple-600">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-xl text-purple-800 flex items-center gap-2">
-                        <BookOpen className="h-5 w-5" />
-                        {editMode ? '编辑课程大纲' : generatedCourse.courseName}
-                      </CardTitle>
+                {/* 功能统计卡片行 */}
+                <div className="grid grid-cols-4 gap-4 mb-6">
+                  {[
+                    { label: '课程类型', value: generatedCourse.courseType, color: 'bg-purple-500', icon: '📋' },
+                    { label: '总学时', value: `${generatedCourse.totalHours}学时`, color: 'bg-amber-400', icon: '⏱' },
+                    { label: '难度等级', value: generatedCourse.difficulty, color: 'bg-pink-500', icon: '📊' },
+                    { label: '章节数', value: `${editMode ? editedChapters.length : generatedCourse.chapters.length}章`, color: 'bg-emerald-500', icon: '📑' },
+                  ].map((stat, idx) => (
+                    <div
+                      key={idx}
+                      className={`${stat.color} border-2 border-black p-5 relative text-white`}
+                      style={{ boxShadow: '4px 4px 0 0 #000' }}
+                    >
+                      <div className="absolute top-2 right-2 text-xl">{stat.icon}</div>
+                      <div className="text-3xl font-black mb-1" style={{ textShadow: '2px 2px 0 #000' }}>{stat.value}</div>
+                      <div className="text-sm font-bold opacity-80">{stat.label}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* 课程基本信息卡片 */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+                  {/* 左侧：课程简介 */}
+                  <div className="border-2 border-black bg-white p-6 relative" style={{ boxShadow: '4px 4px 0 0 #000' }}>
+                    <div className="absolute -top-3 left-4 bg-red-600 text-white text-xs font-black px-3 py-1 border-2 border-black" style={{ boxShadow: '2px 2px 0 0 #000' }}>
+                      01 · 课程简介
+                    </div>
+                    <div className="flex items-center justify-between mb-4 mt-2">
+                      <h3 className="font-black text-xl text-black">{generatedCourse.courseName}</h3>
                       <div className="flex gap-2">
                         {editMode ? (
                           <>
-                            <Button size="sm" variant="outline" onClick={() => setEditMode(false)}>
-                              取消编辑
+                            <Button size="sm" variant="outline" className="border-2 border-black" style={{ borderRadius: '0' }} onClick={() => setEditMode(false)}>
+                              取消
                             </Button>
-                            <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={handleSave}>
+                            <Button size="sm" className="bg-green-500 text-white font-bold border-2 border-black" style={{ borderRadius: '0', boxShadow: '2px 2px 0 0 #000' }} onClick={handleSave}>
                               <Save className="h-4 w-4 mr-1" />
-                              保存修改
+                              保存
                             </Button>
                           </>
                         ) : (
-                          <Button size="sm" variant="outline" onClick={() => setEditMode(true)}>
+                          <Button size="sm" variant="outline" className="border-2 border-black font-bold" style={{ borderRadius: '0' }} onClick={() => setEditMode(true)}>
                             <Edit3 className="h-4 w-4 mr-1" />
-                            编辑大纲
+                            编辑
                           </Button>
                         )}
                       </div>
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid md:grid-cols-4 gap-4 mb-6">
-                      <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg">
-                        <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center text-purple-600">
-                          <FileText className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <div className="text-xs text-gray-500">课程类型</div>
-                          <div className="font-semibold">{generatedCourse.courseType}</div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
-                        <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
-                          <Clock className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <div className="text-xs text-gray-500">总学时</div>
-                          <div className="font-semibold">{generatedCourse.totalHours}学时</div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3 p-3 bg-amber-50 rounded-lg">
-                        <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600">
-                          <Lightbulb className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <div className="text-xs text-gray-500">难度等级</div>
-                          <div className="font-semibold">{generatedCourse.difficulty}</div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
-                        <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center text-green-600">
-                          <Users className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <div className="text-xs text-gray-500">目标受众</div>
-                          <div className="font-semibold text-sm">{generatedCourse.targetAudience}</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="bg-gray-50 p-4 rounded-lg mb-6">
-                      <h3 className="text-sm font-semibold text-gray-700 mb-2">课程简介</h3>
-                      <p className="text-gray-600">{generatedCourse.description}</p>
-                    </div>
-
-                    <div className="bg-purple-50 p-4 rounded-lg">
-                      <h3 className="text-sm font-semibold text-purple-800 mb-2 flex items-center gap-2">
-                        <Lightbulb className="h-4 w-4" />
-                        学习目标
-                      </h3>
-                      <ul className="grid md:grid-cols-2 gap-2">
+                    <p className="text-gray-700 text-sm leading-relaxed">{generatedCourse.description}</p>
+                    <div className="mt-4 pt-4 border-t-2 border-black">
+                      <div className="text-sm font-bold text-black mb-2">学习目标</div>
+                      <ul className="space-y-1.5">
                         {generatedCourse.learningObjectives.map((obj: string, idx: number) => (
-                          <li key={idx} className="flex items-start gap-2 text-sm text-purple-700">
-                            <CheckCircle2 className="h-4 w-4 text-purple-500 flex-shrink-0 mt-0.5" />
+                          <li key={idx} className="flex items-start gap-2 text-sm text-gray-700">
+                            <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
                             {obj}
                           </li>
                         ))}
                       </ul>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
 
-                {/* 课程章节 */}
-                <Card className="mb-8 border-red-100">
-                  <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
-                      <span className="flex items-center gap-2">
-                        <BookOpen className="h-5 w-5 text-red-600" />
-                        课程章节（共{editMode ? editedChapters.length : generatedCourse.chapters.length}章）
-                      </span>
-                      {editMode && (
-                        <Button size="sm" variant="outline" onClick={handleAddChapter}>
-                          <Plus className="h-4 w-4 mr-1" />
-                          添加章节
-                        </Button>
-                      )}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {(editMode ? editedChapters : generatedCourse.chapters).map((chapter: any, idx: number) => (
-                        <div key={chapter.id} className="flex items-center gap-4 p-4 border border-gray-100 rounded-lg hover:border-purple-200 transition-all bg-white">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-600 to-orange-500 text-white flex items-center justify-center flex-shrink-0 font-bold">
+                  {/* 右侧：目标受众 */}
+                  <div className="border-2 border-black bg-emerald-500 p-6 text-white relative" style={{ boxShadow: '4px 4px 0 0 #000' }}>
+                    <div className="absolute -top-3 right-4 bg-amber-400 text-black text-xs font-black px-3 py-1 border-2 border-black" style={{ boxShadow: '2px 2px 0 0 #000' }}>
+                      02 · 受众分析
+                    </div>
+                    <div className="mt-2">
+                      <div className="text-4xl font-black mb-2" style={{ textShadow: '2px 2px 0 #000' }}>
+                        {generatedCourse.targetAudience}
+                      </div>
+                      <div className="text-sm opacity-90 mb-6">目标受众群体</div>
+                      <div className="bg-white text-black p-4 border-2 border-black" style={{ boxShadow: '2px 2px 0 0 #000' }}>
+                        <div className="font-bold text-sm mb-2">课程信息</div>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-gray-500">类型</span>
+                            <span className="font-bold">{generatedCourse.courseType}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-500">学时</span>
+                            <span className="font-bold">{generatedCourse.totalHours}学时</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-500">难度</span>
+                            <span className="font-bold">{generatedCourse.difficulty}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 课程章节列表 */}
+                <div className="border-2 border-black bg-white p-6 relative mb-6" style={{ boxShadow: '4px 4px 0 0 #000' }}>
+                  <div className="absolute -top-3 left-4 bg-purple-600 text-white text-xs font-black px-3 py-1 border-2 border-black" style={{ boxShadow: '2px 2px 0 0 #000' }}>
+                    03 · 课程章节
+                  </div>
+                  <div className="flex items-center justify-between mb-5 mt-2">
+                    <h3 className="font-black text-xl text-black">
+                      共{editMode ? editedChapters.length : generatedCourse.chapters.length}章
+                    </h3>
+                    {editMode && (
+                      <Button size="sm" className="bg-amber-400 text-black font-bold border-2 border-black" style={{ borderRadius: '0', boxShadow: '2px 2px 0 0 #000' }} onClick={handleAddChapter}>
+                        <Plus className="h-4 w-4 mr-1" />
+                        添加章节
+                      </Button>
+                    )}
+                  </div>
+                  <div className="space-y-3">
+                    {(editMode ? editedChapters : generatedCourse.chapters).map((chapter: any, idx: number) => (
+                      <div key={chapter.id} className="flex items-center gap-4 p-4 border-2 border-black bg-white relative" style={{ boxShadow: '3px 3px 0 0 #000' }}>
+                        {/* 彩色封面块 + 编号角标 */}
+                        <div className="relative flex-shrink-0">
+                          <div className={`w-14 h-14 flex items-center justify-center border-2 border-black font-black text-2xl text-white ${
+                            idx % 5 === 0 ? 'bg-red-500' : idx % 5 === 1 ? 'bg-purple-600' : idx % 5 === 2 ? 'bg-amber-400 text-black' : idx % 5 === 3 ? 'bg-emerald-500' : 'bg-pink-500'
+                          }`}>
                             {idx + 1}
                           </div>
-                          <div className="flex-1 min-w-0">
-                            {editMode ? (
-                              <div className="space-y-2">
-                                <Input
-                                  value={chapter.title}
-                                  onChange={(e) => handleChapterEdit(idx, 'title', e.target.value)}
-                                  className="font-semibold"
-                                />
-                                <div className="flex gap-2">
-                                  <Input
-                                    value={chapter.duration}
-                                    onChange={(e) => handleChapterEdit(idx, 'duration', e.target.value)}
-                                    className="w-32 text-sm"
-                                    placeholder="学时"
-                                  />
-                                  <select
-                                    value={chapter.type}
-                                    onChange={(e) => handleChapterEdit(idx, 'type', e.target.value)}
-                                    className="border border-gray-200 rounded px-2 py-1 text-sm"
-                                  >
-                                    <option value="video">视频课</option>
-                                    <option value="discussion">研讨课</option>
-                                  </select>
-                                </div>
-                              </div>
-                            ) : (
-                              <>
-                                <div className="font-semibold">{chapter.title}</div>
-                                <div className="flex items-center gap-4 mt-1">
-                                  <Badge variant="outline" className="text-xs">
-                                    <Clock className="h-3 w-3 mr-1" />
-                                    {chapter.duration}
-                                  </Badge>
-                                  <Badge className={`text-xs ${chapter.type === 'video' ? 'bg-red-100 text-red-700' : 'bg-purple-100 text-purple-700'}`}>
-                                    {chapter.type === 'video' ? '视频课' : '研讨课'}
-                                  </Badge>
-                                </div>
-                              </>
-                            )}
+                          <div className="absolute -top-2 -right-2 bg-black text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center">
+                            {idx + 1 < 10 ? `0${idx + 1}` : idx + 1}
                           </div>
-                          {!editMode && (
-                            <Button size="sm" className="bg-gradient-to-r from-red-600 to-orange-500">
-                              <Play className="h-4 w-4 mr-1" />
-                              开始学习
-                            </Button>
-                          )}
-                          {editMode && (
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                              onClick={() => handleDeleteChapter(idx)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          {editMode ? (
+                            <div className="space-y-2">
+                              <Input
+                                value={chapter.title}
+                                onChange={(e) => handleChapterEdit(idx, 'title', e.target.value)}
+                                className="font-bold border-2 border-black"
+                                style={{ borderRadius: '0' }}
+                              />
+                              <div className="flex gap-2">
+                                <Input
+                                  value={chapter.duration}
+                                  onChange={(e) => handleChapterEdit(idx, 'duration', e.target.value)}
+                                  className="w-32 text-sm border-2 border-black"
+                                  style={{ borderRadius: '0' }}
+                                  placeholder="学时"
+                                />
+                                <select
+                                  value={chapter.type}
+                                  onChange={(e) => handleChapterEdit(idx, 'type', e.target.value)}
+                                  className="border-2 border-black px-3 py-2 text-sm font-medium"
+                                  style={{ borderRadius: '0' }}
+                                >
+                                  <option value="video">视频课</option>
+                                  <option value="discussion">研讨课</option>
+                                </select>
+                              </div>
+                            </div>
+                          ) : (
+                            <>
+                              <div className="font-bold text-black text-base">{chapter.title}</div>
+                              <div className="flex items-center gap-3 mt-1.5">
+                                <span className="text-xs bg-gray-100 border border-black px-2 py-0.5 font-bold flex items-center gap-1">
+                                  <Clock className="h-3 w-3" />
+                                  {chapter.duration}
+                                </span>
+                                <span className={`text-xs px-2 py-0.5 font-bold border border-black ${
+                                  chapter.type === 'video' ? 'bg-red-100' : 'bg-purple-100'
+                                }`}>
+                                  {chapter.type === 'video' ? '📹 视频课' : '💬 研讨课'}
+                                </span>
+                              </div>
+                            </>
                           )}
                         </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
+                        {!editMode && (
+                          <Button size="sm" className="bg-amber-400 text-black font-bold border-2 border-black hover:bg-amber-500" style={{ borderRadius: '0', boxShadow: '2px 2px 0 0 #000' }}>
+                            <Play className="h-4 w-4 mr-1" />
+                            学习
+                          </Button>
+                        )}
+                        {editMode && (
+                          <Button
+                            size="sm"
+                            className="bg-red-500 text-white font-bold border-2 border-black hover:bg-red-600"
+                            style={{ borderRadius: '0', boxShadow: '2px 2px 0 0 #000' }}
+                            onClick={() => handleDeleteChapter(idx)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
                 {/* 底部操作栏 */}
-                <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-xl p-6 flex items-center justify-between">
-                  <div className="text-gray-700">
-                    课程已生成：<strong className="text-purple-700">{generatedCourse.courseName}</strong> ·
-                    共<strong className="text-purple-700">{editMode ? editedChapters.length : generatedCourse.chapters.length}</strong>章节 ·
-                    <strong className="text-purple-700">{generatedCourse.totalHours}</strong>学时
+                <div className="border-2 border-black bg-gray-900 p-5 flex items-center justify-between text-white" style={{ boxShadow: '4px 4px 0 0 #000' }}>
+                  <div className="text-sm">
+                    课程已生成：<span className="font-bold text-amber-400">{generatedCourse.courseName}</span> ·
+                    共<span className="font-bold text-amber-400">{editMode ? editedChapters.length : generatedCourse.chapters.length}</span>章节 ·
+                    <span className="font-bold text-amber-400">{generatedCourse.totalHours}</span>学时
                   </div>
                   <div className="flex gap-3">
-                    <Button size="lg" variant="outline">
+                    <Button size="lg" variant="outline" className="border-2 border-white text-white font-bold hover:bg-white hover:text-black" style={{ borderRadius: '0' }}>
                       收藏课程
                     </Button>
-                    <Button size="lg" className="bg-green-600 hover:bg-green-700">
+                    <Button size="lg" className="bg-green-500 text-white font-bold border-2 border-black hover:bg-green-600" style={{ borderRadius: '0', boxShadow: '3px 3px 0 0 #000' }}>
                       <CheckCircle2 className="h-4 w-4 mr-2" />
                       确认创建
                     </Button>

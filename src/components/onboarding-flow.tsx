@@ -137,11 +137,14 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     return () => clearTimeout(timer);
   }, []);
 
-  // 保存诊断结果到数据库
+  // 保存诊断结果到数据库（静默处理，不影响主流程）
   const saveDiagnostic = async (path: LearningPath, roles: string[], topics: string[], difficulty: string) => {
-    if (!currentUser) return;
+    // 如果没有用户或用户ID，直接返回（使用 localStorage 备份方案）
+    if (!currentUser || !currentUser.id) {
+      console.log('用户ID不存在，诊断结果已保存到 localStorage');
+      return;
+    }
 
-    setIsSaving(true);
     try {
       const response = await fetch('/api/user/diagnostic', {
         method: 'POST',
@@ -157,12 +160,14 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
       });
 
       if (!response.ok) {
-        console.error('保存诊断失败');
+        // 数据库保存失败不影响主流程，localStorage 已备份
+        console.warn('诊断结果数据库保存失败，已使用 localStorage 备份');
+      } else {
+        console.log('诊断结果已保存到数据库');
       }
     } catch (err) {
-      console.error('保存诊断错误:', err);
-    } finally {
-      setIsSaving(false);
+      // 网络错误等不影响主流程
+      console.warn('诊断结果保存网络异常，已使用 localStorage 备份');
     }
   };
 

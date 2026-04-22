@@ -217,7 +217,9 @@ export default function CoursePage() {
           } else {
             courseToPlay = node.courses[0];
           }
-          const videoUrl = courseToPlay.videoId ? await fetchVideoUrl(courseToPlay.videoId) : null;
+          // 使用 courseToPlay.videoId 或 courseToPlay.id 作为 courseId 请求视频
+          const targetId = courseToPlay.videoId || courseToPlay.id;
+          const videoUrl = await fetchVideoUrl(targetId);
           if (videoUrl) {
             setVideoUrl(videoUrl);
           }
@@ -248,9 +250,8 @@ export default function CoursePage() {
     setIsLoading(true);
     
     const course = currentNode.courses[courseIndex];
-    if (!course.videoId) return;
-    
-    const videoUrl = await fetchVideoUrl(course.videoId);
+    const targetId = course.videoId || course.id;
+    const videoUrl = await fetchVideoUrl(targetId);
     if (videoUrl) {
       setVideoUrl(videoUrl);
     }

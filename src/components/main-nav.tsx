@@ -12,6 +12,7 @@ import {
   Users,
   Bookmark,
   PenTool,
+  Sparkles,
   ChevronDown,
   ChevronUp,
   Play,
@@ -29,6 +30,7 @@ const navItems = [
   { id: 'home', name: '首页', href: '/', icon: Home },
   { id: 'library', name: '知识库', href: '/library', icon: Library },
   { id: 'bookshelf', name: '书架', href: '/bookshelf', icon: Bookmark },
+  { id: 'aiclass', name: 'AI组班', href: '/training-candidates', icon: Sparkles },
   { id: 'notes', name: '笔记', href: '/notes', icon: PenTool },
   { id: 'profile', name: '我的', href: '/profile', icon: User },
 ];
