@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import * as d3 from 'd3';
 import { KnowledgeNode, LearningProgress } from '@/lib/types';
 import { motion } from 'framer-motion';
-import { ChevronRight, Play, BookOpen, FileText, Circle } from 'lucide-react';
+import { ChevronRight, Play, BookOpen, FileText, Circle, Video } from 'lucide-react';
 
 interface MindMapProps {
   data: KnowledgeNode;
@@ -174,7 +174,7 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
         onNodeClick?.(nodeData);
       });
 
-    // 节点矩形背景
+    // 节点矩形背景 - 只有 Level 2 最底层节点按学习状态动态着色
     nodes.append('rect')
       .attr('width', d => getNodeWidth((d.data as KnowledgeNode).level))
       .attr('height', d => getNodeHeight((d.data as KnowledgeNode).level))
@@ -182,24 +182,30 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
       .attr('fill', d => {
         const status = getNodeStatus((d.data as KnowledgeNode).id);
         const level = (d.data as KnowledgeNode).level;
-        // 所有节点都有实心背景色
-        if (level === 0) return '#991b1b'; // 根节点用最深红色
-        if (level === 1) return '#b91c1c'; // 一级节点用深红色
-        if (status === 'completed') return '#16a34a';
-        if (status === 'available') return '#2563eb';
-        if (status === 'in_progress') return '#d97706';
-        return '#1e293b'; // locked 状态使用深蓝灰色，完全不透明
+        // Level 0 和 Level 1 使用红色系
+        if (level === 0) return '#991b1b';  // 根节点 - 深红色
+        if (level === 1) return '#b91c1c';  // 一级节点 - 红色
+        // Level 2 最底层节点按学习状态动态着色
+        switch (status) {
+          case 'completed': return '#22c55e';   // 已完成 - 绿色
+          case 'in_progress': return '#f59e0b'; // 进行中 - 橙色
+          case 'available': return '#3b82f6';   // 可学习 - 蓝色
+          case 'locked': default: return '#94a3b8'; // 未解锁 - 灰色
+        }
       })
       .attr('stroke', d => {
         const status = getNodeStatus((d.data as KnowledgeNode).id);
         const level = (d.data as KnowledgeNode).level;
-        // 所有节点都有边框
+        // Level 0 和 Level 1 红色系边框
         if (level === 0) return 'rgba(255,255,255,0.4)';
         if (level === 1) return 'rgba(255,255,255,0.5)';
-        if (status === 'available') return '#60a5fa';
-        if (status === 'in_progress') return '#fbbf24';
-        if (status === 'completed') return '#4ade80';
-        return 'rgba(255,255,255,0.6)'; // locked 节点边框更明显
+        // Level 2+ 节点按状态动态边框
+        switch (status) {
+          case 'completed': return '#86efac';
+          case 'in_progress': return '#fcd34d';
+          case 'available': return '#93c5fd';
+          case 'locked': default: return '#e2e8f0';
+        }
       })
       .attr('stroke-width', d => (d.data as KnowledgeNode).level < 2 ? 3 : 2)
       .attr('filter', 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.25))');
@@ -323,10 +329,40 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
                 </ul>
               </div>
             )}
+
+            {/* 推荐课程列表 */}
+            {selectedNode.courses && selectedNode.courses.length > 0 && (
+              <div>
+                <h4 className="text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
+                  <Video className="w-4 h-4" />
+                  推荐课程
+                </h4>
+                <div className="space-y-1.5">
+                  {selectedNode.courses.map((course, i) => (
+                    <button
+                      key={course.id}
+                      onClick={() => {
+                        const coursePageUrl = `/course/${selectedNode.id}?courseId=${course.id}`;
+                        window.location.href = coursePageUrl;
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg bg-slate-50 hover:bg-red-50 hover:border-red-200 border border-transparent transition-all group text-left"
+                    >
+                      <span className="flex items-center justify-center w-5 h-5 rounded-full bg-red-100 text-red-600 text-xs font-bold shrink-0 group-hover:bg-red-600 group-hover:text-white transition-colors">
+                        {i + 1}
+                      </span>
+                      <span className="flex-1 truncate text-sm text-slate-700 group-hover:text-red-700">
+                        {course.title}
+                      </span>
+                      <span className="text-xs text-slate-400 shrink-0">{course.duration}分钟</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             
-            {/* 内容详情 */}
+            {/* 内容详情 + 开始学习 */}
             {selectedNode.content && (
-              <div className="bg-slate-50 rounded-xl p-3">
+              <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-xl p-3 border border-red-100">
                 <h4 className="text-sm font-semibold text-slate-900">
                   {selectedNode.content.title}
                 </h4>
@@ -336,29 +372,18 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
                 {selectedNode.content.summary && (
                   <p className="text-sm text-slate-600 leading-relaxed">{selectedNode.content.summary}</p>
                 )}
-                <button className="mt-3 w-full bg-red-600 hover:bg-red-700 text-white text-sm py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors">
+                <button
+                  onClick={() => {
+                    const firstCourse = selectedNode.courses?.[0];
+                    const courseId = firstCourse?.id || selectedNode.videoId || selectedNode.id;
+                    const coursePageUrl = `/course/${selectedNode.id}?courseId=${courseId}`;
+                    window.location.href = coursePageUrl;
+                  }}
+                  className="mt-3 w-full bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white text-sm py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg font-medium"
+                >
                   <Play className="w-4 h-4" />
                   开始学习
                 </button>
-              </div>
-            )}
-            
-            {/* 关联文档 */}
-            {selectedNode.relatedDocuments && selectedNode.relatedDocuments.length > 0 && (
-              <div>
-                <h4 className="text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
-                  <FileText className="w-4 h-4" />
-                  关联阅读
-                </h4>
-                <ul className="space-y-1">
-                  {selectedNode.relatedDocuments.map((doc) => (
-                    <li key={doc.id} className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 cursor-pointer">
-                      <ChevronRight className="w-3 h-3 flex-shrink-0" />
-                      <span className="truncate">{doc.title}</span>
-                      <span className="text-xs text-slate-400 ml-auto">({doc.type})</span>
-                    </li>
-                  ))}
-                </ul>
               </div>
             )}
           </div>

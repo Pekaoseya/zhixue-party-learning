@@ -1,9 +1,9 @@
-// 课程项（关联到后端视频课程）
-export interface CourseItem {
+// 课程信息
+export interface CourseInfo {
   id: string;
   title: string;
   duration: number;
-  videoId: string;
+  videoId?: string;
 }
 
 // 知识图谱节点
@@ -14,11 +14,11 @@ export interface KnowledgeNode {
   level: number;
   children?: KnowledgeNode[];
   content?: CourseContent;
-  courses?: CourseItem[];
-  videoId?: string;
   keyPoints?: string[];
   relatedDocuments?: RelatedDoc[];
   prerequisites?: string[];
+  courses?: CourseInfo[];
+  videoId?: string;
 }
 
 // 课程内容

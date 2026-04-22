@@ -8,7 +8,7 @@ export const useAuth = () => {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const callbackRef = useRef<(() => void) | undefined>();
+  const callbackRef = useRef<(() => void) | undefined>(undefined);
 
   useEffect(() => {
     // 只在客户端执行，避免服务器端渲染时的 localStorage 错误

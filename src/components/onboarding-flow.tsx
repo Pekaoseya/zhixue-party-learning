@@ -87,7 +87,19 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const { user, loading } = useAuth();
   const [currentView, setCurrentView] = useState<'home' | 'diagnostic' | 'mindmap' | 'ai'>('home');
   const [generatedPath, setGeneratedPath] = useState<LearningPath | null>(null);
-  const [highlightedNodes, setHighlightedNodes] = useState<string[]>([]);
+  // 默认可学习的节点（诊断推荐路径）
+  const defaultHighlighted = [
+    'party-theory',
+    'chinese-modernization',
+    'comprehensive-strict-governance',
+    'membership-development',
+    'party-life',
+    'mass-work',
+    'rural-policy',
+    'rural-governance',
+    'supervision-system',
+  ];
+  const [highlightedNodes, setHighlightedNodes] = useState<string[]>(defaultHighlighted);
   const [hasCompletedDiagnostic, setHasCompletedDiagnostic] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [welcomeMessage, setWelcomeMessage] = useState('');
@@ -112,7 +124,9 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
   const [progress] = useState<LearningProgress[]>([
     { nodeId: 'party-constitution', status: 'completed', score: 95 },
-    { nodeId: 'party-history', status: 'completed', score: 88 }
+    { nodeId: 'party-history', status: 'in_progress', score: 88 },
+    { nodeId: '20th-report', status: 'in_progress' },
+    { nodeId: 'integrity-education', status: 'completed', score: 92 },
   ]);
 
   // 随机选择欢迎语 + 打字机效果
@@ -142,7 +156,10 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
   // 保存诊断结果到数据库
   const saveDiagnostic = async (path: LearningPath, roles: string[], topics: string[], difficulty: string) => {
-    if (!currentUser) return;
+    if (!currentUser || !currentUser.id) {
+      console.warn('用户ID不存在，跳过保存诊断结果');
+      return;
+    }
 
     setIsSaving(true);
     try {
@@ -160,7 +177,10 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
       });
 
       if (!response.ok) {
-        console.error('保存诊断失败');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('保存诊断失败:', errorData);
+      } else {
+        console.log('诊断结果保存成功');
       }
     } catch (err) {
       console.error('保存诊断错误:', err);
@@ -682,7 +702,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                     data={generatedPath?.rootNode || partyKnowledgeGraph}
                     progress={progress}
                     highlightedNodes={highlightedNodes}
-                    interactive={!hasCompletedDiagnostic}
+                    interactive={false}
                   />
                 </div>
               </Card>

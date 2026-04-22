@@ -471,14 +471,6 @@ function filterNodes(
   selectedIds: Set<string>,
   level: string
 ): KnowledgeNode | null {
-  // 根据难度筛选
-  if (level === 'beginner' && node.level > 2) {
-    return null;
-  }
-  if (level === 'intermediate' && node.level > 3) {
-    return null;
-  }
-
   // 根节点始终保留
   if (node.level === 0) {
     const filteredChildren = node.children
@@ -487,34 +479,54 @@ function filterNodes(
     return { ...node, children: filteredChildren };
   }
 
-  // Level 1 知识模块：如果匹配，则保留该模块及其所有叶子课程节点
+  // Level 1 知识模块：检查是否有匹配的子节点
   if (node.level === 1) {
-    const isMatched = selectedIds.has(node.id);
-    if (isMatched) {
-      // 匹配则保留所有子节点（Level 2 课程叶子节点）
-      const allChildren = node.children || [];
-      return { ...node, children: allChildren };
-    }
-    // 未匹配但子节点有匹配也保留
     const filteredChildren = node.children
       ?.map(child => filterNodes(child, selectedIds, level))
       .filter((child): child is KnowledgeNode => child !== null);
+    
+    // 只保留有匹配子节点的模块
     if (filteredChildren?.length) {
       return { ...node, children: filteredChildren };
     }
     return null;
   }
 
-  // Level 2 课程叶子节点：如果有内容/视频则直接返回（不再往下找子节点）
-  if (node.level >= 2 && (node.content || node.videoId)) {
-    return { ...node, children: undefined };
+  // Level 2 中间节点（课程分类）
+  if (node.level === 2) {
+    const isMatched = selectedIds.has(node.id);
+    
+    if (isMatched && node.courses && node.courses.length > 0) {
+      // 根据难度筛选课程数量
+      let coursesToShow = node.courses;
+      if (level === 'beginner') {
+        // 入门：只显示前2门课
+        coursesToShow = node.courses.slice(0, 2);
+      } else if (level === 'intermediate') {
+        // 进阶：只显示前3门课
+        coursesToShow = node.courses.slice(0, 3);
+      }
+      // advanced：显示所有课程
+      
+      if (coursesToShow.length > 0) {
+        return { ...node, courses: coursesToShow, children: undefined };
+      }
+    }
+    
+    // 检查是否有子节点匹配
+    const filteredChildren = node.children
+      ?.map(child => filterNodes(child, selectedIds, level))
+      .filter((child): child is KnowledgeNode => child !== null);
+    
+    if (filteredChildren?.length) {
+      return { ...node, children: filteredChildren };
+    }
+    
+    return null;
   }
 
-  // 否则如果子节点有匹配则保留
-  const filteredChildren = node.children
-    ?.map(child => filterNodes(child, selectedIds, level))
-    .filter((child): child is KnowledgeNode => child !== null);
-  return filteredChildren?.length ? { ...node, children: filteredChildren } : null;
+  // 其他节点
+  return null;
 }
 
 // 生成学习路径

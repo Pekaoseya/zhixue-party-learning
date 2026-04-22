@@ -657,17 +657,17 @@ function TreeNode({ node, depth, expandedNodes, onToggle }: {
   // Level 1：知识模块
   if (node.level === 1) {
     return (
-      <div key={node.id} className="mb-1">
+      <div key={node.id} className="mb-1.5">
         <button
           onClick={() => onToggle(node.id)}
-          className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[15px] font-semibold text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+          className="w-full flex items-center gap-2.5 px-4 py-3 text-[18px] font-semibold text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
         >
-          <ChevronRight className={`h-4 w-4 transition-transform shrink-0 text-gray-400 ${isExpanded ? 'rotate-90' : ''}`} />
+          <ChevronRight className={`h-5 w-5 transition-transform shrink-0 text-gray-400 ${isExpanded ? 'rotate-90' : ''}`} />
           <span>{node.name}</span>
-          <span className="text-xs text-gray-400 ml-auto">{hasChildren ? node.children!.length + '个分类' : ''}</span>
+          <span className="text-[14px] text-gray-400 ml-auto">{hasChildren ? node.children!.length + '个分类' : ''}</span>
         </button>
         {isExpanded && hasChildren && (
-          <div className="mt-0.5">
+          <div className="mt-1">
             {node.children?.map(child => (
               <TreeNode key={child.id} node={child} depth={depth + 1} expandedNodes={expandedNodes} onToggle={onToggle} />
             ))}
@@ -681,29 +681,29 @@ function TreeNode({ node, depth, expandedNodes, onToggle }: {
   if (node.level === 2) {
     if (hasCourses) {
       return (
-        <div key={node.id} className="mb-0.5">
+        <div key={node.id} className="mb-1">
           <button
             onClick={() => onToggle(node.id)}
-            className="w-full flex items-center gap-2 px-4 py-2 text-[14px] font-medium text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
+            className="w-full flex items-center gap-2 px-4 py-2.5 text-[16px] font-medium text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
           >
-            <ChevronRight className={`h-3.5 w-3.5 transition-transform shrink-0 text-gray-400 ${isExpanded ? 'rotate-90' : ''}`} />
+            <ChevronRight className={`h-4 w-4 transition-transform shrink-0 text-gray-400 ${isExpanded ? 'rotate-90' : ''}`} />
             <span>{node.name}</span>
-            <span className="text-xs text-gray-400 ml-auto">{node.courses!.length}门课</span>
+            <span className="text-[13px] text-gray-400 ml-auto">{node.courses!.length}门课</span>
           </button>
           {isExpanded && (
-            <div className="space-y-0.5 mt-0.5">
+            <div className="space-y-1 mt-1">
               {node.courses!.map((course) => (
                 <a
                   key={course.id}
                   href={`/course/${course.id}`}
-                  className="flex items-center gap-3 px-4 py-2.5 mx-3 rounded-xl cursor-pointer transition-all bg-gray-50 hover:bg-orange-50 group"
+                  className="flex items-center gap-3 px-4 py-3 mx-3 rounded-xl cursor-pointer transition-all bg-gray-50 hover:bg-orange-50 group"
                   title={course.title}
                 >
-                  <div className="h-7 w-7 rounded-full bg-gradient-to-br from-orange-400 to-amber-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                    <Play className="h-3 w-3 text-white ml-0.5" />
+                  <div className="h-8 w-8 rounded-full bg-gradient-to-br from-orange-400 to-amber-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                    <Play className="h-3.5 w-3.5 text-white ml-0.5" />
                   </div>
-                  <span className="flex-1 truncate text-[13px] text-gray-600 min-w-0">{course.title}</span>
-                  <span className="text-xs text-gray-400 shrink-0">{course.duration}分钟</span>
+                  <span className="flex-1 break-words text-[16px] text-gray-600 min-w-0 leading-snug">{course.title}</span>
+                  <span className="text-[14px] text-gray-400 shrink-0">{course.duration}分钟</span>
                 </a>
               ))}
             </div>
@@ -717,14 +717,14 @@ function TreeNode({ node, depth, expandedNodes, onToggle }: {
       return (
         <a
           href={`/course/${node.id}`}
-          className="flex items-center gap-3 px-4 py-2.5 mx-3 my-0.5 rounded-xl cursor-pointer transition-all bg-gray-50 hover:bg-orange-50 group"
+          className="flex items-center gap-3 px-4 py-3 mx-3 my-1 rounded-xl cursor-pointer transition-all bg-gray-50 hover:bg-orange-50 group"
           title={node.content!.title}
         >
-          <div className="h-8 w-8 rounded-full bg-gradient-to-br from-orange-400 to-amber-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-            <Play className="h-3.5 w-3.5 text-white ml-0.5" />
+          <div className="h-9 w-9 rounded-full bg-gradient-to-br from-orange-400 to-amber-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+            <Play className="h-4 w-4 text-white ml-0.5" />
           </div>
-          <span className="flex-1 truncate text-[14px] text-gray-700 font-medium min-w-0">{node.content!.title}</span>
-          <span className="text-sm text-gray-400 shrink-0">{node.content!.duration}分钟</span>
+          <span className="flex-1 break-words text-[16px] text-gray-700 font-medium min-w-0 leading-snug">{node.content!.title}</span>
+          <span className="text-[14px] text-gray-400 shrink-0">{node.content!.duration}分钟</span>
         </a>
       );
     }
@@ -791,15 +791,15 @@ function KnowledgeGraphSidebar({ expanded, onClose }: { expanded: boolean; onClo
       {/* 顶部 Logo 区域 */}
       <div className="px-5 pt-5 pb-4 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-red-500 via-orange-500 to-amber-500 flex items-center justify-center">
-            <Target className="h-5 w-5 text-white" />
+          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-red-500 via-orange-500 to-amber-500 flex items-center justify-center">
+            <Target className="h-6 w-6 text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <h2 className="text-lg font-bold text-gray-800" style={{ fontFamily: 'Noto Serif SC, serif' }}>红韵智学</h2>
-            <p className="text-xs text-gray-500">知识图谱 · {diffLabel}</p>
+            <h2 className="text-[20px] font-bold text-gray-800" style={{ fontFamily: 'Noto Serif SC, serif' }}>红韵智学</h2>
+            <p className="text-[15px] text-gray-500">知识图谱 · {diffLabel}</p>
           </div>
-          <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={onClose}>
-            <X className="h-4 w-4 text-gray-400" />
+          <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" onClick={onClose}>
+            <X className="h-5 w-5 text-gray-400" />
           </Button>
         </div>
       </div>
@@ -811,46 +811,46 @@ function KnowledgeGraphSidebar({ expanded, onClose }: { expanded: boolean; onClo
       <div className="px-5 py-3 shrink-0">
         <button
           onClick={() => setShowDiagnostic(!showDiagnostic)}
-          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 hover:from-orange-100 hover:to-amber-100 transition-colors text-left"
+          className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 hover:from-orange-100 hover:to-amber-100 transition-colors text-left"
         >
-          <Sparkles className="h-4 w-4 text-orange-500 shrink-0" />
-          <span className="flex-1 text-sm font-semibold text-gray-700">个性化诊断结果</span>
-          <ChevronRight className={`h-3.5 w-3.5 text-gray-400 transition-transform ${showDiagnostic ? 'rotate-90' : ''}`} />
+          <Sparkles className="h-5 w-5 text-orange-500 shrink-0" />
+          <span className="flex-1 text-[18px] font-semibold text-gray-700">个性化诊断结果</span>
+          <ChevronRight className={`h-5 w-5 text-gray-400 transition-transform ${showDiagnostic ? 'rotate-90' : ''}`} />
         </button>
         {showDiagnostic && (
-          <div className="mt-2 space-y-2 pl-1">
+          <div className="mt-3 space-y-2.5 pl-1">
             {hasDiagnostic ? (
               <>
                 {diagnosticData!.roles.length > 0 && (
                   <div>
-                    <p className="text-xs text-gray-500 mb-1">您的身份</p>
-                    <div className="flex flex-wrap gap-1">
+                    <p className="text-[16px] text-gray-500 mb-1.5">您的身份</p>
+                    <div className="flex flex-wrap gap-1.5">
                       {diagnosticData!.roles.map(role => (
-                        <Badge key={role} variant="secondary" className="text-xs bg-red-100 text-red-700 border-0">{role}</Badge>
+                        <Badge key={role} variant="secondary" className="text-[16px] bg-red-100 text-red-700 border-0 px-3 py-1">{role}</Badge>
                       ))}
                     </div>
                   </div>
                 )}
                 {diagnosticData!.topics.length > 0 && (
                   <div>
-                    <p className="text-xs text-gray-500 mb-1">学习主题</p>
-                    <div className="flex flex-wrap gap-1">
+                    <p className="text-[16px] text-gray-500 mb-1.5">学习主题</p>
+                    <div className="flex flex-wrap gap-1.5">
                       {diagnosticData!.topics.map(topic => (
-                        <Badge key={topic} variant="secondary" className="text-xs bg-blue-100 text-blue-700 border-0">{topic}</Badge>
+                        <Badge key={topic} variant="secondary" className="text-[16px] bg-blue-100 text-blue-700 border-0 px-3 py-1">{topic}</Badge>
                       ))}
                     </div>
                   </div>
                 )}
-                <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-2.5 border border-purple-100">
-                  <p className="text-xs font-medium text-purple-700 mb-1">推荐原因</p>
-                  <p className="text-xs text-purple-600 leading-relaxed">
+                <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-3 border border-purple-100">
+                  <p className="text-[16px] font-medium text-purple-700 mb-1.5">推荐原因</p>
+                  <p className="text-[16px] text-purple-600 leading-relaxed">
                     根据您选择的身份和感兴趣的主题，系统为您匹配了以下{userLearningPath.rootNode.children?.length || 0}个知识模块，共{userLearningPath.totalDuration}分钟的学习内容。
                   </p>
                 </div>
               </>
             ) : (
-              <div className="bg-gray-50 rounded-lg p-2.5 border border-gray-200">
-                <p className="text-xs text-gray-500 leading-relaxed">
+              <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                <p className="text-[16px] text-gray-500 leading-relaxed">
                   暂未完成学习诊断，当前显示默认学习路径。建议前往引导页完成诊断以获取个性化推荐。
                 </p>
               </div>
