@@ -4,7 +4,8 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import * as d3 from 'd3';
 import { KnowledgeNode, LearningProgress } from '@/lib/types';
 import { motion } from 'framer-motion';
-import { ChevronRight, Play, BookOpen, FileText, Circle } from 'lucide-react';
+import { ChevronRight, Play, BookOpen, FileText, Circle, Target } from 'lucide-react';
+import { contentComplexityMap } from '@/lib/knowledge-graph';
 
 interface MindMapProps {
   data: KnowledgeNode;
@@ -300,6 +301,15 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
         >
           <div className="flex items-start justify-between mb-3">
             <h3 className="text-lg font-bold text-slate-900">{selectedNode.name}</h3>
+            {contentComplexityMap[selectedNode.id] && (
+              <div className="flex items-center gap-1 px-2 py-1 bg-slate-100 rounded-full">
+                <Target className="w-3 h-3 text-slate-500" />
+                <span className="text-xs font-medium text-slate-700">
+                  {contentComplexityMap[selectedNode.id] === 1 ? '基础' : 
+                   contentComplexityMap[selectedNode.id] === 2 ? '中等' : '复杂'}
+                </span>
+              </div>
+            )}
           </div>
           
           <div className="space-y-3">
@@ -393,6 +403,24 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
         <p className="text-[10px] text-slate-400 mt-2">点击节点查看详情 · 拖拽或滚轮缩放</p>
       </div>
       
+      {/* 难度级别说明 */}
+      <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg">
+        <h4 className="text-sm font-semibold text-slate-700 mb-2">难度级别说明</h4>
+        <div className="space-y-1 text-xs">
+          <div className="flex items-center gap-1.5">
+            <span className="w-20">入门级：</span>
+            <span>基础内容，适合初学者</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-20">进阶级：</span>
+            <span>中等难度，适合有一定基础</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-20">深入级：</span>
+            <span>全面内容，包括复杂主题</span>
+          </div>
+        </div>
+      </div>
 
     </div>
   );

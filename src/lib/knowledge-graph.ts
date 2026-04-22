@@ -361,6 +361,24 @@ export function getNodeById(id: string, node: KnowledgeNode): KnowledgeNode | nu
   return null;
 }
 
+// 内容复杂度映射
+// 1级：基础内容，2级：中等难度，3级：复杂内容
+export const contentComplexityMap: Record<string, number> = {
+  'party-constitution': 1,
+  'party-history': 1,
+  'party-theory': 2,
+  '20th-report': 2,
+  'chinese-modernization': 2,
+  'comprehensive-strict-governance': 2,
+  'membership-development': 2,
+  'party-life': 1,
+  'mass-work': 1,
+  'rural-policy': 1,
+  'rural-governance': 2,
+  'integrity-education': 2,
+  'supervision-system': 3
+};
+
 // 筛选节点
 function filterNodes(
   node: KnowledgeNode,
@@ -372,16 +390,25 @@ function filterNodes(
     ?.map(child => filterNodes(child, selectedIds, level))
     .filter((child): child is KnowledgeNode => child !== null);
 
-  // 根据难度筛选
-  if (level === 'beginner' && node.level > 2) {
-    return null;
-  }
-  if (level === 'intermediate' && node.level > 3) {
-    return null;
+  // 筛选逻辑 - 优先保留用户选择的主题节点
+  const isSelected = selectedIds.has(node.id);
+  const complexity = contentComplexityMap[node.id];
+  
+  // 如果是用户选择的节点，或者是根节点，或者有子节点被选中，则保留
+  if (isSelected || node.level === 0 || filteredChildren?.length > 0) {
+    // 对于用户选择的节点，即使复杂度较高也保留
+  } else if (complexity) {
+    // 对于未被选择的节点，根据难度筛选
+    if (level === 'beginner' && complexity > 1) {
+      return null;
+    }
+    if (level === 'intermediate' && complexity > 2) {
+      return null;
+    }
   }
 
   // 如果是叶子节点且未被选中，则不保留（除非是根节点）
-  if (!filteredChildren?.length && node.level > 0 && !selectedIds.has(node.id)) {
+  if (!filteredChildren?.length && node.level > 0 && !isSelected) {
     return null;
   }
 
