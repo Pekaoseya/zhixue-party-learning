@@ -635,11 +635,12 @@ function ContentCard({ item, onClick }: { item: ContentItem; onClick: () => void
 }
 
 // 知识图谱树节点组件
-function TreeNode({ node, depth, expandedNodes, onToggle }: { 
+function TreeNode({ node, depth, expandedNodes, onToggle, onSelectModule }: { 
   node: KnowledgeNode; 
   depth: number;
   expandedNodes: Set<string>;
   onToggle: (id: string) => void;
+  onSelectModule: (node: KnowledgeNode) => void;
 }) {
   const hasChildren = node.children && node.children.length > 0;
   const hasCourses = node.courses && node.courses.length > 0;
@@ -662,7 +663,10 @@ function TreeNode({ node, depth, expandedNodes, onToggle }: {
     return (
       <div key={node.id} className="mb-1.5">
         <button
-          onClick={() => onToggle(node.id)}
+          onClick={() => {
+            onToggle(node.id);
+            onSelectModule(node);
+          }}
           className="w-full flex items-center gap-2.5 px-4 py-3 text-[18px] font-semibold text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
         >
           <ChevronRight className={`h-5 w-5 transition-transform shrink-0 text-gray-400 ${isExpanded ? 'rotate-90' : ''}`} />
@@ -672,7 +676,7 @@ function TreeNode({ node, depth, expandedNodes, onToggle }: {
         {isExpanded && hasChildren && (
           <div className="mt-1">
             {node.children?.map(child => (
-              <TreeNode key={child.id} node={child} depth={depth + 1} expandedNodes={expandedNodes} onToggle={onToggle} />
+              <TreeNode key={child.id} node={child} depth={depth + 1} expandedNodes={expandedNodes} onToggle={onToggle} onSelectModule={onSelectModule} />
             ))}
           </div>
         )}
@@ -740,7 +744,7 @@ function TreeNode({ node, depth, expandedNodes, onToggle }: {
 }
 
 // 左侧栏：知识图谱
-function KnowledgeGraphSidebar({ expanded, onClose }: { expanded: boolean; onClose: () => void }) {
+function KnowledgeGraphSidebar({ expanded, onClose, onSelectModule }: { expanded: boolean; onClose: () => void; onSelectModule: (node: KnowledgeNode) => void }) {
   const [diagnosticData, setDiagnosticData] = useState<{ roles: string[]; topics: string[]; difficulty: string } | null>(null);
   const [showDiagnostic, setShowDiagnostic] = useState(true);
   const [showMindMapModal, setShowMindMapModal] = useState(false);
@@ -880,7 +884,7 @@ function KnowledgeGraphSidebar({ expanded, onClose }: { expanded: boolean; onClo
       {/* 树形内容区域 */}
       <ScrollArea className="flex-1">
         <div className="py-2">
-          <TreeNode node={userLearningPath.rootNode} depth={0} expandedNodes={expandedNodes} onToggle={handleToggle} />
+          <TreeNode node={userLearningPath.rootNode} depth={0} expandedNodes={expandedNodes} onToggle={handleToggle} onSelectModule={onSelectModule} />
         </div>
       </ScrollArea>
 
@@ -1196,6 +1200,7 @@ export default function HomePage() {
   const [isReadingModalOpen, setIsReadingModalOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState('all');
   const [isKnowledgeGraphOpen, setIsKnowledgeGraphOpen] = useState(false);
+  const [selectedModule, setSelectedModule] = useState<KnowledgeNode | null>(null);
   
   // 检查登录状态
   useEffect(() => {
@@ -1208,6 +1213,43 @@ export default function HomePage() {
   useEffect(() => {
     const completed = localStorage.getItem('onboarding_completed');
     setHasCompletedOnboarding(completed === 'true');
+  }, []);
+  
+  // 页面加载时滚动到顶部
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, []);
+
+  // 默认选择左侧第一块知识图谱模块
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('user_diagnostic');
+      let diagnosticData = null;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        diagnosticData = {
+          roles: parsed.roles || [],
+          topics: parsed.topics || [],
+          difficulty: parsed.difficulty || 'intermediate',
+        };
+      }
+
+      const userLearningPath = generateLearningPath({
+        roles: diagnosticData?.roles || ['普通党员'],
+        topics: diagnosticData?.topics || ['二十大精神', '党章党规'],
+        level: diagnosticData?.difficulty || 'intermediate',
+      });
+
+      // 获取第一个知识模块（Level 1 节点）
+      const firstModule = userLearningPath.rootNode.children?.find(child => child.level === 1);
+      if (firstModule) {
+        setSelectedModule(firstModule);
+      }
+    } catch (error) {
+      // 忽略错误
+    }
   }, []);
   
   // 完成引导的回调
@@ -1247,15 +1289,32 @@ export default function HomePage() {
     { id: 'practice', name: '实务', icon: Target },
   ];
   
-  const filteredContents = activeCategory === 'all' 
-    ? contents.filter(c => c.id !== 1) // 排除头条
-    : contents.filter(c => {
-        if (activeCategory === 'theory') return c.category.includes('理论') || c.category === '金句';
-        if (activeCategory === 'politics') return c.category.includes('时政') || c.category === '政策解读';
-        if (activeCategory === 'party') return c.category.includes('党史') || c.category === '党章';
-        if (activeCategory === 'practice') return c.category === '实务' || c.category === '党纪';
-        return true;
-      });
+  // 根据选中的模块和分类过滤内容
+  const filteredContents = (() => {
+    let result = activeCategory === 'all' 
+      ? contents.filter(c => c.id !== 1) // 排除头条
+      : contents.filter(c => {
+          if (activeCategory === 'theory') return c.category.includes('理论') || c.category === '金句';
+          if (activeCategory === 'politics') return c.category.includes('时政') || c.category === '政策解读';
+          if (activeCategory === 'party') return c.category.includes('党史') || c.category === '党章';
+          if (activeCategory === 'practice') return c.category === '实务' || c.category === '党纪';
+          return true;
+        });
+    
+    // 如果选中了模块，进一步过滤内容
+    if (selectedModule) {
+      // 这里可以根据模块的标签或类别进行过滤
+      // 简化实现：假设模块名称与内容标签相关
+      const moduleName = selectedModule.name;
+      result = result.filter(item => 
+        item.tags.some(tag => tag.includes(moduleName) || moduleName.includes(tag)) ||
+        item.category.includes(moduleName) ||
+        moduleName.includes(item.category)
+      );
+    }
+    
+    return result;
+  })();
   
   const handleReadContent = (item: ContentItem) => {
     setSelectedContent(item);
@@ -1280,6 +1339,7 @@ export default function HomePage() {
       <KnowledgeGraphSidebar 
         expanded={isKnowledgeGraphOpen} 
         onClose={() => setIsKnowledgeGraphOpen(false)} 
+        onSelectModule={(node) => setSelectedModule(node)}
       />
       
       {/* 展开/收起按钮 */}
@@ -1302,7 +1362,7 @@ export default function HomePage() {
       {/* 内容流 */}
       <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-b from-orange-50/50 to-white">
           {/* 分类筛选 */}
-          <div className="flex items-center gap-2 mb-6">
+        <div className="flex items-center gap-2 mb-6">
           {categories.map((cat) => {
             const Icon = cat.icon;
             return (
@@ -1321,6 +1381,19 @@ export default function HomePage() {
             );
           })}
         </div>
+
+        {/* 选中模块标题 */}
+        {selectedModule && (
+          <div className="mb-6">
+            <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+              <Layers3 className="h-5 w-5 text-orange-500" />
+              {selectedModule.name}
+            </h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              {selectedModule.description || '点击模块查看相关学习内容'}
+            </p>
+          </div>
+        )}
 
         {/* 精选头条 */}
         {featuredContent && activeCategory === 'all' && (
