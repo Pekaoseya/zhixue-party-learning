@@ -217,7 +217,7 @@ export default function CoursePage() {
           } else {
             courseToPlay = node.courses[0];
           }
-          const videoUrl = await fetchVideoUrl(courseToPlay.videoId);
+          const videoUrl = courseToPlay.videoId ? await fetchVideoUrl(courseToPlay.videoId) : null;
           if (videoUrl) {
             setVideoUrl(videoUrl);
           }
@@ -248,6 +248,8 @@ export default function CoursePage() {
     setIsLoading(true);
     
     const course = currentNode.courses[courseIndex];
+    if (!course.videoId) return;
+    
     const videoUrl = await fetchVideoUrl(course.videoId);
     if (videoUrl) {
       setVideoUrl(videoUrl);

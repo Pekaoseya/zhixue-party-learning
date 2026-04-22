@@ -27,12 +27,9 @@ export class ApiService {
     if (allPortKeys.includes(endpoint as any)) {
       // 如果是ALL_PORT中的键，使用对应的url
       url = ALL_PORT[endpoint as keyof typeof ALL_PORT].url;
-    } else if (typeof endpoint === 'string') {
-      // 否则直接使用字符串作为url
-      url = endpoint;
     } else {
-      // 如果是keyof类型，使用对应的url
-      url = ALL_PORT[endpoint].url;
+      // 否则直接使用字符串作为url
+      url = endpoint as string;
     }
     
     // 构建完整 URL（添加查询参数）
