@@ -75,7 +75,22 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
     // 创建树布局 - 水平方向
     const treeLayout = d3.tree<KnowledgeNode>()
       .size([innerHeight, innerWidth])
-      .separation((a, b) => (a.parent === b.parent ? 1.8 : 2.5));
+      .separation((a, b) => {
+        // 检查是否为末尾节点（叶子节点）
+        const isLeafA = !a.children || a.children.length === 0;
+        const isLeafB = !b.children || b.children.length === 0;
+        
+        // 如果都是末尾节点且是兄弟节点，设置更大的间隔
+        if (a.parent === b.parent && isLeafA && isLeafB) {
+          return 2.2; // 末尾节点的间隔
+        }
+        // 兄弟节点的间隔
+        if (a.parent === b.parent) {
+          return 1.8;
+        }
+        // 非兄弟节点的间隔
+        return 2.5;
+      });
 
     // 创建层级数据
     const root = d3.hierarchy(data, d => d.children);
@@ -88,10 +103,23 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
       return 120;
     };
     
+    // 动态计算节点高度，根据可用空间调整
     const getNodeHeight = (level: number) => {
-      if (level === 0) return 60;
-      if (level === 1) return 50;
-      return 44;
+      // 基础高度
+      let baseHeight = 0;
+      if (level === 0) baseHeight = 60;
+      else if (level === 1) baseHeight = 50;
+      else baseHeight = 44;
+      
+      // 根据可用高度调整节点高度，避免叠加
+      const nodeCount = treeData.descendants().length;
+      const estimatedHeightPerNode = innerHeight / (nodeCount * 0.8); // 预留20%空间
+      
+      // 确保节点高度不小于最小高度，同时不超过基础高度
+      const minHeight = 30; // 最小节点高度
+      const adjustedHeight = Math.min(baseHeight, Math.max(minHeight, estimatedHeightPerNode));
+      
+      return adjustedHeight;
     };
 
     // 绘制连接线（贝塞尔曲线）
@@ -334,7 +362,8 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
           
           <button
             onClick={() => setSelectedNode(null)}
-            className="absolute top-2 right-2 w-6 h-6 bg-white/20 hover:bg-white/40 rounded-full flex items-center justify-center text-white text-sm transition-colors"
+            className="absolute top-2 right-2 w-6 h-6 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center text-white text-sm font-bold transition-colors"
+            aria-label="关闭"
           >
             ×
           </button>
@@ -364,24 +393,7 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
         <p className="text-[10px] text-slate-400 mt-2">点击节点查看详情 · 拖拽或滚轮缩放</p>
       </div>
       
-      {/* 难度规则说明 */}
-      <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg">
-        <h4 className="text-xs font-semibold text-slate-700 mb-2">难度级别说明</h4>
-        <div className="space-y-1 text-[10px]">
-          <div className="flex items-center gap-1.5">
-            <span className="w-20">入门级：</span>
-            <span>包含层级 ≤ 2 的节点</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-20">进阶级：</span>
-            <span>包含层级 ≤ 3 的节点</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-20">深入级：</span>
-            <span>包含所有层级的节点</span>
-          </div>
-        </div>
-      </div>
+
     </div>
   );
 }
