@@ -797,7 +797,7 @@ function TreeNode({ node, depth, expandedNodes, onToggle, onSelectNode, selected
 }
 
 // 左侧栏：知识图谱
-function KnowledgeGraphSidebar({ expanded, onClose, onSelectNode, userLearningPath }: { expanded: boolean; onClose: () => void; onSelectNode?: (nodeId: string, nodeName: string) => void; userLearningPath: any }) {
+function KnowledgeGraphSidebar({ expanded, onClose, onSelectNode, userLearningPath, diagnosticData }: { expanded: boolean; onClose: () => void; onSelectNode?: (nodeId: string, nodeName: string) => void; userLearningPath: any; diagnosticData: { roles: string[]; topics: string[]; difficulty: string } | null }) {
   const [showDiagnostic, setShowDiagnostic] = useState(true);
   const [showMindMapModal, setShowMindMapModal] = useState(false);
 
@@ -817,7 +817,22 @@ function KnowledgeGraphSidebar({ expanded, onClose, onSelectNode, userLearningPa
     collectNodeIds(userLearningPath.rootNode);
     return initial;
   });
-  const [selectedNodeId, setSelectedNodeId] = useState<string>('');
+  const [selectedNodeId, setSelectedNodeId] = useState<string>(() => {
+    // 初始化默认选中根节点
+    return userLearningPath?.rootNode?.id || '';
+  });
+
+  // 刚完成诊断跳转过来时，默认选中根节点
+  useEffect(() => {
+    const justCompleted = localStorage.getItem('just_completed_onboarding');
+    if (justCompleted === 'true' && userLearningPath?.rootNode) {
+      // 选中根节点
+      setSelectedNodeId(userLearningPath.rootNode.id);
+      onSelectNode?.(userLearningPath.rootNode.id, userLearningPath.rootNode.name);
+      // 清除标记
+      localStorage.removeItem('just_completed_onboarding');
+    }
+  }, [userLearningPath, onSelectNode]);
 
   // 处理节点选择
   const handleNodeSelect = (nodeId: string, nodeName: string) => {
@@ -873,6 +888,41 @@ function KnowledgeGraphSidebar({ expanded, onClose, onSelectNode, userLearningPa
         </button>
         {showDiagnostic && (
           <div className="mt-3 space-y-2.5 pl-1">
+            {/* 诊断选择记录 */}
+            <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+              <p className="text-[16px] font-medium text-gray-700 mb-2">您的诊断选择</p>
+              <div className="space-y-2">
+                {diagnosticData?.roles && diagnosticData.roles.length > 0 && (
+                  <div>
+                    <p className="text-[14px] text-gray-500 mb-1">身份选择</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {diagnosticData.roles.map(role => (
+                        <Badge key={role} variant="secondary" className="text-[14px] bg-red-100 text-red-700 border-0 px-3 py-1">{role}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {diagnosticData?.topics && diagnosticData.topics.length > 0 && (
+                  <div>
+                    <p className="text-[14px] text-gray-500 mb-1">学习主题</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {diagnosticData.topics.map(topic => (
+                        <Badge key={topic} variant="secondary" className="text-[14px] bg-blue-100 text-blue-700 border-0 px-3 py-1">{topic}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {diagnosticData?.difficulty && (
+                  <div>
+                    <p className="text-[14px] text-gray-500 mb-1">难度选择</p>
+                    <Badge variant="secondary" className="text-[14px] bg-green-100 text-green-700 border-0 px-3 py-1">
+                      {diagnosticData.difficulty === 'beginner' ? '入门级' : diagnosticData.difficulty === 'intermediate' ? '进阶级' : '精通级'}
+                    </Badge>
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-3 border border-purple-100">
               <p className="text-[16px] font-medium text-purple-700 mb-1.5">推荐原因</p>
               <p className="text-[16px] text-purple-600 leading-relaxed">
@@ -1281,6 +1331,16 @@ export default function HomePage() {
       level: diagnosticData?.difficulty || 'intermediate',
     });
   }, [diagnosticData]);
+
+  // 页面加载完成后，默认选中根节点
+  useEffect(() => {
+    if (userLearningPath?.rootNode) {
+      const rootNodeId = userLearningPath.rootNode.id;
+      setSelectedNodeId(rootNodeId);
+      setSelectedNodeName(userLearningPath.rootNode.name);
+      setActiveCategory('all');
+    }
+  }, [userLearningPath]);
   
   // 动态生成分类按钮，规则：点击节点的下一级节点作为分类，末级节点不进行分类
   const generateCategories = () => {
@@ -1432,7 +1492,7 @@ export default function HomePage() {
     // 如果当前节点是根节点，选中完整分类
     // 如果当前节点有子节点，默认选中第一个有课程或内容的子节点
     // 如果当前节点没有子节点，选中完整分类
-    if (nodeId === 'root') {
+    if (nodeId === userLearningPath.rootNode.id) {
       setActiveCategory('all');
     } else if (currentNode && currentNode.children && currentNode.children.length > 0) {
       const firstValidChild = currentNode.children.find(child => {
@@ -1538,6 +1598,7 @@ export default function HomePage() {
   // 完成引导的回调
   const handleOnboardingComplete = () => {
     localStorage.setItem('onboarding_completed', 'true');
+    localStorage.setItem('just_completed_onboarding', 'true');
     setHasCompletedOnboarding(true);
     
     // 触发引导完成事件，通知导航栏更新状态
@@ -1586,10 +1647,11 @@ export default function HomePage() {
     <div className="flex flex-1 overflow-hidden relative">
       {/* 左侧：知识图谱 */}
       <KnowledgeGraphSidebar 
-        expanded={isKnowledgeGraphOpen} 
-        onClose={() => setIsKnowledgeGraphOpen(false)}
+        expanded={isKnowledgeGraphOpen}
+        onClose={() => setIsKnowledgeGraphOpen(false)}  
         onSelectNode={handleNodeSelect}
         userLearningPath={userLearningPath}
+        diagnosticData={diagnosticData}
       />
       
       {/* 展开/收起按钮 */}
