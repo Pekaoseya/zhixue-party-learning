@@ -75,7 +75,7 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
     // 创建树布局 - 水平方向
     const treeLayout = d3.tree<KnowledgeNode>()
       .size([innerHeight, innerWidth])
-      .separation((a, b) => (a.parent === b.parent ? 1.2 : 1.8));
+      .separation((a, b) => (a.parent === b.parent ? 1.8 : 2.5));
 
     // 创建层级数据
     const root = d3.hierarchy(data, d => d.children);
@@ -241,7 +241,7 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
   }, [data, dimensions, getNodeStatus, highlightedNodes, onNodeClick, progress]);
 
   return (
-    <div ref={containerRef} className="relative w-full h-full bg-gradient-to-br from-slate-50 to-blue-50 rounded-xl overflow-hidden">
+    <div ref={containerRef} className="relative w-full h-full rounded-xl overflow-hidden">
       {/* SVG容器 */}
       <svg
         ref={svgRef}
@@ -362,6 +362,25 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
           </div>
         </div>
         <p className="text-[10px] text-slate-400 mt-2">点击节点查看详情 · 拖拽或滚轮缩放</p>
+      </div>
+      
+      {/* 难度规则说明 */}
+      <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg">
+        <h4 className="text-xs font-semibold text-slate-700 mb-2">难度级别说明</h4>
+        <div className="space-y-1 text-[10px]">
+          <div className="flex items-center gap-1.5">
+            <span className="w-20">入门级：</span>
+            <span>包含层级 ≤ 2 的节点</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-20">进阶级：</span>
+            <span>包含层级 ≤ 3 的节点</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-20">深入级：</span>
+            <span>包含所有层级的节点</span>
+          </div>
+        </div>
       </div>
     </div>
   );

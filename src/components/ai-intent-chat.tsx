@@ -94,7 +94,7 @@ export function AIIntentChat({ onIntentDetected }: AIIntentChatProps) {
   ];
 
   return (
-    <Card className="border-0 shadow-xl bg-gradient-to-br from-slate-900 to-blue-900 text-white overflow-hidden">
+    <Card className="border-0 shadow-xl bg-gradient-to-br from-slate-900/90 to-blue-900/90 text-white overflow-hidden">
       <div className="bg-gradient-to-r from-red-600 to-blue-600 p-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">

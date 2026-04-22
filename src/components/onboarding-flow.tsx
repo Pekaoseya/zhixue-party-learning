@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/auth';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -83,6 +84,7 @@ function TypewriterText({ text, onComplete }: { text: string; onComplete?: () =>
 
 export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const router = useRouter();
+  const { user, loading } = useAuth();
   const [currentView, setCurrentView] = useState<'home' | 'diagnostic' | 'mindmap' | 'ai'>('home');
   const [generatedPath, setGeneratedPath] = useState<LearningPath | null>(null);
   const [highlightedNodes, setHighlightedNodes] = useState<string[]>([]);
@@ -92,10 +94,17 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const [showWelcome, setShowWelcome] = useState(false);
   const [typewriterText, setTypewriterText] = useState('');
   
+  // 检查登录状态
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [user, loading, router]);
+  
   // 从 localStorage 获取当前用户
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(() => {
     if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('admin_user');
+      const stored = localStorage.getItem('user');
       return stored ? JSON.parse(stored) : null;
     }
     return null;
@@ -174,6 +183,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     }
     
     setCurrentView('mindmap');
+    // 移除自动跳转，让用户停留在知识图谱页面
   };
 
   // 处理重新诊断
@@ -211,9 +221,9 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
   // 处理登出
   const handleLogout = () => {
-    localStorage.removeItem('admin_user');
+    localStorage.removeItem('user');
     localStorage.removeItem('onboarding_completed');
-    router.push('/admin');
+    router.push('/login');
   };
 
   // 处理完成并进入主站
@@ -226,7 +236,57 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   };
 
   return (
+    
     <div className="min-h-screen bg-gradient-to-br from-red-100 via-orange-50 to-yellow-100">
+      {/* 导航栏 */}
+      <header className="bg-gradient-to-r from-red-700 via-red-600 to-orange-500 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <img 
+                src="/icon.png" 
+                alt="全省统一战线网络学院" 
+                className="h-10 w-auto object-contain"
+              />
+              <span className="font-bold text-lg hidden md:block text-white">
+                全省统一战线网络学院
+              </span>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              {currentUser ? (
+                <div className="relative group">
+                  <Avatar className="h-8 w-8 cursor-pointer border-2 border-white/50">
+                    <AvatarFallback className="bg-white text-red-600 font-medium">{currentUser.display_name?.charAt(0) || currentUser.username?.charAt(0) || '党'}</AvatarFallback>
+                  </Avatar>
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <div className="px-4 py-2 text-sm text-gray-700 border-b border-gray-100">
+                      {currentUser.display_name || currentUser.username || '用户'}
+                    </div>
+                    <button 
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={handleLogout}
+                    >
+                      <LogOut className="inline-block h-4 w-4 mr-2" />
+                      退出登录
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <Button 
+                  variant="default" 
+                  size="sm"
+                  className="bg-white text-red-600 hover:bg-white/90"
+                  onClick={() => router.push('/login')}
+                >
+                  登录
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      </header>
+
       {/* 主内容区域 */}
       <main className="max-w-7xl mx-auto px-4 py-8">
         <AnimatePresence mode="wait">
@@ -241,6 +301,35 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             >
               {/* Hero区域 - 新用户欢迎页 */}
               <div className="relative overflow-hidden rounded-3xl" style={{ backgroundImage: 'url(/welcome-bg.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                {/* 引导流程提示 */}
+                <div className="absolute top-6 left-6 z-20">
+                  <div className="relative group">
+                    <button className="p-3 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-all duration-200">
+                      <Lightbulb className="w-6 h-6 text-red-500" />
+                    </button>
+                    <div className="absolute left-0 top-full mt-2 w-80 bg-white rounded-lg shadow-xl p-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                      <h4 className="font-bold text-slate-900 mb-3">引导流程说明</h4>
+                      <div className="space-y-3 text-sm text-slate-600">
+                        <div className="flex items-start gap-2">
+                          <span className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center text-red-600 font-bold text-xs shrink-0 mt-0.5">1</span>
+                          <p>完成学习诊断，回答身份、学习主题和难度相关问题</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center text-red-600 font-bold text-xs shrink-0 mt-0.5">2</span>
+                          <p>智能生成专属课程，系统根据诊断结果推荐学习内容</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center text-red-600 font-bold text-xs shrink-0 mt-0.5">3</span>
+                          <p>查看知识图谱，了解党建知识体系结构</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center text-red-600 font-bold text-xs shrink-0 mt-0.5">4</span>
+                          <p>进入主站学习，开始系统学习之旅</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 
                 <div className="relative z-10 max-w-2xl mx-auto text-center py-12 px-6">
                   <motion.h2 
@@ -298,109 +387,167 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                       先看看知识图谱
                     </Button>
                   </motion.div>
+                  
+
                 </div>
               </div>
 
-              {/* 平台特色介绍 - 适合新用户 */}
-              <div className="grid md:grid-cols-3 gap-6">
-                <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow cursor-pointer overflow-hidden group">
-                  <div className="h-2 bg-gradient-to-r from-red-500 to-red-500" />
-                  <CardContent className="p-6">
-                    <div className="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                      <Target className="w-6 h-6 text-slate-700" />
-                    </div>
-                    <h3 className="text-lg font-bold text-slate-900 mb-2">个性化诊断</h3>
-                    <p className="text-slate-700 text-sm mb-4">通过智能诊断了解您的学习基础，为您精准匹配学习内容</p>
-                    <Button 
-                      onClick={() => setCurrentView('diagnostic')}
-                      className="w-full bg-red-500 hover:bg-red-600"
-                    >
-                      立即诊断
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow cursor-pointer overflow-hidden group">
-                  <div className="h-2 bg-gradient-to-r from-red-500 to-yellow-500" />
-                  <CardContent className="p-6">
-                    <div className="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                      <Map className="w-6 h-6 text-slate-700" />
-                    </div>
-                    <h3 className="text-lg font-bold text-slate-900 mb-2">知识图谱</h3>
-                    <p className="text-slate-700 text-sm mb-4">可视化展示党建知识体系，清晰了解学习内容结构</p>
-                    <Button 
-                      onClick={() => setCurrentView('mindmap')}
-                      className="w-full bg-red-500 hover:bg-red-600"
-                    >
-                      探索图谱
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow cursor-pointer overflow-hidden group">
-                  <div className="h-2 bg-gradient-to-r from-red-400 to-red-400" />
-                  <CardContent className="p-6">
-                    <div className="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                      <Lightbulb className="w-6 h-6 text-red-500" />
-                    </div>
-                    <h3 className="text-lg font-bold text-slate-900 mb-2">AI学习助手</h3>
-                    <p className="text-slate-700 text-sm mb-4">随时提问，即时解答，让学习更加轻松高效</p>
-                    <Button 
-                      onClick={() => setCurrentView('ai')}
-                      className="w-full bg-gradient-to-r from-red-400 to-red-400 hover:from-red-500 hover:to-red-500"
-                    >
-                      向AI提问
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* 快速开始提示 */}
-              <Card className="border-0 shadow-lg bg-gradient-to-r from-red-50 to-red-50">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-red-400 to-red-400 flex items-center justify-center shrink-0">
-                      <BookOpen className="w-8 h-8 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-bold text-slate-900 mb-1">建议您这样开始</h3>
-                      <p className="text-slate-800 text-sm">先完成学习诊断，了解自己的学习基础，然后根据AI为您定制的学习路径开始系统学习</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* 完成按钮 */}
-              <div className="text-center space-y-4">
-                {hasCompletedDiagnostic && (
+              {/* 平台特色介绍 - 新设计方案 */}
+              <div className="space-y-10">
+                {/* 功能模块展示 */}
+                <div className="grid md:grid-cols-3 gap-6">
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-full"
+                    whileHover={{ y: -8, boxShadow: '0 20px 25px -5px rgba(220, 38, 38, 0.1)' }}
+                    transition={{ type: 'spring', stiffness: 300 }}
                   >
-                    <CheckCircle2 className="w-5 h-5" />
-                    <span>您已完成学习诊断</span>
+                    <Card className="border-0 shadow-xl overflow-hidden h-full bg-gradient-to-br from-red-50 to-rose-50 relative overflow-hidden">
+                      <div className="absolute top-0 left-0 w-full h-full opacity-20">
+                        <svg width="100%" height="100%" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                          <circle cx="40" cy="40" r="20" fill="none" stroke="#fecdd3" strokeWidth="1" />
+                          <circle cx="120" cy="80" r="30" fill="none" stroke="#fecdd3" strokeWidth="1" />
+                          <circle cx="160" cy="140" r="25" fill="none" stroke="#fecdd3" strokeWidth="1" />
+                          <circle cx="60" cy="160" r="15" fill="none" stroke="#fecdd3" strokeWidth="1" />
+                          <circle cx="100" cy="20" r="10" fill="none" stroke="#fecdd3" strokeWidth="1" />
+                        </svg>
+                      </div>
+                      <div className="h-2 bg-gradient-to-r from-red-600 to-red-500" />
+                      <CardContent className="p-6 relative z-10">
+                        <div className="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center mb-6">
+                          <img src="/zcfg-ico.png" alt="智能诊断" className="w-14 h-14" />
+                        </div>
+                        <h3 className="text-xl font-bold text-slate-900 mb-4">智能诊断</h3>
+                        <p className="text-slate-700 text-sm mb-6">基于AI技术的学习能力诊断，精准评估您的学习基础和需求</p>
+                        <Button 
+                          onClick={() => setCurrentView('diagnostic')}
+                          className="w-full bg-red-600 hover:bg-red-700"
+                        >
+                          开始诊断
+                        </Button>
+                      </CardContent>
+                    </Card>
                   </motion.div>
-                )}
-                <div className="flex justify-center gap-4">
-                  <Button
-                    variant="outline"
-                    onClick={handleFinish}
-                    className="px-8 border-2 border-red-300 text-slate-700 hover:bg-red-50"
+
+                  <motion.div
+                    whileHover={{ y: -8, boxShadow: '0 20px 25px -5px rgba(220, 38, 38, 0.1)' }}
+                    transition={{ type: 'spring', stiffness: 300 }}
                   >
-                    <Home className="w-4 h-4 mr-2" />
-                    进入主站
-                  </Button>
-                  {!hasCompletedDiagnostic && (
-                    <Button
-                      onClick={() => setCurrentView('diagnostic')}
-                      className="bg-gradient-to-r from-red-500 to-red-500 hover:from-red-600 hover:to-red-600 px-8"
-                    >
-                      <GraduationCap className="w-4 h-4 mr-2" />
-                      完成诊断
-                    </Button>
-                  )}
+                    <Card className="border-0 shadow-xl overflow-hidden h-full bg-gradient-to-br from-orange-50 to-amber-50 relative overflow-hidden">
+                      <div className="absolute top-0 left-0 w-full h-full opacity-20">
+                        <svg width="100%" height="100%" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                          <circle cx="30" cy="60" r="22" fill="none" stroke="#fde68a" strokeWidth="1" />
+                          <circle cx="100" cy="40" r="28" fill="none" stroke="#fde68a" strokeWidth="1" />
+                          <circle cx="160" cy="80" r="20" fill="none" stroke="#fde68a" strokeWidth="1" />
+                          <circle cx="50" cy="140" r="25" fill="none" stroke="#fde68a" strokeWidth="1" />
+                          <circle cx="130" cy="160" r="15" fill="none" stroke="#fde68a" strokeWidth="1" />
+                        </svg>
+                      </div>
+                      <div className="h-2 bg-gradient-to-r from-orange-500 to-yellow-500" />
+                      <CardContent className="p-6 relative z-10">
+                        <div className="w-16 h-16 rounded-2xl bg-orange-50 flex items-center justify-center mb-6">
+                          <img src="/zsjy-ico.png" alt="知识图谱" className="w-14 h-14" />
+                        </div>
+                        <h3 className="text-xl font-bold text-slate-900 mb-4">知识图谱</h3>
+                        <p className="text-slate-700 text-sm mb-6">可视化党建知识体系，清晰展示学习内容的内在联系</p>
+                        <Button 
+                          onClick={() => setCurrentView('mindmap')}
+                          className="w-full bg-orange-500 hover:bg-orange-600"
+                        >
+                          探索图谱
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+
+                  <motion.div
+                    whileHover={{ y: -8, boxShadow: '0 20px 25px -5px rgba(220, 38, 38, 0.1)' }}
+                    transition={{ type: 'spring', stiffness: 300 }}
+                  >
+                    <Card className="border-0 shadow-xl overflow-hidden h-full bg-gradient-to-br from-yellow-50 to-amber-50 relative overflow-hidden">
+                      <div className="absolute top-0 left-0 w-full h-full opacity-20">
+                        <svg width="100%" height="100%" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                          <circle cx="60" cy="30" r="18" fill="none" stroke="#fde68a" strokeWidth="1" />
+                          <circle cx="150" cy="40" r="22" fill="none" stroke="#fde68a" strokeWidth="1" />
+                          <circle cx="40" cy="100" r="25" fill="none" stroke="#fde68a" strokeWidth="1" />
+                          <circle cx="120" cy="120" r="30" fill="none" stroke="#fde68a" strokeWidth="1" />
+                          <circle cx="80" cy="160" r="15" fill="none" stroke="#fde68a" strokeWidth="1" />
+                        </svg>
+                      </div>
+                      <div className="h-2 bg-gradient-to-r from-red-500 to-red-400" />
+                      <CardContent className="p-6 relative z-10">
+                        <div className="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center mb-6">
+                          <img src="/zzll-ico.png" alt="AI助手" className="w-14 h-14" />
+                        </div>
+                        <h3 className="text-xl font-bold text-slate-900 mb-4">AI助手</h3>
+                        <p className="text-slate-700 text-sm mb-6">智能学习助手，随时解答您的疑问，提供个性化学习建议</p>
+                        <Button 
+                          onClick={() => setCurrentView('ai')}
+                          className="w-full bg-red-500 hover:bg-red-600"
+                        >
+                          咨询助手
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
                 </div>
+
+                {/* 学习路径展示 */}
+                <Card className="border-0 shadow-xl relativet bg-cover bg-center" style={{ backgroundImage: 'url(/classGardenbg.png), url(/aijieguo.png)' }}>
+                  <CardContent className="p-8 relative z-10">
+                    <div className="text-center mb-10">
+                      <h3 className="text-2xl font-bold text-slate-900 mb-4">个性化学习路径</h3>
+                      <p className="text-slate-600 max-w-2xl mx-auto">基于您的诊断结果，系统将为您生成专属学习路径，让学习更有针对性</p>
+                    </div>
+                    <div className="relative">
+                      {/* 路径时间线 */}
+                      <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-1.5 bg-gradient-to-b from-red-300 to-orange-300 rounded-full"></div>
+                      
+                      <div className="space-y-16">
+                        <motion.div 
+                          initial={{ opacity: 0, x: -50 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.2 }}
+                          className="flex items-center gap-8"
+                        >
+                          <div className="flex-1 text-right pr-8">
+                            <h4 className="font-bold text-lg text-slate-900 mb-2">基础学习</h4>
+                            <p className="text-sm text-slate-600">掌握核心概念和基本理论，建立知识基础</p>
+                          </div>
+                          <div className="z-10 w-16 h-16 rounded-full bg-red-500 flex items-center justify-center text-white font-bold text-xl">1</div>
+                          <div className="flex-1 pl-8"></div>
+                        </motion.div>
+                        
+                        <motion.div 
+                          initial={{ opacity: 0, x: 50 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.4 }}
+                          className="flex items-center gap-8"
+                        >
+                          <div className="flex-1 pr-8"></div>
+                          <div className="z-10 w-16 h-16 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold text-xl">2</div>
+                          <div className="flex-1 pl-8">
+                            <h4 className="font-bold text-lg text-slate-900 mb-2">进阶提升</h4>
+                            <p className="text-sm text-slate-600">深入理解和应用实践，提升专业能力</p>
+                          </div>
+                        </motion.div>
+                        
+                        <motion.div 
+                          initial={{ opacity: 0, x: -50 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.6 }}
+                          className="flex items-center gap-8"
+                        >
+                          <div className="flex-1 text-right pr-8">
+                            <h4 className="font-bold text-lg text-slate-900 mb-2">综合应用</h4>
+                            <p className="text-sm text-slate-600">理论联系实际，解决实际问题</p>
+                          </div>
+                          <div className="z-10 w-16 h-16 rounded-full bg-yellow-500 flex items-center justify-center text-white font-bold text-xl">3</div>
+                          <div className="flex-1 pl-8"></div>
+                        </motion.div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
               </div>
             </motion.div>
           )}
@@ -431,29 +578,93 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               exit={{ opacity: 0 }}
               className="py-4"
             >
-              <div className="flex items-center gap-4 mb-6">
-                <Button
-                  variant="ghost"
-                  onClick={() => setCurrentView('home')}
-                  className="gap-2"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  返回首页
-                </Button>
-                <div>
-                  <h2 className="text-2xl font-bold text-slate-900">
-                    {generatedPath?.title || '党建知识图谱'}
-                  </h2>
-                  {generatedPath && (
-                    <p className="text-slate-500 text-sm">
-                      共 {generatedPath.totalDuration} 分钟 · {generatedPath.difficulty === 'beginner' ? '入门级' : generatedPath.difficulty === 'intermediate' ? '进阶级' : '深入级'}
-                    </p>
-                  )}
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-4">
+                  <Button
+                    variant="ghost"
+                    onClick={() => setCurrentView('home')}
+                    className="gap-2"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    返回首页
+                  </Button>
+                  <div>
+                    <h2 className="text-2xl font-bold text-slate-900">
+                      {generatedPath?.title || '党建知识图谱'}
+                    </h2>
+                    {generatedPath && (
+                      <p className="text-slate-500 text-sm">
+                        共 {generatedPath.totalDuration} 分钟 · {generatedPath.difficulty === 'beginner' ? '入门级' : generatedPath.difficulty === 'intermediate' ? '进阶级' : '深入级'}
+                      </p>
+                    )}
+                  </div>
                 </div>
+                
+                {/* 进入主站按钮 */}
+                {generatedPath && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    <Button 
+                      size="lg"
+                      onClick={handleFinish}
+                      className="bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-700 hover:to-orange-600 text-white shadow-lg"
+                    >
+                      <Home className="w-5 h-5 mr-2" />
+                      开始学习之旅
+                    </Button>
+                  </motion.div>
+                )}
               </div>
               
-              <Card className="border-0 shadow-xl overflow-hidden">
-                <div className="h-[calc(100vh-280px)] min-h-[600px]">
+              {/* 诊断完成报告 */}
+              {generatedPath && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="mb-8"
+                >
+                  <Card className="border-0 shadow-xl overflow-hidden relative" style={{ background: 'linear-gradient(135deg, rgba(220, 38, 38, 0.9) 0%, rgba(234, 88, 12, 0.9) 100%)' }}>
+                    {/* 波浪装饰 */}
+                    <div className="absolute bottom-0 right-0 w-full h-30 overflow-hidden">
+                      <svg className="absolute bottom-0 right-0 w-full" viewBox="0 0 1200 100" preserveAspectRatio="none">
+                        <path 
+                          d="M0,20 C150,80 350,20 500,60 C650,100 800,10 1000,50 C1100,70 1150,30 1200,50 L1200,100 L0,100 Z" 
+                          style={{ fill: 'rgba(255,255,255,0.25)' }}
+                        />
+                        <path 
+                          d="M0,40 C100,60 250,0 400,40 C550,80 700,20 850,60 C950,80 1050,40 1200,70 L1200,100 L0,100 Z" 
+                          style={{ fill: 'rgba(255,255,255,0.15)' }}
+                        />
+                      </svg>
+                    </div>
+                    <CardContent className="p-6">
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center flex-shrink-0">
+                          <CheckCircle2 className="w-6 h-6 text-red-600" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-xl font-bold text-white mb-2">诊断完成！</h3>
+                          <p className="text-white/90 mb-4">
+                            亲爱的{currentUser?.display_name || '同学'}，基于您的选择，我们为您定制了专属学习路径。
+                          </p>
+                          <div className="space-y-2 text-sm text-white/80">
+                            <p>📚 <span className="font-medium">推荐学习时长：</span>{generatedPath.totalDuration} 分钟</p>
+                            <p>🎯 <span className="font-medium">学习难度：</span>{generatedPath.difficulty === 'beginner' ? '入门级' : generatedPath.difficulty === 'intermediate' ? '进阶级' : '深入级'}</p>
+                            <p>🌟 <span className="font-medium">核心知识点：</span>{generatedPath.rootNode.children?.length || 0} 个主题模块</p>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )}
+              
+              <Card className="border-0 shadow-xl overflow-hiddent">
+                <div className="h-[calc(100vh-400px)] min-h-[500px]">
                   <MindMap 
                     data={generatedPath?.rootNode || partyKnowledgeGraph}
                     progress={progress}
@@ -461,6 +672,8 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                   />
                 </div>
               </Card>
+              
+
             </motion.div>
           )}
 
@@ -505,7 +718,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
       </main>
 
       {/* 页脚 */}
-      <footer className="mt-16 border-t border-slate-200 bg-white/50">
+      <footer className="mt-16 border-t border-slate-200 ">
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2 text-slate-500 text-sm">

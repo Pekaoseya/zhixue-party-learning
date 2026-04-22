@@ -82,7 +82,7 @@ export function DiagnosticSurvey({ onPathGenerated }: DiagnosticSurveyProps) {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -20 }}
         >
-          <Card className="border-0 shadow-xl">
+          <Card className="border-0 shadow-xlt">
             <CardHeader className="text-center pb-2">
               <CardTitle className="text-2xl flex items-center justify-center gap-3">
                 <Users className="w-8 h-8 text-red-600" />
@@ -137,7 +137,7 @@ export function DiagnosticSurvey({ onPathGenerated }: DiagnosticSurveyProps) {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -20 }}
         >
-          <Card className="border-0 shadow-xl">
+          <Card className="border-0 shadow-xlt">
             <CardHeader className="text-center pb-2">
               <CardTitle className="text-2xl flex items-center justify-center gap-3">
                 <BookOpen className="w-8 h-8 text-red-600" />
@@ -198,7 +198,7 @@ export function DiagnosticSurvey({ onPathGenerated }: DiagnosticSurveyProps) {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -20 }}
         >
-          <Card className="border-0 shadow-xl">
+          <Card className="border-0 shadow-xlt">
             <CardHeader className="text-center pb-2">
               <CardTitle className="text-2xl flex items-center justify-center gap-3">
                 <Sparkles className="w-8 h-8 text-red-600" />
