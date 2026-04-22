@@ -10,7 +10,7 @@ import { LearningPath } from '@/lib/types';
 import { CheckCircle2, Sparkles, BookOpen, Users, Target } from 'lucide-react';
 
 interface DiagnosticSurveyProps {
-  onPathGenerated: (path: LearningPath, roles?: string[], topics?: string[], difficulty?: string) => void;
+  onPathGenerated: (roles: string[], topics: string[], difficulty: string) => void;
 }
 
 export function DiagnosticSurvey({ onPathGenerated }: DiagnosticSurveyProps) {
@@ -39,12 +39,7 @@ export function DiagnosticSurvey({ onPathGenerated }: DiagnosticSurveyProps) {
     setIsGenerating(true);
     // 模拟生成过程
     setTimeout(() => {
-      const path = generateLearningPath({
-        roles: selectedRoles,
-        topics: selectedTopics,
-        level
-      });
-      onPathGenerated(path, selectedRoles, selectedTopics, level);
+      onPathGenerated(selectedRoles, selectedTopics, level);
       setIsGenerating(false);
     }, 1500);
   };

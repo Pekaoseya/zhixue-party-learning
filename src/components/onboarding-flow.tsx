@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { MindMap } from '@/components/mind-map';
 import { DiagnosticSurvey } from '@/components/diagnostic-survey';
 import { AIIntentChat } from '@/components/ai-intent-chat';
-import { partyKnowledgeGraph } from '@/lib/knowledge-graph';
+import { partyKnowledgeGraph, generateLearningPath } from '@/lib/knowledge-graph';
 import { LearningPath, KnowledgeNode, LearningProgress } from '@/lib/types';
 import { 
   BrainCircuit, 
@@ -161,17 +161,30 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   };
 
   // 处理诊断完成后的路径生成
-  const handlePathGenerated = (path: LearningPath, roles?: string[], topics?: string[], difficulty?: string) => {
+  const handlePathGenerated = (roles: string[], topics: string[], difficulty: string) => {
+    // 根据诊断结果生成学习路径
+    const path = generateLearningPath({
+      roles,
+      topics,
+      level: difficulty,
+    });
+    
     setGeneratedPath(path);
     // 设置高亮节点
     const nodes = getAllNodeIds(path.rootNode);
     setHighlightedNodes(nodes);
     setHasCompletedDiagnostic(true);
     
-    // 保存诊断结果
-    if (roles && topics && difficulty) {
-      saveDiagnostic(path, roles, topics, difficulty);
-    }
+    // 同时保存到 localStorage 供主页读取
+    localStorage.setItem('user_diagnostic', JSON.stringify({
+      roles,
+      topics,
+      difficulty,
+      pathId: path.id,
+    }));
+    
+    // 保存到数据库
+    saveDiagnostic(path, roles, topics, difficulty);
     
     setCurrentView('mindmap');
   };
@@ -458,9 +471,36 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                     data={generatedPath?.rootNode || partyKnowledgeGraph}
                     progress={progress}
                     highlightedNodes={highlightedNodes}
+                    interactive={!hasCompletedDiagnostic}
                   />
                 </div>
               </Card>
+              
+              {/* 诊断完成后的操作按钮 */}
+              {hasCompletedDiagnostic && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex justify-center gap-4 mt-6"
+                >
+                  <Button
+                    size="lg"
+                    onClick={handleFinish}
+                    className="bg-gradient-to-r from-red-500 to-red-500 hover:from-red-600 hover:to-red-600 text-white shadow-lg px-8"
+                  >
+                    <Home className="w-5 h-5 mr-2" />
+                    进入主站学习
+                  </Button>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    onClick={() => setCurrentView('home')}
+                    className="border-2 border-red-300 text-slate-700 hover:bg-red-50 px-8"
+                  >
+                    返回首页
+                  </Button>
+                </motion.div>
+              )}
             </motion.div>
           )}
 

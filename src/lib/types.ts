@@ -1,3 +1,11 @@
+// 课程项（关联到后端视频课程）
+export interface CourseItem {
+  id: string;
+  title: string;
+  duration: number;
+  videoId: string;
+}
+
 // 知识图谱节点
 export interface KnowledgeNode {
   id: string;
@@ -6,6 +14,8 @@ export interface KnowledgeNode {
   level: number;
   children?: KnowledgeNode[];
   content?: CourseContent;
+  courses?: CourseItem[];
+  videoId?: string;
   keyPoints?: string[];
   relatedDocuments?: RelatedDoc[];
   prerequisites?: string[];
