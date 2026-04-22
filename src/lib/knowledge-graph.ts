@@ -671,9 +671,14 @@ function filterNodes(
   level: string
 ): KnowledgeNode | null {
   // 递归过滤子节点
-  const filteredChildren = node.children
+  let filteredChildren = node.children
     ?.map(child => filterNodes(child, selectedIds, level))
     .filter((child): child is KnowledgeNode => child !== null);
+
+  // 特殊处理：党建基础理论只保留党史学习子节点
+  if (node.id === 'party-building-basics') {
+    filteredChildren = filteredChildren?.filter(child => child.id === 'party-history') || [];
+  }
 
   const isSelected = selectedIds.has(node.id);
 
@@ -703,6 +708,7 @@ function filterNodes(
   }
 
   // 叶子节点未被选中且有难度限制时移除
+  // 但是，如果父节点被选中，保留子节点
   if (!filteredChildren?.length && !isSelected) {
     return null;
   }

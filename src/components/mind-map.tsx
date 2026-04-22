@@ -433,3 +433,5 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
     </div>
   );
 }
+
+export default MindMap;
