@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { MindMap } from '@/components/mind-map';
 import { DiagnosticSurvey } from '@/components/diagnostic-survey';
 import { AIIntentChat } from '@/components/ai-intent-chat';
-import { partyKnowledgeGraph } from '@/lib/knowledge-graph';
+import { partyKnowledgeGraph, generateLearningPath } from '@/lib/knowledge-graph';
 import { LearningPath, KnowledgeNode, LearningProgress } from '@/lib/types';
 import { 
   BrainCircuit, 
@@ -170,17 +170,30 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   };
 
   // 处理诊断完成后的路径生成
-  const handlePathGenerated = (path: LearningPath, roles?: string[], topics?: string[], difficulty?: string) => {
+  const handlePathGenerated = (roles: string[], topics: string[], difficulty: string) => {
+    // 根据诊断结果生成学习路径
+    const path = generateLearningPath({
+      roles,
+      topics,
+      level: difficulty,
+    });
+    
     setGeneratedPath(path);
     // 设置高亮节点
     const nodes = getAllNodeIds(path.rootNode);
     setHighlightedNodes(nodes);
     setHasCompletedDiagnostic(true);
     
-    // 保存诊断结果
-    if (roles && topics && difficulty) {
-      saveDiagnostic(path, roles, topics, difficulty);
-    }
+    // 同时保存到 localStorage 供主页读取
+    localStorage.setItem('user_diagnostic', JSON.stringify({
+      roles,
+      topics,
+      difficulty,
+      pathId: path.id,
+    }));
+    
+    // 保存到数据库
+    saveDiagnostic(path, roles, topics, difficulty);
     
     setCurrentView('mindmap');
     // 移除自动跳转，让用户停留在知识图谱页面
@@ -669,11 +682,10 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                     data={generatedPath?.rootNode || partyKnowledgeGraph}
                     progress={progress}
                     highlightedNodes={highlightedNodes}
+                    interactive={!hasCompletedDiagnostic}
                   />
                 </div>
               </Card>
-              
-
             </motion.div>
           )}
 

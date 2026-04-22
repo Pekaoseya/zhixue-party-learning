@@ -76,6 +76,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { partyKnowledgeGraph, generateLearningPath, getNodeById } from '@/lib/knowledge-graph';
+import type { KnowledgeNode } from '@/lib/types';
 
 // 内容类型
 type ContentType = 'quote' | 'card' | 'infographic' | 'audio' | 'article';
@@ -629,66 +631,241 @@ function ContentCard({ item, onClick }: { item: ContentItem; onClick: () => void
   );
 }
 
-// 左侧栏：课程树
-function CourseTreeSidebar() {
-  const [expandedId, setExpandedId] = useState<number | null>(1);
-  
-  return (
-    <div className="h-full flex flex-col">
-      <div className="p-4 border-b border-gray-200">
-        <h2 className="font-bold text-lg flex items-center gap-2">
-          <BookOpen className="h-5 w-5 text-orange-500" />
-          学习体系
-        </h2>
+// 知识图谱树节点组件
+function TreeNode({ node, depth, expandedNodes, onToggle }: { 
+  node: KnowledgeNode; 
+  depth: number;
+  expandedNodes: Set<string>;
+  onToggle: (id: string) => void;
+}) {
+  const hasChildren = node.children && node.children.length > 0;
+  const hasCourses = node.courses && node.courses.length > 0;
+  const hasContent = node.content !== undefined;
+  const isExpanded = expandedNodes.has(node.id);
+
+  // 根节点：只渲染子节点
+  if (node.level === 0) {
+    return (
+      <div className="py-1">
+        {node.children?.map(child => (
+          <TreeNode key={child.id} node={child} depth={depth + 1} expandedNodes={expandedNodes} onToggle={onToggle} />
+        ))}
       </div>
-      <ScrollArea className="flex-1">
-        <div className="p-2">
-          {courseTree.map((course) => {
-            const Icon = course.icon;
-            const isExpanded = expandedId === course.id;
-            return (
-              <div key={course.id} className="mb-2">
-                <button
-                  onClick={() => setExpandedId(isExpanded ? null : course.id)}
-                  className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${
-                    isExpanded ? 'bg-orange-50 text-orange-700' : 'hover:bg-gray-50'
-                  }`}
+    );
+  }
+
+  // Level 1：知识模块
+  if (node.level === 1) {
+    return (
+      <div key={node.id} className="mb-1">
+        <button
+          onClick={() => onToggle(node.id)}
+          className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[15px] font-semibold text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+        >
+          <ChevronRight className={`h-4 w-4 transition-transform shrink-0 text-gray-400 ${isExpanded ? 'rotate-90' : ''}`} />
+          <span>{node.name}</span>
+          <span className="text-xs text-gray-400 ml-auto">{hasChildren ? node.children!.length + '个分类' : ''}</span>
+        </button>
+        {isExpanded && hasChildren && (
+          <div className="mt-0.5">
+            {node.children?.map(child => (
+              <TreeNode key={child.id} node={child} depth={depth + 1} expandedNodes={expandedNodes} onToggle={onToggle} />
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Level 2：中间节点（课程分类）- 可展开，展示 courses[] 中的课程
+  if (node.level === 2) {
+    if (hasCourses) {
+      return (
+        <div key={node.id} className="mb-0.5">
+          <button
+            onClick={() => onToggle(node.id)}
+            className="w-full flex items-center gap-2 px-4 py-2 text-[14px] font-medium text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
+          >
+            <ChevronRight className={`h-3.5 w-3.5 transition-transform shrink-0 text-gray-400 ${isExpanded ? 'rotate-90' : ''}`} />
+            <span>{node.name}</span>
+            <span className="text-xs text-gray-400 ml-auto">{node.courses!.length}门课</span>
+          </button>
+          {isExpanded && (
+            <div className="space-y-0.5 mt-0.5">
+              {node.courses!.map((course) => (
+                <a
+                  key={course.id}
+                  href={`/course/${course.id}`}
+                  className="flex items-center gap-3 px-4 py-2.5 mx-3 rounded-xl cursor-pointer transition-all bg-gray-50 hover:bg-orange-50 group"
+                  title={course.title}
                 >
-                  <Icon className={`h-5 w-5 ${isExpanded ? 'text-orange-500' : 'text-gray-400'}`} />
-                  <div className="flex-1 text-left">
-                    <p className="font-medium text-sm">{course.title}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Progress value={course.progress} className="flex-1 h-1 [&>div]:bg-orange-500" />
-                      <span className="text-xs text-muted-foreground">{course.progress}%</span>
+                  <div className="h-7 w-7 rounded-full bg-gradient-to-br from-orange-400 to-amber-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                    <Play className="h-3 w-3 text-white ml-0.5" />
+                  </div>
+                  <span className="flex-1 truncate text-[13px] text-gray-600 min-w-0">{course.title}</span>
+                  <span className="text-xs text-gray-400 shrink-0">{course.duration}分钟</span>
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // 没有 courses 但有 content 的节点，直接显示为课程
+    if (hasContent) {
+      return (
+        <a
+          href={`/course/${node.id}`}
+          className="flex items-center gap-3 px-4 py-2.5 mx-3 my-0.5 rounded-xl cursor-pointer transition-all bg-gray-50 hover:bg-orange-50 group"
+          title={node.content!.title}
+        >
+          <div className="h-8 w-8 rounded-full bg-gradient-to-br from-orange-400 to-amber-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+            <Play className="h-3.5 w-3.5 text-white ml-0.5" />
+          </div>
+          <span className="flex-1 truncate text-[14px] text-gray-700 font-medium min-w-0">{node.content!.title}</span>
+          <span className="text-sm text-gray-400 shrink-0">{node.content!.duration}分钟</span>
+        </a>
+      );
+    }
+
+    return null;
+  }
+
+  // 其他节点
+  return null;
+}
+
+// 左侧栏：知识图谱
+function KnowledgeGraphSidebar({ expanded, onClose }: { expanded: boolean; onClose: () => void }) {
+  const [diagnosticData, setDiagnosticData] = useState<{ roles: string[]; topics: string[]; difficulty: string } | null>(null);
+  const [showDiagnostic, setShowDiagnostic] = useState(true);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('user_diagnostic');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setDiagnosticData({
+          roles: parsed.roles || [],
+          topics: parsed.topics || [],
+          difficulty: parsed.difficulty || 'intermediate',
+        });
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const userLearningPath = generateLearningPath({
+    roles: diagnosticData?.roles || ['普通党员'],
+    topics: diagnosticData?.topics || ['二十大精神', '党章党规'],
+    level: diagnosticData?.difficulty || 'intermediate',
+  });
+
+  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(() => {
+    const initial = new Set<string>();
+    userLearningPath.rootNode.children?.forEach(child => {
+      initial.add(child.id);
+    });
+    return initial;
+  });
+
+  const handleToggle = (id: string) => {
+    setExpandedNodes(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const diffLabel = userLearningPath.difficulty === 'beginner' ? '入门' : userLearningPath.difficulty === 'intermediate' ? '进阶' : '深入';
+  const hasDiagnostic = diagnosticData && (diagnosticData.roles.length > 0 || diagnosticData.topics.length > 0);
+
+  return (
+    <div className={`h-full bg-white border-r border-gray-200 flex flex-col transition-all duration-300 shrink-0 ${expanded ? 'w-72' : 'w-0 overflow-hidden'}`}>
+      {/* 顶部 Logo 区域 */}
+      <div className="px-5 pt-5 pb-4 shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-red-500 via-orange-500 to-amber-500 flex items-center justify-center">
+            <Target className="h-5 w-5 text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg font-bold text-gray-800" style={{ fontFamily: 'Noto Serif SC, serif' }}>红韵智学</h2>
+            <p className="text-xs text-gray-500">知识图谱 · {diffLabel}</p>
+          </div>
+          <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={onClose}>
+            <X className="h-4 w-4 text-gray-400" />
+          </Button>
+        </div>
+      </div>
+
+      {/* 分隔线 */}
+      <div className="mx-5 border-t border-gray-100 shrink-0" />
+
+      {/* 个性化诊断结果面板 */}
+      <div className="px-5 py-3 shrink-0">
+        <button
+          onClick={() => setShowDiagnostic(!showDiagnostic)}
+          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 hover:from-orange-100 hover:to-amber-100 transition-colors text-left"
+        >
+          <Sparkles className="h-4 w-4 text-orange-500 shrink-0" />
+          <span className="flex-1 text-sm font-semibold text-gray-700">个性化诊断结果</span>
+          <ChevronRight className={`h-3.5 w-3.5 text-gray-400 transition-transform ${showDiagnostic ? 'rotate-90' : ''}`} />
+        </button>
+        {showDiagnostic && (
+          <div className="mt-2 space-y-2 pl-1">
+            {hasDiagnostic ? (
+              <>
+                {diagnosticData!.roles.length > 0 && (
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">您的身份</p>
+                    <div className="flex flex-wrap gap-1">
+                      {diagnosticData!.roles.map(role => (
+                        <Badge key={role} variant="secondary" className="text-xs bg-red-100 text-red-700 border-0">{role}</Badge>
+                      ))}
                     </div>
                   </div>
-                  <ChevronRight className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
-                </button>
-                
-                {isExpanded && (
-                  <div className="ml-6 mt-1 space-y-1 border-l-2 border-orange-100 pl-3">
-                    {course.chapters.map((chapter) => (
-                      <div
-                        key={chapter.id}
-                        className={`flex items-center gap-2 p-2 rounded text-sm ${
-                          chapter.completed 
-                            ? 'text-green-600' 
-                            : 'text-gray-600 hover:bg-gray-50'
-                        }`}
-                      >
-                        {chapter.completed ? (
-                          <CheckCircle2 className="h-4 w-4 text-green-500" />
-                        ) : (
-                          <div className="h-4 w-4 rounded-full border-2 border-gray-300" />
-                        )}
-                        <span className={chapter.completed ? 'line-through' : ''}>{chapter.title}</span>
-                      </div>
-                    ))}
+                )}
+                {diagnosticData!.topics.length > 0 && (
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">学习主题</p>
+                    <div className="flex flex-wrap gap-1">
+                      {diagnosticData!.topics.map(topic => (
+                        <Badge key={topic} variant="secondary" className="text-xs bg-blue-100 text-blue-700 border-0">{topic}</Badge>
+                      ))}
+                    </div>
                   </div>
                 )}
+                <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-2.5 border border-purple-100">
+                  <p className="text-xs font-medium text-purple-700 mb-1">推荐原因</p>
+                  <p className="text-xs text-purple-600 leading-relaxed">
+                    根据您选择的身份和感兴趣的主题，系统为您匹配了以下{userLearningPath.rootNode.children?.length || 0}个知识模块，共{userLearningPath.totalDuration}分钟的学习内容。
+                  </p>
+                </div>
+              </>
+            ) : (
+              <div className="bg-gray-50 rounded-lg p-2.5 border border-gray-200">
+                <p className="text-xs text-gray-500 leading-relaxed">
+                  暂未完成学习诊断，当前显示默认学习路径。建议前往引导页完成诊断以获取个性化推荐。
+                </p>
               </div>
-            );
-          })}
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* 分隔线 */}
+      <div className="mx-5 border-t border-gray-100 shrink-0" />
+
+      {/* 树形内容区域 */}
+      <ScrollArea className="flex-1">
+        <div className="py-2">
+          <TreeNode node={userLearningPath.rootNode} depth={0} expandedNodes={expandedNodes} onToggle={handleToggle} />
         </div>
       </ScrollArea>
     </div>
@@ -985,6 +1162,7 @@ export default function HomePage() {
   const [selectedContent, setSelectedContent] = useState<ContentItem | null>(null);
   const [isReadingModalOpen, setIsReadingModalOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState('all');
+  const [isKnowledgeGraphOpen, setIsKnowledgeGraphOpen] = useState(false);
   
   // 检查登录状态
   useEffect(() => {
@@ -1064,13 +1242,28 @@ export default function HomePage() {
   };
 
   return (
-    <div className="flex flex-1 overflow-hidden">
-      {/* 左侧栏：课程树 */}
-      <aside className="w-64 bg-white border-r border-gray-200 overflow-hidden">
-        <CourseTreeSidebar />
-      </aside>
+    <div className="flex flex-1 overflow-hidden relative">
+      {/* 左侧栏：知识图谱 */}
+      <KnowledgeGraphSidebar 
+        expanded={isKnowledgeGraphOpen} 
+        onClose={() => setIsKnowledgeGraphOpen(false)} 
+      />
+      
+      {/* 展开/收起按钮 */}
+      {!isKnowledgeGraphOpen && (
+        <div className="absolute left-0 top-20 z-10">
+          <Button
+            variant="secondary"
+            size="icon"
+            className="rounded-r-lg rounded-l-none shadow-md bg-white border border-l-0 border-gray-200 hover:bg-orange-50 h-12"
+            onClick={() => setIsKnowledgeGraphOpen(true)}
+          >
+            <Layers3 className="h-4 w-4 text-orange-500" />
+          </Button>
+        </div>
+      )}
 
-      {/* 中间栏：内容流 */}
+      {/* 内容流 */}
       <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-b from-orange-50/50 to-white">
           {/* 分类筛选 */}
           <div className="flex items-center gap-2 mb-6">
@@ -1135,11 +1328,6 @@ export default function HomePage() {
           </Button>
         </div>
       </main>
-
-      {/* 右侧栏：数据仪表盘 */}
-      <aside className="w-80 bg-white border-l border-gray-200 overflow-hidden">
-        <DashboardSidebar />
-      </aside>
       
       {/* 阅读弹窗 */}
       <ReadingModal 

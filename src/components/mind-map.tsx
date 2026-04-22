@@ -12,6 +12,7 @@ interface MindMapProps {
   progress?: LearningProgress[];
   onNodeClick?: (node: KnowledgeNode) => void;
   highlightedNodes?: string[];
+  interactive?: boolean;
 }
 
 interface TreeNode extends d3.HierarchyPointNode<KnowledgeNode> {
@@ -19,7 +20,7 @@ interface TreeNode extends d3.HierarchyPointNode<KnowledgeNode> {
   y0?: number;
 }
 
-export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [] }: MindMapProps) {
+export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [], interactive = true }: MindMapProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 1200, height: 700 });
@@ -64,14 +65,16 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
     const g = svg.append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
-    // 创建缩放行为
-    const zoom = d3.zoom<SVGSVGElement, unknown>()
-      .scaleExtent([0.3, 2])
-      .on('zoom', (event) => {
-        g.attr('transform', event.transform);
-      });
+    // 创建缩放行为 - 仅在交互模式下启用
+    if (interactive) {
+      const zoom = d3.zoom<SVGSVGElement, unknown>()
+        .scaleExtent([0.3, 2])
+        .on('zoom', (event) => {
+          g.attr('transform', event.transform);
+        });
 
-    svg.call(zoom);
+      svg.call(zoom);
+    }
 
     // 创建树布局 - 水平方向
     const treeLayout = d3.tree<KnowledgeNode>()
@@ -267,7 +270,7 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
       .attr('stroke', 'white')
       .attr('stroke-width', 2);
 
-  }, [data, dimensions, getNodeStatus, highlightedNodes, onNodeClick, progress]);
+  }, [data, dimensions, getNodeStatus, highlightedNodes, onNodeClick, progress, interactive]);
 
   return (
     <div ref={containerRef} className="relative w-full h-full rounded-xl overflow-hidden">
@@ -400,7 +403,9 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
             <span>已完成</span>
           </div>
         </div>
-        <p className="text-[10px] text-slate-400 mt-2">点击节点查看详情 · 拖拽或滚轮缩放</p>
+        <p className="text-[10px] text-slate-400 mt-2">
+          {interactive ? '点击节点查看详情 · 拖拽或滚轮缩放' : '点击节点查看详情'}
+        </p>
       </div>
       
       {/* 难度级别说明 */}

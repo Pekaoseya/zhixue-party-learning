@@ -514,7 +514,7 @@ export default function TrainingCandidatesPage() {
                         {expandUser === user.id && (
                           <div className="mt-4 pt-4 border-t border-amber-100">
                             <h4 className="text-sm font-semibold text-amber-800 mb-2">📋 培训记录</h4>
-                            {user.records.map((record, idx) => (
+                            {user.records.map((record: { name: string; date: string; status: string; score: number }, idx: number) => (
                               <div key={idx} className="flex items-center justify-between bg-amber-50 p-3 rounded-lg mb-2 last:mb-0">
                                 <span className="font-medium">{record.name}</span>
                                 <div className="flex items-center gap-4 text-sm">
@@ -681,7 +681,7 @@ export default function TrainingCandidatesPage() {
                 </div>
               </div>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredUsers.map(user => (
+                {filteredUsers.map((user: { id: number; name: string; role: string; org: string; region: string; tags: string[]; status: string; reason: string; records?: unknown[] }) => (
                   <Card key={user.id} className="border-gray-100 hover:shadow-lg transition-all">
                     <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-4">
                       <div className="flex items-center justify-between mb-2">
@@ -708,7 +708,7 @@ export default function TrainingCandidatesPage() {
                       <div className="mb-3">
                         <div className="text-xs text-gray-500 mb-1">标签</div>
                         <div className="flex flex-wrap gap-1">
-                          {user.tags.map(tag => (
+                          {user.tags.map((tag: string) => (
                             <Badge key={tag} variant="outline" className="text-xs border-purple-200 text-purple-700">{tag}</Badge>
                           ))}
                         </div>
