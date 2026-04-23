@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { NavProvider } from '@/components/nav-context';
 import { MainNav } from '@/components/main-nav';
 import VideoMappingInitializer from '@/components/video-mapping-initializer';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
 
 const notoSerifSC = Noto_Serif_SC({
   subsets: ['latin'],
@@ -41,13 +42,22 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // 白名单配置
+  const whitelist = [
+    '/login',
+    '/reset',
+    '/api/*',
+  ];
+
   return (
     <html lang="zh-CN" suppressHydrationWarning className={notoSerifSC.variable}>
       <body className="antialiased">
         <NavProvider>
           <VideoMappingInitializer />
           <MainNav />
-          <main className="flex-1 flex flex-col">{children}</main>
+          <ProtectedRoute whitelist={whitelist}>
+            <main className="flex-1 flex flex-col">{children}</main>
+          </ProtectedRoute>
         </NavProvider>
         <Toaster />
       </body>

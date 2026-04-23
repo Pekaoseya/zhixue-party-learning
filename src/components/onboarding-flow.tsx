@@ -94,12 +94,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const [showWelcome, setShowWelcome] = useState(false);
   const [typewriterText, setTypewriterText] = useState('');
   
-  // 检查登录状态
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login');
-    }
-  }, [user, loading, router]);
+
   
   // 从 localStorage 获取当前用户
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(() => {
