@@ -70,7 +70,7 @@ interface ChapterData {
   id: number;
   title: string;
   totalSlides: number;
-  slides: ContentBlock[][];
+  slides: ContentBlock[];
   aiSummary: string;
   keyPoints: string[];
   videoUrl?: string; // 章节视频 URL
@@ -350,7 +350,17 @@ export default function CourseLearnPage() {
   ]);
   const [chatInput, setChatInput] = useState('');
   const [expandedChapters, setExpandedChapters] = useState<Set<number>>(new Set([0]));
-  const [completedSlides, setCompletedSlides] = useState<Set<string>>(new Set());
+  const [completedSlides, setCompletedSlides] = useState<Set<string>>(() => {
+    try {
+      const saved = localStorage.getItem(`completed_slides_${courseId}`);
+      if (saved) {
+        return new Set(JSON.parse(saved));
+      }
+    } catch {
+      // ignore
+    }
+    return new Set();
+  });
   const [showAISummary, setShowAISummary] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [videoProgress, setVideoProgress] = useState(0);
@@ -361,8 +371,8 @@ export default function CourseLearnPage() {
   const course = getCourseData(courseId);
   const chapter = course.chapters[currentChapter];
   const slides = chapter?.slides || [];
-  const currentSlideData = slides[currentSlide] || [];
-  const totalSlides = chapter?.totalSlides || 0;
+  const currentSlideData = slides[currentSlide] ? [slides[currentSlide]] : [];
+  const totalSlides = slides.length;
   const progress = totalSlides > 0 ? ((currentSlide + 1) / totalSlides) * 100 : 0;
   
   // 获取当前章节或幻灯片的视频 URL
@@ -388,12 +398,55 @@ export default function CourseLearnPage() {
     };
   }, [isPlaying]);
 
+  // 保存完成进度到localStorage
+  useEffect(() => {
+    localStorage.setItem(`completed_slides_${courseId}`, JSON.stringify([...completedSlides]));
+  }, [completedSlides, courseId]);
+
+  // 返回时同步课程数据到 ai_generated_course
+  useEffect(() => {
+    const syncCourseData = () => {
+      const currentCourse = localStorage.getItem('current_ai_course');
+      if (currentCourse) {
+        try {
+          const parsed = JSON.parse(currentCourse);
+          // 同步到 ai_generated_course 供 /library 页面恢复状态
+          localStorage.setItem('ai_generated_course', currentCourse);
+        } catch {
+          // ignore
+        }
+      }
+    };
+
+    // 页面卸载或隐藏时同步
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        syncCourseData();
+      }
+    };
+
+    // 窗口失去焦点时同步
+    const handleBlur = () => {
+      syncCourseData();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('blur', handleBlur);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('blur', handleBlur);
+      // 组件卸载时也要同步
+      syncCourseData();
+    };
+  }, []);
+
   // 获取所有已完成的学习进度
   const getTotalProgress = () => {
     let total = 0;
     let completed = 0;
     course.chapters.forEach((ch: ChapterData, chIdx: number) => {
-      ch.slides.forEach((_: ContentBlock[], slIdx: number) => {
+      ch.slides.forEach((_: ContentBlock, slIdx: number) => {
         total++;
         if (completedSlides.has(`${chIdx}-${slIdx}`)) completed++;
       });
@@ -443,15 +496,19 @@ export default function CourseLearnPage() {
       setCurrentChapter(currentChapter + 1);
       setCurrentSlide(0);
       setShowAISummary(true);
-      setTimeout(() => setShowAISummary(false), 3000);
+    } else {
+      // 最后一章的最后一页，标记完成后返回课程列表
+      setCompletedSlides(prev => new Set(prev).add(`${currentChapter}-${currentSlide}`));
+      router.push('/library');
     }
   };
+
+  const isLastSlide = currentChapter === course.chapters.length - 1 && currentSlide === slides.length - 1;
 
   const handleChapterSelect = (index: number) => {
     setCurrentChapter(index);
     setCurrentSlide(0);
     setShowAISummary(true);
-    setTimeout(() => setShowAISummary(false), 3000);
     setExpandedChapters(prev => {
       const next = new Set(prev);
       next.add(index);
@@ -503,9 +560,16 @@ export default function CourseLearnPage() {
     }
   };
 
-  const handleVideoTimeUpdate = () => {
+  // 视频播放进度达到80%时自动标记当前页为已完成
+  const handleVideoTimeUpdateWithCompletion = () => {
     if (videoRef.current && !isSeeking) {
       setVideoProgress(videoRef.current.currentTime);
+      if (videoDuration > 0) {
+        const progress = videoRef.current.currentTime / videoDuration;
+        if (progress >= 0.8) {
+          setCompletedSlides(prev => new Set(prev).add(`${currentChapter}-${currentSlide}`));
+        }
+      }
     }
   };
 
@@ -558,7 +622,7 @@ export default function CourseLearnPage() {
           <div className="flex items-center justify-between">
             {/* 左侧：返回 + 课程信息 */}
             <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" className="border-2 border-black" style={{ borderRadius: '0' }} onClick={() => router.back()}>
+              <Button variant="ghost" size="sm" className="border-2 border-black" style={{ borderRadius: '0' }} onClick={() => router.replace('/library')}>
                 <ArrowLeft className="h-4 w-4 mr-1" />
                 返回
               </Button>
@@ -651,7 +715,7 @@ export default function CourseLearnPage() {
                         {ch.slides.length}页 · {ch.keyPoints.length}个知识点
                       </div>
                     </div>
-                    {ch.slides.every((_slide: ContentBlock[], slIdx: number) => isSlideCompleted(idx, slIdx)) && (
+                    {ch.slides.every((_slide: ContentBlock, slIdx: number) => isSlideCompleted(idx, slIdx)) && (
                       <CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" />
                     )}
                   </button>
@@ -765,7 +829,7 @@ export default function CourseLearnPage() {
                           ref={videoRef}
                           src={block.videoUrl}
                           className="w-full aspect-video"
-                          onTimeUpdate={handleVideoTimeUpdate}
+                          onTimeUpdate={handleVideoTimeUpdateWithCompletion}
                           onLoadedMetadata={handleVideoLoadedMetadata}
                           onPlay={() => setIsPlaying(true)}
                           onPause={() => setIsPlaying(false)}
@@ -921,15 +985,25 @@ export default function CourseLearnPage() {
               </Button>
             </div>
 
-            <Button
-              className="bg-purple-600 hover:bg-purple-700 text-white font-bold border-2 border-black"
-              style={{ borderRadius: '0', boxShadow: '2px 2px 0 0 #000' }}
-              onClick={handleNextSlide}
-              disabled={currentChapter === course.chapters.length - 1 && currentSlide === slides.length - 1}
-            >
-              下一页
-              <ChevronRight className="h-4 w-4 ml-1" />
-            </Button>
+            {isLastSlide ? (
+              <Button
+                className="bg-green-600 hover:bg-green-700 text-white font-bold border-2 border-black"
+                style={{ borderRadius: '0', boxShadow: '2px 2px 0 0 #000' }}
+                onClick={handleNextSlide}
+              >
+                返回课程列表
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            ) : (
+              <Button
+                className="bg-purple-600 hover:bg-purple-700 text-white font-bold border-2 border-black"
+                style={{ borderRadius: '0', boxShadow: '2px 2px 0 0 #000' }}
+                onClick={handleNextSlide}
+              >
+                下一页
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            )}
           </div>
         </main>
 

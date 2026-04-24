@@ -3,8 +3,9 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import * as d3 from 'd3';
 import { KnowledgeNode, LearningProgress } from '@/lib/types';
+import { getNodeById } from '@/lib/knowledge-graph';
 import { motion } from 'framer-motion';
-import { Play, BookOpen, Circle, Target } from 'lucide-react';
+import { Play, BookOpen, Circle, Target, CheckCircle2 } from 'lucide-react';
 
 interface MindMapProps {
   data: KnowledgeNode;
@@ -17,6 +18,87 @@ interface MindMapProps {
 interface TreeNode extends d3.HierarchyPointNode<KnowledgeNode> {
   x0?: number;
   y0?: number;
+}
+
+// 计算节点的状态（根据课程完成情况）
+function calculateNodeStatus(
+  node: KnowledgeNode,
+  progress: LearningProgress[],
+  highlightedNodes: string[]
+): 'locked' | 'available' | 'in_progress' | 'completed' {
+  // 如果是叶子节点（有课程或content）
+  const hasCourses = node.courses && node.courses.length > 0;
+  const hasContent = !!node.content;
+  
+  if (hasCourses || hasContent) {
+    const nodeProgress = progress.find(p => p.nodeId === node.id);
+    const allCourseIds = hasCourses ? node.courses!.map(c => c.id) : [node.id];
+    const completedCourses = nodeProgress?.completedCourses || [];
+    
+    console.log(`[calculateNodeStatus] 节点: ${node.id}, progress:`, nodeProgress, `completedCourses:`, completedCourses, `allCourseIds:`, allCourseIds);
+    
+    // 如果所有课程都完成了
+    if (allCourseIds.length > 0 && allCourseIds.every(id => completedCourses.includes(id))) {
+      console.log(`[calculateNodeStatus] ${node.id} → completed (所有课程完成)`);
+      return 'completed';
+    }
+    
+    // 如果有部分课程完成了
+    if (completedCourses.length > 0) {
+      console.log(`[calculateNodeStatus] ${node.id} → in_progress (部分完成)`);
+      return 'in_progress';
+    }
+    
+    // 如果节点在进度中但状态是completed（向后兼容）
+    if (nodeProgress?.status === 'completed') {
+      console.log(`[calculateNodeStatus] ${node.id} → completed (向后兼容)`);
+      return 'completed';
+    }
+    
+    // 如果节点在进度中且状态是in_progress
+    if (nodeProgress?.status === 'in_progress') {
+      console.log(`[calculateNodeStatus] ${node.id} → in_progress (向后兼容)`);
+      return 'in_progress';
+    }
+    
+    // 检查是否可学习（高亮节点）
+    if (highlightedNodes.includes(node.id)) {
+      console.log(`[calculateNodeStatus] ${node.id} → available (高亮节点)`);
+      return 'available';
+    }
+    
+    console.log(`[calculateNodeStatus] ${node.id} → locked`);
+    return 'locked';
+  }
+  
+  // 如果是父节点，根据子节点状态计算
+  if (node.children && node.children.length > 0) {
+    const childrenStatuses = node.children.map(child => 
+      calculateNodeStatus(child, progress, highlightedNodes)
+    );
+    
+    const allCompleted = childrenStatuses.every(s => s === 'completed');
+    const hasInProgress = childrenStatuses.some(s => s === 'in_progress');
+    const hasAvailable = childrenStatuses.some(s => s === 'available');
+    
+    if (allCompleted && childrenStatuses.length > 0) {
+      return 'completed';
+    }
+    if (hasInProgress) {
+      return 'in_progress';
+    }
+    if (hasAvailable) {
+      return 'available';
+    }
+    
+    return 'locked';
+  }
+  
+  // 默认状态
+  if (highlightedNodes.includes(node.id)) {
+    return 'available';
+  }
+  return 'locked';
 }
 
 export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [], interactive = true }: MindMapProps) {
@@ -40,13 +122,18 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
     return () => window.removeEventListener('resize', updateDimensions);
   }, []);
 
-  // 获取节点状态
+  // 获取节点状态（使用新的计算逻辑）
   const getNodeStatus = useCallback((nodeId: string) => {
-    const prog = progress.find(p => p.nodeId === nodeId);
-    if (prog) return prog.status;
-    if (highlightedNodes.includes(nodeId)) return 'available';
-    return 'locked';
-  }, [progress, highlightedNodes]);
+    const node = getNodeById(nodeId, data);
+    if (!node) return 'locked';
+    return calculateNodeStatus(node, progress, highlightedNodes);
+  }, [data, progress, highlightedNodes]);
+
+  // 判断某个课程是否已完成
+  const isCourseCompleted = useCallback((nodeId: string, courseId: string) => {
+    const nodeProgress = progress.find(p => p.nodeId === nodeId);
+    return nodeProgress?.completedCourses?.includes(courseId) || false;
+  }, [progress]);
 
   // 渲染思维导图
   useEffect(() => {
@@ -63,17 +150,6 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
     // 创建主容器
     const g = svg.append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
-
-    // 仅在交互模式下启用缩放行为
-    if (interactive) {
-      const zoom = d3.zoom<SVGSVGElement, unknown>()
-        .scaleExtent([0.3, 2])
-        .on('zoom', (event) => {
-          g.attr('transform', event.transform);
-        });
-
-      svg.call(zoom);
-    }
 
     // 创建树布局 - 水平方向
     const treeLayout = d3.tree<KnowledgeNode>()
@@ -167,13 +243,14 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
         const nodeHeight = getNodeHeight((d.data as KnowledgeNode).level);
         return `translate(${d.y},${d.x - nodeHeight / 2})`;
       })
-      .style('cursor', 'pointer')
-      .on('click', (event, d) => {
-        event.stopPropagation();
-        const nodeData = d.data as KnowledgeNode;
-        setSelectedNode(nodeData);
-        onNodeClick?.(nodeData);
-      });
+      .style('cursor', 'pointer');
+
+    nodes.on('click', (event, d) => {
+      event.stopPropagation();
+      const nodeData = d.data as KnowledgeNode;
+      setSelectedNode(nodeData);
+      onNodeClick?.(nodeData);
+    });
 
     // 节点矩形背景
     nodes.append('rect')
@@ -280,7 +357,7 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
         width={dimensions.width}
         height={dimensions.height}
         className="w-full h-full"
-        style={{ pointerEvents: 'none' }}
+        style={{ pointerEvents: interactive ? 'auto' : 'none' }}
       >
         {/* 渐变定义 */}
         <defs>
@@ -343,21 +420,43 @@ export function MindMap({ data, progress = [], onNodeClick, highlightedNodes = [
               </h4>
               <div className="space-y-1.5">
                 {selectedNode.courses && selectedNode.courses.length > 0 ? (
-                  selectedNode.courses.map((course) => (
-                    <a
-                      key={course.id}
-                      href={`/course/${course.id}`}
-                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-slate-50 hover:bg-orange-50 cursor-pointer transition-colors group"
-                    >
-                      <div className="h-6 w-6 rounded-full bg-gradient-to-br from-orange-400 to-amber-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                        <Play className="h-2.5 w-2.5 text-white ml-0.5" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm text-slate-700 truncate group-hover:text-orange-700">{course.title}</p>
-                      </div>
-                      <span className="text-xs text-slate-400 shrink-0">{course.duration}分钟</span>
-                    </a>
-                  ))
+                  selectedNode.courses.map((course) => {
+                    const completed = isCourseCompleted(selectedNode.id, course.id);
+                    return (
+                      <a
+                        key={course.id}
+                        href={`/course/${course.id}`}
+                        className={`flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer transition-colors group ${
+                          completed 
+                            ? 'bg-green-50 hover:bg-green-100' 
+                            : 'bg-slate-50 hover:bg-orange-50'
+                        }`}
+                      >
+                        <div className={`h-6 w-6 rounded-full flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform ${
+                          completed
+                            ? 'bg-green-500'
+                            : 'bg-gradient-to-br from-orange-400 to-amber-400'
+                        }`}>
+                          {completed ? (
+                            <CheckCircle2 className="h-3.5 w-3.5 text-white" />
+                          ) : (
+                            <Play className="h-2.5 w-2.5 text-white ml-0.5" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className={`text-sm truncate group-hover:text-orange-700 ${
+                            completed ? 'text-green-700' : 'text-slate-700'
+                          }`}>
+                            {course.title}
+                          </p>
+                        </div>
+                        <span className="text-xs text-slate-400 shrink-0">{course.duration}分钟</span>
+                        {completed && (
+                          <span className="text-xs text-green-600 shrink-0 font-medium">已完成</span>
+                        )}
+                      </a>
+                    );
+                  })
                 ) : selectedNode.content ? (
                   <a
                     href={`/course/${selectedNode.id}`}

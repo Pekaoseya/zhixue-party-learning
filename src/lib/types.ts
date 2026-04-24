@@ -81,4 +81,6 @@ export interface LearningProgress {
   status: 'locked' | 'available' | 'in_progress' | 'completed';
   score?: number;
   completedAt?: Date;
+  // 记录该节点下已完成的课程ID列表
+  completedCourses?: string[];
 }

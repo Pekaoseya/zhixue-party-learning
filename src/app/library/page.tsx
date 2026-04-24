@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { MainNav } from '@/components/main-nav';
@@ -138,8 +138,53 @@ export default function LibraryPage() {
   const [courseTopic, setCourseTopic] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
-  const [showResult, setShowResult] = useState(false);
-  const [generatedCourse, setGeneratedCourse] = useState<any>(null);
+  const [showResult, setShowResult] = useState(() => {
+    const saved = localStorage.getItem('ai_generated_course');
+    return !!saved;
+  });
+  const [generatedCourse, setGeneratedCourse] = useState<any>(() => {
+    const saved = localStorage.getItem('ai_generated_course');
+    if (saved) {
+      try { return JSON.parse(saved); } catch { return null; }
+    }
+    return null;
+  });
+  const [activeTab, setActiveTab] = useState<string>(() => {
+    const saved = localStorage.getItem('ai_generated_course');
+    return saved ? 'ai-course' : 'courses';
+  });
+
+  // 保存AI生成课程到localStorage
+  useEffect(() => {
+    if (generatedCourse) {
+      localStorage.setItem('ai_generated_course', JSON.stringify(generatedCourse));
+    }
+  }, [generatedCourse]);
+
+  // 页面重新激活时重新读取localStorage
+  useEffect(() => {
+    const restoreState = () => {
+      const saved = localStorage.getItem('ai_generated_course');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          setGeneratedCourse(parsed);
+          setShowResult(true);
+          setActiveTab('ai-course');
+        } catch { /* ignore */ }
+      }
+    };
+    // 初始读取
+    restoreState();
+    // 监听页面可见性变化
+    document.addEventListener('visibilitychange', restoreState);
+    // 监听窗口焦点
+    window.addEventListener('focus', restoreState);
+    return () => {
+      document.removeEventListener('visibilitychange', restoreState);
+      window.removeEventListener('focus', restoreState);
+    };
+  }, []);
   const [editMode, setEditMode] = useState(false);
   const [editedChapters, setEditedChapters] = useState<any[]>([]);
   // 诊断数据
@@ -436,7 +481,7 @@ export default function LibraryPage() {
           </CardContent>
         </Card>
 
-        <Tabs defaultValue="courses" className="mb-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
           <TabsList className="mb-4">
             <TabsTrigger value="courses">系统课程</TabsTrigger>
             <TabsTrigger value="micro">微课速学</TabsTrigger>
@@ -990,9 +1035,13 @@ export default function LibraryPage() {
                                   {chapter.duration}
                                 </span>
                                 <span className={`text-xs px-2 py-0.5 font-bold border border-black ${
-                                  chapter.type === 'video' ? 'bg-red-100' : 'bg-purple-100'
+                                  chapter.type === 'video' ? 'bg-red-100' :
+                                  chapter.type === 'mixed' ? 'bg-blue-100' :
+                                  'bg-purple-100'
                                 }`}>
-                                  {chapter.type === 'video' ? '📹 视频课' : '💬 研讨课'}
+                                  {chapter.type === 'video' ? '📹 视频课' :
+                                   chapter.type === 'mixed' ? '📑 图文课' :
+                                   '💬 研讨课'}
                                 </span>
                               </div>
                             </>

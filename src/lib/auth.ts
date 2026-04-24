@@ -31,10 +31,20 @@ export const useAuth = () => {
   }, [user]);
 
   const login = (userData: any, callback?: () => void) => {
+    // 检查是否切换了用户
+    const previousUserId = localStorage.getItem('userId');
+    const currentUserId = userData.UserId;
+    
+    if (previousUserId && currentUserId && previousUserId !== currentUserId) {
+      // 用户切换了，清空上一个用户的学习进度
+      localStorage.removeItem('learning_progress');
+      console.log(`[Auth] 用户切换: ${previousUserId} → ${currentUserId}，已清空学习进度`);
+    }
+    
     localStorage.setItem('user', JSON.stringify(userData));
     // 同时存储userId到localStorage
-    if (userData.UserId) {
-      localStorage.setItem('userId', userData.UserId);
+    if (currentUserId) {
+      localStorage.setItem('userId', currentUserId);
     }
     // 更新全局用户状态
     globalUser = userData;
@@ -55,6 +65,10 @@ export const useAuth = () => {
   const logout = () => {
     localStorage.removeItem('user');
     localStorage.removeItem('userId');
+    localStorage.removeItem('learning_progress');
+    localStorage.removeItem('user_diagnostic');
+    localStorage.removeItem('user_diagnostic_completed');
+    localStorage.removeItem('onboarding_completed');
     // 清空全局用户状态
     globalUser = null;
     setUser(null);

@@ -19,6 +19,8 @@ import {
   ChevronRight,
   CheckCircle,
   Circle,
+  Home,
+  ArrowLeft,
 } from 'lucide-react';
 import { partyKnowledgeGraph } from '@/lib/knowledge-graph';
 import { courseVideoMapping } from '@/lib/video-mapping';
@@ -80,6 +82,13 @@ function KnowledgeTreeOutline({
     return prog?.status || 'locked';
   };
 
+  const isCourseCompleted = (nodeId: string, courseId: string) => {
+    const prog = progress.find(p => p.nodeId === nodeId);
+    const result = prog?.completedCourses?.includes(courseId) || false;
+    console.log(`[isCourseCompleted] nodeId=${nodeId}, courseId=${courseId}, result=${result}, progress=`, progress);
+    return result;
+  };
+
   const toggleNode = (nodeId: string) => {
     setExpandedNodes(prev => ({ ...prev, [nodeId]: !prev[nodeId] }));
   };
@@ -89,6 +98,7 @@ function KnowledgeTreeOutline({
     const status = getNodeStatus(node.id);
     const hasChildren = node.children && node.children.length > 0;
     const isExpanded = expandedNodes[node.id];
+    const hasCourses = node.courses && node.courses.length > 0;
 
     return (
       <div key={node.id} className="select-none">
@@ -104,7 +114,11 @@ function KnowledgeTreeOutline({
             flex items-center gap-2 py-1.5 px-2 rounded-md cursor-pointer transition-all
             ${isCurrent
               ? 'bg-red-600 text-white shadow-sm'
-              : 'hover:bg-gray-100 text-gray-700'
+              : status === 'completed'
+                ? 'bg-green-50 text-green-800 hover:bg-green-100'
+                : status === 'in_progress'
+                  ? 'bg-amber-50 text-amber-800 hover:bg-amber-100'
+                  : 'hover:bg-gray-100 text-gray-700'
             }
             ${level > 0 ? 'ml-3' : ''}
           `}
@@ -123,7 +137,7 @@ function KnowledgeTreeOutline({
               {node.name}
             </div>
           </div>
-          {hasChildren && (
+          {(hasChildren || hasCourses) && (
             <div
               className={`flex-shrink-0 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
               onClick={(e) => {
@@ -136,9 +150,45 @@ function KnowledgeTreeOutline({
           )}
         </div>
 
-        {hasChildren && isExpanded && (
+        {isExpanded && (
           <div className="mt-0.5">
-            {node.children!.map(child => renderNode(child, level + 1))}
+            {/* 子节点 */}
+            {hasChildren && node.children!.map(child => renderNode(child, level + 1))}
+            {/* 课程列表 */}
+            {hasCourses && node.courses!.map((course) => {
+              const completed = isCourseCompleted(node.id, course.id);
+              return (
+                <a
+                  key={course.id}
+                  href={`/course/${course.id}?courseId=${course.id}`}
+                  className={`flex items-center gap-2 py-1 px-2 rounded-md ml-6 transition-all ${
+                    completed
+                      ? 'bg-green-50 text-green-700 hover:bg-green-100'
+                      : 'hover:bg-gray-50 text-gray-600'
+                  }`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onNodeClick(node);
+                  }}
+                >
+                  <div className="flex-shrink-0">
+                    {completed ? (
+                      <CheckCircle className="w-3 h-3 text-green-500" />
+                    ) : (
+                      <Play className="w-3 h-3 text-gray-400" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs truncate">
+                      {course.title}
+                    </div>
+                  </div>
+                  {completed && (
+                    <span className="text-[10px] text-green-600 shrink-0">已完成</span>
+                  )}
+                </a>
+              );
+            })}
           </div>
         )}
       </div>
@@ -186,8 +236,12 @@ export default function CoursePage() {
 
   // 保存进度
   useEffect(() => {
+    console.log('[保存进度] useEffect触发，progress:', progress);
     if (progress.length > 0) {
       localStorage.setItem('learning_progress', JSON.stringify(progress));
+      console.log('[保存进度] 已保存到localStorage');
+      // 触发自定义事件，通知其他页面更新
+      window.dispatchEvent(new Event('learningProgressUpdated'));
     }
   }, [progress]);
 
@@ -201,14 +255,10 @@ export default function CoursePage() {
         setCurrentNode(node);
         
         setProgress(prev => {
-          const existing = prev.find(p => p.nodeId === courseId);
+          const existing = prev.find(p => p.nodeId === node.id);
           if (!existing) {
             const updated = [...prev];
-            const inProgressIndex = updated.findIndex(p => p.status === 'in_progress');
-            if (inProgressIndex !== -1) {
-              updated[inProgressIndex] = { ...updated[inProgressIndex], status: 'completed' };
-            }
-            updated.push({ nodeId: courseId, status: 'in_progress' });
+            updated.push({ nodeId: node.id, status: 'in_progress' });
             return updated;
           }
           return prev;
@@ -308,13 +358,40 @@ export default function CoursePage() {
       
       // 自动保存进度
       if (currentNode) {
+        // 获取当前课程ID
+        const currentCourseId = currentNode.courses && currentNode.courses.length > 0
+          ? currentNode.courses[selectedCourseIndex]?.id
+          : currentNode.id;
+        
         setProgress(prev => {
-          const currentIndex = prev.findIndex(p => p.nodeId === currentNode.id);
+          const currentIndex = prev.findIndex(p => p.nodeId === currentNode!.id);
           if (currentIndex !== -1 && prev[currentIndex].status !== 'completed') {
             const updated = [...prev];
-            // 如果播放超过90%，标记为完成
+            const existing = updated[currentIndex];
+            const completedCourses = [...(existing.completedCourses || [])];
+            
+            // 如果播放超过90%，标记该课程为完成
             if (videoRef.current!.duration && videoRef.current!.currentTime / videoRef.current!.duration >= 0.9) {
-              updated[currentIndex] = { ...updated[currentIndex], status: 'completed' };
+              if (!completedCourses.includes(currentCourseId)) {
+                completedCourses.push(currentCourseId);
+              }
+              
+              // 检查该节点下所有课程是否都已完成
+              const allCourses = currentNode!.courses?.map(c => c.id) || [currentNode!.id];
+              const allCompleted = allCourses.every(id => completedCourses.includes(id));
+              
+              updated[currentIndex] = {
+                ...existing,
+                status: allCompleted ? 'completed' : 'in_progress',
+                completedCourses,
+              };
+            } else {
+              // 更新进度但保持in_progress状态
+              updated[currentIndex] = {
+                ...existing,
+                status: 'in_progress',
+                completedCourses,
+              };
             }
             return updated;
           }
@@ -397,6 +474,16 @@ export default function CoursePage() {
     return prog?.status || 'locked';
   };
 
+  // 判断当前课程是否已完成
+  const isCurrentCourseCompleted = () => {
+    if (!currentNode) return false;
+    const currentCourseId = currentNode.courses && currentNode.courses.length > 0
+      ? currentNode.courses[selectedCourseIndex]?.id
+      : currentNode.id;
+    const nodeProgress = progress.find(p => p.nodeId === currentNode.id);
+    return nodeProgress?.completedCourses?.includes(currentCourseId) || false;
+  };
+
   if (isLoading) {
     return (
       <NavBar activeTab="library">
@@ -413,6 +500,18 @@ export default function CoursePage() {
   return (
     <NavBar activeTab="library">
       <div className="max-w-[1280px] mx-auto py-6 px-8">
+        {/* 返回首页按钮 */}
+        <div className="mb-4">
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-gray-600 hover:text-gray-900"
+            onClick={() => router.push('/')}
+          >
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            返回首页
+          </Button>
+        </div>
         <div className="flex gap-8">
           {/* 左侧：视频播放区 */}
           <div className="flex-1">
@@ -537,25 +636,50 @@ export default function CoursePage() {
               <div className="mt-4 flex items-center gap-4">
                 <Button
                   onClick={() => {
-                    if (currentNode) {
+                    if (currentNode && !isCurrentCourseCompleted()) {
+                      const currentCourseId = currentNode.courses && currentNode.courses.length > 0
+                        ? currentNode.courses[selectedCourseIndex]?.id
+                        : currentNode.id;
+                      
                       setProgress(prev => {
-                        const currentIndex = prev.findIndex(p => p.nodeId === currentNode.id);
+                        const currentIndex = prev.findIndex(p => p.nodeId === currentNode!.id);
                         if (currentIndex !== -1) {
                           const updated = [...prev];
-                          updated[currentIndex] = { ...updated[currentIndex], status: 'completed' };
+                          const existing = updated[currentIndex];
+                          const completedCourses = [...(existing.completedCourses || [])];
+                          
+                          if (!completedCourses.includes(currentCourseId)) {
+                            completedCourses.push(currentCourseId);
+                          }
+                          
+                          const allCourses = currentNode!.courses?.map(c => c.id) || [currentNode!.id];
+                          const allCompleted = allCourses.every(id => completedCourses.includes(id));
+                          
+                          updated[currentIndex] = {
+                            ...existing,
+                            status: allCompleted ? 'completed' : 'in_progress',
+                            completedCourses,
+                          };
                           return updated;
                         }
-                        return [...prev, { nodeId: currentNode.id, status: 'completed' }];
+                        return [...prev, {
+                          nodeId: currentNode!.id,
+                          status: 'in_progress' as const,
+                          completedCourses: [currentCourseId],
+                        }];
                       });
                     }
                   }}
-                  className="bg-red-600 hover:bg-red-700 text-white"
+                  disabled={isCurrentCourseCompleted()}
+                  className={isCurrentCourseCompleted() 
+                    ? 'bg-green-600 hover:bg-green-700 text-white cursor-default' 
+                    : 'bg-red-600 hover:bg-red-700 text-white'}
                 >
                   <CheckCircle className="h-4 w-4 mr-2" />
-                  标记完成
+                  {isCurrentCourseCompleted() ? '已完成' : '标记完成'}
                 </Button>
                 <span className="text-sm text-gray-500">
-                  学习状态: {getNodeStatus(courseId) === 'completed' ? '已完成' : getNodeStatus(courseId) === 'in_progress' ? '学习中' : '未开始'}
+                  学习状态: {currentNode ? (getNodeStatus(currentNode.id) === 'completed' ? '已完成' : getNodeStatus(currentNode.id) === 'in_progress' ? '学习中' : '未开始') : '未开始'}
                 </span>
               </div>
             </div>

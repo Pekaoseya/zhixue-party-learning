@@ -110,7 +110,19 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     return null;
   });
 
-  const [progress] = useState<LearningProgress[]>([]);
+  const [progress, setProgress] = useState<LearningProgress[]>([]);
+
+  // 从localStorage读取学习进度
+  useEffect(() => {
+    const saved = localStorage.getItem('learning_progress');
+    if (saved) {
+      try {
+        setProgress(JSON.parse(saved));
+      } catch {
+        // ignore
+      }
+    }
+  }, []);
 
   // 随机选择欢迎语 + 打字机效果
   useEffect(() => {

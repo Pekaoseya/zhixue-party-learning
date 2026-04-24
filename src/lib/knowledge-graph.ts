@@ -675,11 +675,6 @@ function filterNodes(
     ?.map(child => filterNodes(child, selectedIds, level))
     .filter((child): child is KnowledgeNode => child !== null);
 
-  // 特殊处理：党建基础理论只保留党史学习子节点
-  if (node.id === 'party-building-basics') {
-    filteredChildren = filteredChildren?.filter(child => child.id === 'party-history') || [];
-  }
-
   const isSelected = selectedIds.has(node.id);
 
   // Level 0 根节点：始终保留

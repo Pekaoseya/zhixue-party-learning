@@ -23,6 +23,7 @@ import {
   ChevronLeft,
   X,
   CheckCircle2,
+  CheckCircle,
   Check,
   Sparkles,
   Lightbulb,
@@ -80,7 +81,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import MindMap from '@/components/mind-map';
 import { partyKnowledgeGraph, generateLearningPath, getNodeById } from '@/lib/knowledge-graph';
-import type { KnowledgeNode } from '@/lib/types';
+import type { KnowledgeNode, LearningProgress } from '@/lib/types';
 
 // 内容类型
 type ContentType = 'quote' | 'card' | 'infographic' | 'audio' | 'article';
@@ -653,18 +654,25 @@ function ContentCard({ item, onClick }: { item: ContentItem; onClick: () => void
 }
 
 // 知识图谱树节点组件
-function TreeNode({ node, depth, expandedNodes, onToggle, onSelectNode, selectedNodeId }: { 
+function TreeNode({ node, depth, expandedNodes, onToggle, onSelectNode, selectedNodeId, progress = [] }: { 
   node: KnowledgeNode; 
   depth: number;
   expandedNodes: Set<string>;
   onToggle: (id: string) => void;
   onSelectNode?: (nodeId: string, nodeName: string) => void;
   selectedNodeId?: string;
+  progress?: LearningProgress[];
 }) {
   const hasChildren = node.children && node.children.length > 0;
   const hasCourses = node.courses && node.courses.length > 0;
   const hasContent = node.content !== undefined;
   const isExpanded = expandedNodes.has(node.id);
+
+  // 判断课程是否已完成
+  const isCourseCompleted = (nodeId: string, courseId: string) => {
+    const prog = progress.find(p => p.nodeId === nodeId);
+    return prog?.completedCourses?.includes(courseId) || false;
+  };
 
   // 根节点：可点击，显示所有内容
   if (node.level === 0) {
@@ -681,7 +689,7 @@ function TreeNode({ node, depth, expandedNodes, onToggle, onSelectNode, selected
           <span className="text-[14px] text-gray-400 ml-auto">{node.children?.length || 0}个模块</span>
         </button>
         {node.children?.map(child => (
-          <TreeNode key={child.id} node={child} depth={depth + 1} expandedNodes={expandedNodes} onToggle={onToggle} onSelectNode={onSelectNode} selectedNodeId={selectedNodeId} />
+          <TreeNode key={child.id} node={child} depth={depth + 1} expandedNodes={expandedNodes} onToggle={onToggle} onSelectNode={onSelectNode} selectedNodeId={selectedNodeId} progress={progress} />
         ))}
       </div>
     );
@@ -718,7 +726,7 @@ function TreeNode({ node, depth, expandedNodes, onToggle, onSelectNode, selected
         {isExpanded && hasChildren && (
           <div className="mt-1">
             {node.children?.map(child => (
-              <TreeNode key={child.id} node={child} depth={depth + 1} expandedNodes={expandedNodes} onToggle={onToggle} onSelectNode={onSelectNode} selectedNodeId={selectedNodeId} />
+              <TreeNode key={child.id} node={child} depth={depth + 1} expandedNodes={expandedNodes} onToggle={onToggle} onSelectNode={onSelectNode} selectedNodeId={selectedNodeId} progress={progress} />
             ))}
           </div>
         )}
@@ -752,20 +760,40 @@ function TreeNode({ node, depth, expandedNodes, onToggle, onSelectNode, selected
           </div>
           {isExpanded && (
             <div className="space-y-1 mt-1">
-              {node.courses!.map((course) => (
-                <a
-                  key={course.id}
-                  href={`/course/${course.id}`}
-                  className="flex items-center gap-3 px-4 py-3 mx-3 rounded-xl cursor-pointer transition-all bg-gray-50 hover:bg-orange-50 group"
-                  title={course.title}
-                >
-                  <div className="h-8 w-8 rounded-full bg-gradient-to-br from-orange-400 to-amber-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                    <Play className="h-3.5 w-3.5 text-white ml-0.5" />
-                  </div>
-                  <span className="flex-1 break-words text-[16px] text-gray-700 font-medium min-w-0 leading-snug">{course.title}</span>
-                  <span className="text-[14px] text-gray-500 shrink-0">{course.duration}分钟</span>
-                </a>
-              ))}
+              {node.courses!.map((course) => {
+                const completed = isCourseCompleted(node.id, course.id);
+                return (
+                  <a
+                    key={course.id}
+                    href={`/course/${course.id}`}
+                    className={`flex items-center gap-3 px-4 py-3 mx-3 rounded-xl cursor-pointer transition-all group ${
+                      completed
+                        ? 'bg-green-50 hover:bg-green-100'
+                        : 'bg-gray-50 hover:bg-orange-50'
+                    }`}
+                    title={course.title}
+                  >
+                    <div className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform ${
+                      completed
+                        ? 'bg-green-500'
+                        : 'bg-gradient-to-br from-orange-400 to-amber-400'
+                    }`}>
+                      {completed ? (
+                        <CheckCircle className="h-3.5 w-3.5 text-white" />
+                      ) : (
+                        <Play className="h-3.5 w-3.5 text-white ml-0.5" />
+                      )}
+                    </div>
+                    <span className={`flex-1 break-words text-[16px] font-medium min-w-0 leading-snug ${
+                      completed ? 'text-green-700' : 'text-gray-700'
+                    }`}>{course.title}</span>
+                    <span className="text-[14px] text-gray-500 shrink-0">{course.duration}分钟</span>
+                    {completed && (
+                      <span className="text-[12px] text-green-600 shrink-0 font-medium">已完成</span>
+                    )}
+                  </a>
+                );
+              })}
             </div>
           )}
         </div>
@@ -800,6 +828,40 @@ function TreeNode({ node, depth, expandedNodes, onToggle, onSelectNode, selected
 function KnowledgeGraphSidebar({ expanded, onClose, onSelectNode, userLearningPath, diagnosticData }: { expanded: boolean; onClose: () => void; onSelectNode?: (nodeId: string, nodeName: string) => void; userLearningPath: any; diagnosticData: { roles: string[]; topics: string[]; difficulty: string } | null }) {
   const [showDiagnostic, setShowDiagnostic] = useState(true);
   const [showMindMapModal, setShowMindMapModal] = useState(false);
+  const [learningProgress, setLearningProgress] = useState<LearningProgress[]>([]);
+
+  // 从localStorage读取学习进度
+  useEffect(() => {
+    const saved = localStorage.getItem('learning_progress');
+    if (saved) {
+      try {
+        setLearningProgress(JSON.parse(saved));
+      } catch {
+        // ignore
+      }
+    }
+  }, []);
+
+  // 监听storage变化，实时更新进度
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const saved = localStorage.getItem('learning_progress');
+      if (saved) {
+        try {
+          setLearningProgress(JSON.parse(saved));
+        } catch {
+          // ignore
+        }
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    // 也监听自定义事件（同页面内更新）
+    window.addEventListener('learningProgressUpdated', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('learningProgressUpdated', handleStorageChange);
+    };
+  }, []);
 
   // 展开/折叠节点，默认全部展开
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(() => {
@@ -930,7 +992,13 @@ function KnowledgeGraphSidebar({ expanded, onClose, onSelectNode, userLearningPa
               </p>
               <Button 
                 className="mt-3 w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:opacity-90" 
-                onClick={() => setShowMindMapModal(true)}
+                onClick={() => {
+                  const saved = localStorage.getItem('learning_progress');
+                  if (saved) {
+                    try { setLearningProgress(JSON.parse(saved)); } catch { /* ignore */ }
+                  }
+                  setShowMindMapModal(true);
+                }}
               >
                 <Map className="h-4 w-4 mr-2" />
                 查看诊断结果图谱
@@ -946,7 +1014,7 @@ function KnowledgeGraphSidebar({ expanded, onClose, onSelectNode, userLearningPa
       {/* 树形内容区域 */}
       <ScrollArea className="flex-1 overflow-y-auto">
         <div className="py-2">
-          <TreeNode node={userLearningPath.rootNode} depth={0} expandedNodes={expandedNodes} onToggle={handleToggle} onSelectNode={handleNodeSelect} selectedNodeId={selectedNodeId} />
+          <TreeNode node={userLearningPath.rootNode} depth={0} expandedNodes={expandedNodes} onToggle={handleToggle} onSelectNode={handleNodeSelect} selectedNodeId={selectedNodeId} progress={learningProgress} />
         </div>
       </ScrollArea>
       {/* 诊断结果图谱弹框 */}
@@ -961,6 +1029,7 @@ function KnowledgeGraphSidebar({ expanded, onClose, onSelectNode, userLearningPa
           <div className="flex-1 min-h-[500px] bg-gradient-to-br from-gray-50 to-gray-100">
             <MindMap 
               data={userLearningPath.rootNode}
+              progress={learningProgress}
               interactive={false}
             />
             <div id="mindmap-description" className="sr-only">
