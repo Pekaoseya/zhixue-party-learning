@@ -15,9 +15,21 @@ export const useAuth = () => {
     if (typeof window !== 'undefined') {
       const userData = localStorage.getItem('user');
       if (userData) {
-        const parsedUser = JSON.parse(userData);
-        globalUser = parsedUser;
-        setUser(parsedUser);
+        try {
+          const parsedUser = JSON.parse(userData);
+          globalUser = parsedUser;
+          setUser(parsedUser);
+        } catch (error) {
+          console.error('解析用户数据失败:', error);
+          localStorage.removeItem('user');
+          localStorage.removeItem('userId');
+          globalUser = null;
+          setUser(null);
+        }
+      } else {
+        // 确保在没有用户数据时设置为 null
+        globalUser = null;
+        setUser(null);
       }
     }
     setLoading(false);
