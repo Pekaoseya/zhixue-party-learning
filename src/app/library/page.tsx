@@ -197,25 +197,28 @@ export default function LibraryPage() {
       key: 'xjp_thought',
       name: '习近平新时代中国特色社会主义思想专题',
       data: {
-        courseName: '习近平新时代中国特色社会主义思想概论',
+        courseName: '习近平新时代中国特色社会主义思想专题课程',
         courseType: '理论课程',
-        totalHours: 8,
+        totalHours: 12,
         difficulty: '高级',
         targetAudience: '全省统战系统干部',
         chapters: [
-          { id: 1, title: '第一讲：习近平新时代中国特色社会主义思想的形成背景与历史地位', duration: '45分钟', type: 'video' },
-          { id: 2, title: '第二讲：十个明确的核心要义', duration: '50分钟', type: 'video' },
-          { id: 3, title: '第三讲：十四个坚持的基本方略', duration: '55分钟', type: 'video' },
-          { id: 4, title: '第四讲：两个确立的决定性意义', duration: '40分钟', type: 'video' },
-          { id: 5, title: '第五讲：新时代统一战线工作的根本遵循', duration: '60分钟', type: 'video' },
-          { id: 6, title: '专题研讨：如何用习近平新时代中国特色社会主义思想指导统战实践', duration: '90分钟', type: 'discussion' },
+          { id: 1, title: '课程目标与课程概述', duration: '30分钟', type: 'video', content: '本课程旨在引导学员深刻领悟党的创新理论的核心要义、精神实质和实践要求，使学员成为习近平新时代中国特色社会主义思想的坚定信仰者和忠实实践者。' },
+          { id: 2, title: '第一讲：习近平新时代中国特色社会主义思想的形成背景与历史地位', duration: '45分钟', type: 'video', content: '系统学习习近平新时代中国特色社会主义思想的创立背景、理论渊源、实践基础，深刻理解其作为当代中国马克思主义、二十一世纪马克思主义的理论定位，掌握"两个结合"的理论创新路径。' },
+          { id: 3, title: '第二讲：核心要义与科学体系——"十个明确"与"十四个坚持"', duration: '60分钟', type: 'video', content: '深入学习"十个明确"的核心要义、"十四个坚持"的基本方略、"十三个方面成就"的历史贡献，系统把握这一思想的科学体系和理论框架。' },
+          { id: 4, title: '第三讲："两个确立"的决定性意义', duration: '50分钟', type: 'video', content: '深刻领悟"两个确立"的历史必然性、政治内涵和实践要求，增强"四个意识"、坚定"四个自信"、做到"两个维护"，自觉在思想上政治上行动上同以习近平同志为核心的党中央保持高度一致。' },
+          { id: 5, title: '第四讲：世界观和方法论——"六个必须坚持"', duration: '55分钟', type: 'video', content: '深刻理解"六个必须坚持"的内涵要义，掌握习近平新时代中国特色社会主义思想的世界观和方法论，运用这一思想的立场观点方法分析和解决实际问题。' },
+          { id: 6, title: '第五讲：新时代统一战线工作的根本遵循', duration: '60分钟', type: 'video', content: '深入学习习近平总书记关于做好新时代党的统一战线工作的重要思想，理解统一战线是凝聚人心、汇聚力量的强大法宝，掌握促进政党关系、民族关系、宗教关系、阶层关系、海内外同胞关系和谐的要求。' },
+          { id: 7, title: '实践应用方法与案例分析', duration: '70分钟', type: 'video', content: '通过具体案例分析，学习将党的创新理论转化为工作思路和举措的方法，提升运用理论指导实践的能力，推动工作高质量发展。' },
+          { id: 8, title: '最新发展动态与总结思考', duration: '50分钟', type: 'video', content: '学习党的二十大以来党的创新理论的最新发展，总结课程学习收获，思考如何在实际工作中贯彻落实，增强干事创业的责任感、使命感和紧迫感。' },
         ],
-        description: '本课程系统讲授习近平新时代中国特色社会主义思想的科学体系、核心要义和实践要求，特别聚焦统一战线工作的重要论述，引导学员深刻领悟党的创新理论的真理力量和实践伟力。',
+        description: '本课程系统讲授习近平新时代中国特色社会主义思想的科学体系、核心要义和实践要求，特别聚焦统一战线工作的重要论述，引导学员深刻领悟党的创新理论的真理力量和实践伟力。课程涵盖理论渊源、实践基础、核心要义、历史地位等内容，帮助学员全面把握这一当代中国马克思主义、二十一世纪马克思主义。',
         learningObjectives: [
           '深刻理解习近平新时代中国特色社会主义思想的丰富内涵',
           '准确把握十个明确、十四个坚持的核心要义',
           '深刻领悟两个确立的决定性意义',
           '熟练掌握新时代统一战线工作的理论方针政策',
+          '提升运用党的创新理论指导实践的能力水平',
         ],
       }
     },
@@ -223,27 +226,30 @@ export default function LibraryPage() {
       key: 'united_front',
       name: '新时代统一战线工作实务',
       data: {
-        courseName: '新时代统一战线工作实务操作指南',
+        courseName: '新时代统一战线工作实务课程',
         courseType: '实务课程',
-        totalHours: 12,
+        totalHours: 16,
         difficulty: '中级',
         targetAudience: '基层统战干部',
         chapters: [
-          { id: 1, title: '第一讲：新时代统一战线的历史方位与重要作用', duration: '40分钟', type: 'video' },
-          { id: 2, title: '第二讲：多党合作制度与参政议政', duration: '55分钟', type: 'video' },
-          { id: 3, title: '第三讲：民族团结进步创建工作实务', duration: '50分钟', type: 'video' },
-          { id: 4, title: '第四讲：我国宗教中国化方向与工作方法', duration: '60分钟', type: 'video' },
-          { id: 5, title: '第五讲：民营经济统战工作创新', duration: '45分钟', type: 'video' },
-          { id: 6, title: '第六讲：新的社会阶层人士统战工作', duration: '45分钟', type: 'video' },
-          { id: 7, title: '第七讲：港澳台海外统战工作', duration: '50分钟', type: 'video' },
-          { id: 8, title: '案例研讨：基层统战工作创新实践', duration: '90分钟', type: 'discussion' },
+          { id: 1, title: '课程概述与理论基础', duration: '30分钟', type: 'video', content: '本课程围绕新时代统一战线各领域工作，从理论基础、制度设计、政策要求到实践操作进行全链条讲解，特别注重案例教学和经验分享。' },
+          { id: 2, title: '第一讲：新时代统一战线的历史方位与重要作用', duration: '45分钟', type: 'video', content: '深入学习习近平总书记关于做好新时代党的统一战线工作的重要思想，理解统一战线是凝聚人心、汇聚力量的强大法宝，掌握"十二个必须"的核心要义。' },
+          { id: 3, title: '第二讲：中国新型政党制度与多党合作', duration: '55分钟', type: 'video', content: '系统学习中国共产党领导的多党合作和政治协商制度，掌握民主党派和无党派人士工作的方法，做好政治协商、民主监督、参政议政工作，加强中国特色社会主义参政党建设。' },
+          { id: 4, title: '第三讲：铸牢中华民族共同体意识——民族工作实务', duration: '60分钟', type: 'video', content: '深入学习以铸牢中华民族共同体意识为主线的党的民族工作，掌握全面推进中华民族共有精神家园建设、推动各民族共同走向社会主义现代化、促进各民族交往交流交融、提升民族事务治理体系和治理能力现代化水平的方法。' },
+          { id: 5, title: '第四讲：坚持我国宗教中国化方向——宗教工作实务', duration: '55分钟', type: 'video', content: '完整准确全面贯彻党的宗教信仰自由政策，依法管理宗教事务，坚持独立自主自办原则，积极引导宗教与社会主义社会相适应，以社会主义核心价值观为引领，用中华优秀传统文化浸润宗教。' },
+          { id: 6, title: '第五讲：促进"两个健康"——民营经济统战工作', duration: '50分钟', type: 'video', content: '深入学习促进非公有制经济健康发展和非公有制经济人士健康成长的要求，构建亲清政商关系，加强民营经济人士思想政治建设，发挥工商联和商会作用。' },
+          { id: 7, title: '第六讲：新的社会阶层人士统战工作', duration: '50分钟', type: 'video', content: '认识新的社会阶层人士的构成和特点，加强对新的社会阶层人士的政治引领，发挥新的社会阶层人士作用，创新新的社会阶层人士统战工作方法，加强平台建设。' },
+          { id: 8, title: '第七讲：港澳台海外统战工作', duration: '55分钟', type: 'video', content: '坚持和完善"一国两制"制度体系，做好港澳统战工作，做好对台工作，做好海外统战工作，凝聚侨心侨力侨智。' },
+          { id: 9, title: '第八讲：党外代表人士队伍建设', duration: '45分钟', type: 'video', content: '加强党外代表人士的发现培养、教育引导、选拔使用和管理服务，建设一支高素质的党外代表人士队伍。' },
+          { id: 10, title: '实践应用与案例研讨', duration: '90分钟', type: 'discussion', content: '通过具体案例分析，学习基层统战工作创新实践，掌握正确处理一致性和多样性关系、尊重维护照顾同盟者利益的方法，提升实际工作能力。' },
         ],
-        description: '本课程围绕新时代统一战线各领域工作，从理论基础、制度设计、政策要求到实践操作进行全链条讲解，特别注重案例教学和经验分享，提升基层统战干部的实际工作能力。',
+        description: '本课程围绕新时代统一战线各领域工作，从理论基础、制度设计、政策要求到实践操作进行全链条讲解，特别注重案例教学和经验分享，提升基层统战干部的实际工作能力。课程涵盖统一战线基本理论、各领域工作实务、工作方法创新等内容，帮助学员全面掌握新时代统战工作的核心要义、政策要求和实践方法。',
         learningObjectives: [
           '掌握新时代统一战线各领域工作的基本理论',
           '熟悉多党合作、民族宗教、民营经济等领域政策',
           '了解基层统战工作创新发展的方向路径',
           '提升解决实际问题的能力水平',
+          '增强做好新时代统战工作的责任感使命感',
         ],
       }
     },
@@ -251,24 +257,28 @@ export default function LibraryPage() {
       key: 'party_style',
       name: '党风廉政建设专题',
       data: {
-        courseName: '党风廉政建设与反腐败工作专题',
+        courseName: '党风廉政建设专题课程',
         courseType: '廉政课程',
-        totalHours: 6,
+        totalHours: 10,
         difficulty: '中级',
         targetAudience: '党员干部',
         chapters: [
-          { id: 1, title: '第一讲：全面从严治党的重要论述', duration: '45分钟', type: 'video' },
-          { id: 2, title: '第二讲：《中国共产党纪律处分条例》解读', duration: '60分钟', type: 'video' },
-          { id: 3, title: '第三讲：中央八项规定精神与作风建设', duration: '50分钟', type: 'video' },
-          { id: 4, title: '第四讲：警示教育典型案例分析', duration: '55分钟', type: 'video' },
-          { id: 5, title: '专题讨论：如何做到廉洁自律', duration: '60分钟', type: 'discussion' },
+          { id: 1, title: '课程概述与党的自我革命重要思想', duration: '30分钟', type: 'video', content: '本课程聚焦党风廉政建设，通过系统讲授全面从严治党要求、党纪党规、警示案例，引导党员干部知敬畏、存戒惧、守底线。' },
+          { id: 2, title: '第一讲：党的自我革命与全面从严治党战略方针', duration: '50分钟', type: 'video', content: '深入学习习近平总书记关于党的自我革命的重要思想，理解全面从严治党是新时代党的自我革命的伟大实践，深刻认识党风廉政建设和反腐败斗争的极端重要性。' },
+          { id: 3, title: '第二讲：党的纪律建设与《中国共产党纪律处分条例》解读', duration: '60分钟', type: 'video', content: '系统学习党的纪律的主要内容，重点解读《中国共产党纪律处分条例》，掌握政治纪律、组织纪律、廉洁纪律、群众纪律、工作纪律、生活纪律的具体要求。' },
+          { id: 4, title: '第三讲：中央八项规定精神与作风建设', duration: '55分钟', type: 'video', content: '深入学习中央八项规定及其实施细则精神，掌握持之以恒纠治"四风"、反对特权思想和特权现象、树立新风正气的要求，保持同人民群众的血肉联系。' },
+          { id: 5, title: '第四讲：一体推进不敢腐、不能腐、不想腐', duration: '55分钟', type: 'video', content: '深入学习一体推进不敢腐、不能腐、不想腐的重要方略，理解不敢腐是前提、不能腐是关键、不想腐是根本，掌握同时发力、同向发力、综合发力的方法。' },
+          { id: 6, title: '第五讲：警示教育典型案例分析', duration: '60分钟', type: 'video', content: '通过典型案例分析，用身边事教育身边人，增强警示教育的针对性和实效性，深刻认识违纪违法的严重后果。' },
+          { id: 7, title: '第六讲：廉洁自律与党性修养', duration: '50分钟', type: 'video', content: '增强廉洁自律意识，树立正确的权力观、地位观、利益观，做到廉洁从政、廉洁用权、廉洁修身、廉洁齐家，保持共产党人的政治本色，加强党性修养。' },
+          { id: 8, title: '专题研讨与总结思考', duration: '60分钟', type: 'discussion', content: '专题讨论如何做到廉洁自律，总结课程学习收获，思考如何在实际工作中贯彻落实，增强管党治党政治责任，落实"两个责任"。' },
         ],
-        description: '本课程聚焦党风廉政建设，通过系统讲授全面从严治党要求、党纪党规、警示案例，引导党员干部知敬畏、存戒惧、守底线，增强廉洁自律意识。',
+        description: '本课程聚焦党风廉政建设，通过系统讲授全面从严治党要求、党纪党规、警示案例，引导党员干部知敬畏、存戒惧、守底线，增强廉洁自律意识。课程涵盖党的自我革命、全面从严治党、党的纪律建设、廉洁自律、反腐败斗争等内容，帮助学员深刻认识党风廉政建设和反腐败斗争的重要意义，系统掌握党纪党规的具体要求，增强廉洁自律意识和拒腐防变能力。',
         learningObjectives: [
           '深刻领会全面从严治党的重大意义',
           '熟练掌握党纪党规的具体要求',
           '通过案例警示增强廉洁自律意识',
           '树立正确的权力观、地位观、利益观',
+          '增强管党治党政治责任，落实"两个责任"',
         ],
       }
     },
@@ -401,6 +411,7 @@ export default function LibraryPage() {
       title: `第${i + 1}讲：${topic}核心知识点${i + 1}`,
       duration: `${Math.floor(Math.random() * 30) + 20}分钟`,
       type: Math.random() > 0.7 ? 'discussion' : 'video',
+      content: `本章节将深入学习${topic}的相关内容，帮助学员掌握核心知识点，提升理论水平和实践能力。`,
     }));
   };
 
@@ -418,6 +429,7 @@ export default function LibraryPage() {
         title: '新增章节',
         duration: '30分钟',
         type: 'video',
+        content: '',
       },
     ]);
   };
@@ -708,6 +720,33 @@ export default function LibraryPage() {
                   </Button>
                 </div>
 
+                {/* 预设主题 - 标签式按钮 */}
+                <div className="mt-6 border-2 border-black bg-white p-5" style={{ boxShadow: '4px 4px 0 0 #000' }}>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 bg-purple-600 flex items-center justify-center border-2 border-black" style={{ boxShadow: '2px 2px 0 0 #000' }}>
+                      <span className="text-white text-xs font-black">热</span>
+                    </div>
+                    <span className="font-bold text-black">热门预设主题</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {presetCourseTopics.map(plan => (
+                      <Button
+                        key={plan.key}
+                        className="px-5 py-2 border-2 border-black font-bold text-sm hover:bg-black hover:text-white transition-colors"
+                        style={{
+                          borderRadius: '0',
+                          boxShadow: '2px 2px 0 0 #000',
+                          backgroundColor: plan.key === 'xjp_thought' ? '#fbbf24' : plan.key === 'united_front' ? '#c084fc' : '#fb7185',
+                        }}
+                        onClick={() => handlePresetClick(plan)}
+                        disabled={isGenerating}
+                      >
+                        {plan.name}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
                 {/* 生成逻辑说明 */}
                 <div className="mt-6 pt-6 border-t-2 border-black">
                   <div className="flex items-center gap-2 mb-4">
@@ -843,34 +882,7 @@ export default function LibraryPage() {
               </div>
             )}
 
-            {/* 预设主题 - 标签式按钮 */}
-            {!showResult && !isGenerating && (
-              <div className="border-2 border-black bg-white p-5 mb-6" style={{ boxShadow: '4px 4px 0 0 #000' }}>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 bg-purple-600 flex items-center justify-center border-2 border-black" style={{ boxShadow: '2px 2px 0 0 #000' }}>
-                    <span className="text-white text-xs font-black">热</span>
-                  </div>
-                  <span className="font-bold text-black">热门预设主题</span>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {presetCourseTopics.map(plan => (
-                    <Button
-                      key={plan.key}
-                      className="px-5 py-2 border-2 border-black font-bold text-sm hover:bg-black hover:text-white transition-colors"
-                      style={{
-                        borderRadius: '0',
-                        boxShadow: '2px 2px 0 0 #000',
-                        backgroundColor: plan.key === 'xjp_thought' ? '#fbbf24' : plan.key === 'united_front' ? '#c084fc' : '#fb7185',
-                      }}
-                      onClick={() => handlePresetClick(plan)}
-                      disabled={isGenerating}
-                    >
-                      {plan.name}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            )}
+
 
             {/* 生成结果 */}
             {showResult && generatedCourse && (
@@ -986,19 +998,20 @@ export default function LibraryPage() {
                   </div>
                   <div className="space-y-3">
                     {(editMode ? editedChapters : generatedCourse.chapters).map((chapter: any, idx: number) => (
-                      <div key={chapter.id} className="flex items-center gap-4 p-4 border-2 border-black bg-white relative" style={{ boxShadow: '3px 3px 0 0 #000' }}>
-                        {/* 彩色封面块 + 编号角标 */}
-                        <div className="relative flex-shrink-0">
-                          <div className={`w-14 h-14 flex items-center justify-center border-2 border-black font-black text-2xl text-white ${
-                            idx % 5 === 0 ? 'bg-red-500' : idx % 5 === 1 ? 'bg-purple-600' : idx % 5 === 2 ? 'bg-amber-400 text-black' : idx % 5 === 3 ? 'bg-emerald-500' : 'bg-pink-500'
-                          }`}>
-                            {idx + 1}
+                      <div key={chapter.id} className="p-4 border-2 border-black bg-white relative" style={{ boxShadow: '3px 3px 0 0 #000' }}>
+                        <div className="flex items-center gap-4">
+                          {/* 彩色封面块 + 编号角标 */}
+                          <div className="relative flex-shrink-0">
+                            <div className={`w-14 h-14 flex items-center justify-center border-2 border-black font-black text-2xl text-white ${
+                              idx % 5 === 0 ? 'bg-red-500' : idx % 5 === 1 ? 'bg-purple-600' : idx % 5 === 2 ? 'bg-amber-400 text-black' : idx % 5 === 3 ? 'bg-emerald-500' : 'bg-pink-500'
+                            }`}>
+                              {idx + 1}
+                            </div>
+                            <div className="absolute -top-2 -right-2 bg-black text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center">
+                              {idx + 1 < 10 ? `0${idx + 1}` : idx + 1}
+                            </div>
                           </div>
-                          <div className="absolute -top-2 -right-2 bg-black text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center">
-                            {idx + 1 < 10 ? `0${idx + 1}` : idx + 1}
-                          </div>
-                        </div>
-                        <div className="flex-1 min-w-0">
+                          <div className="flex-1 min-w-0">
                           {editMode ? (
                             <div className="space-y-2">
                               <Input
@@ -1023,8 +1036,17 @@ export default function LibraryPage() {
                                 >
                                   <option value="video">视频课</option>
                                   <option value="discussion">研讨课</option>
+                                  <option value="mixed">图文课</option>
                                 </select>
                               </div>
+                              <textarea
+                                value={chapter.content || ''}
+                                onChange={(e) => handleChapterEdit(idx, 'content', e.target.value)}
+                                className="w-full text-sm border-2 border-black p-3"
+                                style={{ borderRadius: '0' }}
+                                placeholder="输入章节内容..."
+                                rows={3}
+                              />
                             </div>
                           ) : (
                             <>
@@ -1039,29 +1061,40 @@ export default function LibraryPage() {
                                   chapter.type === 'mixed' ? 'bg-blue-100' :
                                   'bg-purple-100'
                                 }`}>
-                                  {chapter.type === 'video' ? '📹 视频课' :
-                                   chapter.type === 'mixed' ? '📑 图文课' :
-                                   '💬 研讨课'}
-                                </span>
-                              </div>
-                            </>
+                                    {chapter.type === 'video' ? '📹 视频课' :
+                                     chapter.type === 'mixed' ? '📑 图文课' :
+                                     '💬 研讨课'}
+                                  </span>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                          {!editMode && (
+                            <Button size="sm" className="bg-amber-400 text-black font-bold border-2 border-black hover:bg-amber-500" style={{ borderRadius: '0', boxShadow: '2px 2px 0 0 #000' }} onClick={() => handleStartLearn(chapter.id)}>
+                              <Play className="h-4 w-4 mr-1" />
+                              学习
+                            </Button>
+                          )}
+                          {editMode && (
+                            <Button
+                              size="sm"
+                              className="bg-red-500 text-white font-bold border-2 border-black hover:bg-red-600"
+                              style={{ borderRadius: '0', boxShadow: '2px 2px 0 0 #000' }}
+                              onClick={() => handleDeleteChapter(idx)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
                           )}
                         </div>
-                        {!editMode && (
-                          <Button size="sm" className="bg-amber-400 text-black font-bold border-2 border-black hover:bg-amber-500" style={{ borderRadius: '0', boxShadow: '2px 2px 0 0 #000' }} onClick={() => handleStartLearn(chapter.id)}>
-                            <Play className="h-4 w-4 mr-1" />
-                            学习
-                          </Button>
-                        )}
-                        {editMode && (
-                          <Button
-                            size="sm"
-                            className="bg-red-500 text-white font-bold border-2 border-black hover:bg-red-600"
-                            style={{ borderRadius: '0', boxShadow: '2px 2px 0 0 #000' }}
-                            onClick={() => handleDeleteChapter(idx)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                        {/* 章节内容详情展示 */}
+                        {!editMode && chapter.content && (
+                          <div className="mt-4 pt-4 border-t-2 border-gray-200">
+                            <div className="flex items-center gap-2 mb-2">
+                              <FileText className="h-4 w-4 text-gray-500" />
+                              <span className="text-sm font-bold text-gray-700">章节内容</span>
+                            </div>
+                            <p className="text-sm text-gray-600 leading-relaxed">{chapter.content}</p>
+                          </div>
                         )}
                       </div>
                     ))}
