@@ -514,12 +514,12 @@ export default function TrainingCandidatesPage() {
                         {expandUser === user.id && (
                           <div className="mt-4 pt-4 border-t border-amber-100">
                             <h4 className="text-sm font-semibold text-amber-800 mb-2">📋 培训记录</h4>
-                            {user.records.map((record: { name: string; date: string; status: string; score: number }, idx: number) => (
+                            {(user.records || user.trainingRecords || []).map((record: { name: string; date: string; status: string; score: number }, idx: number) => (
                               <div key={idx} className="flex items-center justify-between bg-amber-50 p-3 rounded-lg mb-2 last:mb-0">
                                 <span className="font-medium">{record.name}</span>
                                 <div className="flex items-center gap-4 text-sm">
                                   <span className="text-gray-500">{record.date}</span>
-                                  <Badge className="bg-green-100 text-green-800">{record.status}</Badge>
+                                  <Badge className="bg-green-100 text-green-800">{record.status || '已完成'}</Badge>
                                   <span className="font-semibold text-purple-700">{record.score}分</span>
                                 </div>
                               </div>
